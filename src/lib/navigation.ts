@@ -1,0 +1,69 @@
+import {
+  Building2,
+  FileText,
+  LayoutDashboard,
+  Package,
+  PackageSearch,
+  Wallet,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+
+import { can, type Permission } from "@/features/auth/permissions";
+import type { Role } from "@/features/auth/types";
+import type { BusinessType } from "@/features/company/types";
+
+export type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  /** Only these business types see the item. Leave out to show it to everyone. */
+  businessTypes?: BusinessType[];
+  /** The permission a role needs to see the item. */
+  permission?: Permission;
+};
+
+export type NavSection = {
+  label: string;
+  items: NavItem[];
+};
+
+/**
+ * The sidebar, in order. A new module is one entry here, e.g. Garage OS:
+ * { label: "Job cards", href: "/job-cards", icon: Wrench, businessTypes: ["garage"] }
+ */
+export const navigation: NavSection[] = [
+  {
+    label: "Buying",
+    items: [
+      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { label: "Catalogue", href: "/catalog", icon: PackageSearch, permission: "catalog:view" },
+      { label: "Quick order", href: "/quick-order", icon: Zap, permission: "orders:place" },
+      { label: "Quotations", href: "/quotations", icon: FileText, permission: "quotations:view" },
+      { label: "Orders", href: "/orders", icon: Package, permission: "orders:view" },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { label: "Credit & payments", href: "/credit", icon: Wallet, permission: "credit:view" },
+      { label: "Company", href: "/company", icon: Building2, permission: "company:view" },
+    ],
+  },
+];
+
+type Viewer = { businessType: BusinessType; role: Role };
+
+/** The sections and items this business and role may see; empty sections are dropped. */
+export function getVisibleNavigation({ businessType, role }: Viewer): NavSection[] {
+  return navigation
+    .map((section) => ({
+      ...section,
+      items: section.items.filter(
+        (item) =>
+          (!item.businessTypes || item.businessTypes.includes(businessType)) &&
+          (!item.permission || can(role, item.permission)),
+      ),
+    }))
+    .filter((section) => section.items.length > 0);
+}
