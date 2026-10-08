@@ -68,3 +68,9 @@ export async function apiClient<T>(path: string, options: RequestOptions = {}): 
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
+
+/** A message that is safe to show the user for any thrown error. */
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) return error.message;
+  return "Something went wrong on our side. Please try again.";
+}

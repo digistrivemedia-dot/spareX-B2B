@@ -56,3 +56,10 @@ export type FleetVehicle = {
   branchId: string;
   odometerKm: number;
 };
+
+/** What a PIN code lookup returns, used to fill in city and state. */
+export type PincodeDetails = {
+  pin: string;
+  city: string;
+  state: string;
+};

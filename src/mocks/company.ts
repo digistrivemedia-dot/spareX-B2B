@@ -1,4 +1,10 @@
-import type { Branch, Business, CompanyUser, FleetVehicle } from "@/features/company/types";
+import type {
+  Branch,
+  Business,
+  CompanyUser,
+  FleetVehicle,
+  PincodeDetails,
+} from "@/features/company/types";
 import { bikeModels } from "@/mocks/catalog";
 import { daysFromToday, findById, simulateLatency } from "@/mocks/utils";
 
@@ -118,4 +124,34 @@ export const fleetVehicles: FleetVehicle[] = [
 export async function getBranchesMock(): Promise<Branch[]> {
   await simulateLatency();
   return branches;
+}
+
+/** Cities by the first three digits of the PIN code: enough for a realistic demo. */
+const CITIES_BY_PIN_PREFIX: Record<string, { city: string; state: string }> = {
+  "110": { city: "New Delhi", state: "Delhi" },
+  "226": { city: "Lucknow", state: "Uttar Pradesh" },
+  "302": { city: "Jaipur", state: "Rajasthan" },
+  "380": { city: "Ahmedabad", state: "Gujarat" },
+  "400": { city: "Mumbai", state: "Maharashtra" },
+  "411": { city: "Pune", state: "Maharashtra" },
+  "500": { city: "Hyderabad", state: "Telangana" },
+  "530": { city: "Visakhapatnam", state: "Andhra Pradesh" },
+  "560": { city: "Bengaluru", state: "Karnataka" },
+  "562": { city: "Bengaluru Rural", state: "Karnataka" },
+  "570": { city: "Mysuru", state: "Karnataka" },
+  "575": { city: "Mangaluru", state: "Karnataka" },
+  "580": { city: "Hubballi", state: "Karnataka" },
+  "590": { city: "Belagavi", state: "Karnataka" },
+  "600": { city: "Chennai", state: "Tamil Nadu" },
+  "641": { city: "Coimbatore", state: "Tamil Nadu" },
+  "682": { city: "Kochi", state: "Kerala" },
+  "695": { city: "Thiruvananthapuram", state: "Kerala" },
+  "700": { city: "Kolkata", state: "West Bengal" },
+  "751": { city: "Bhubaneswar", state: "Odisha" },
+};
+
+export async function lookupPincodeMock(pin: string): Promise<PincodeDetails | null> {
+  await simulateLatency(200);
+  const match = CITIES_BY_PIN_PREFIX[pin.slice(0, 3)];
+  return match ? { pin, ...match } : null;
 }

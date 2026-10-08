@@ -12,6 +12,8 @@ import { getSession } from "@/features/auth/session";
 export default async function PortalLayout({ children }: { children: ReactNode }) {
   const session = await getSession();
   if (!session) redirect("/login");
+  // Prices and ordering are only for businesses Kannali has approved.
+  if (session.approvalStatus !== "approved") redirect("/register/submitted");
 
   // shadcn's sidebar remembers collapsed/expanded in this cookie.
   const sidebarOpen = (await cookies()).get("sidebar_state")?.value !== "false";
