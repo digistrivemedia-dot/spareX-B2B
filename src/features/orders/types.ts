@@ -50,6 +50,8 @@ export type OrderEvent = {
 export type OrderInvoice = {
   id: string;
   number: string;
+  /** The GST invoice as a PDF. */
+  pdfUrl: string;
 };
 
 export type Order = {
@@ -83,7 +85,13 @@ export type OrderSummary = Omit<Order, "items" | "timeline">;
 export type OrderSort = "placedAt" | "totalInPaise";
 
 export type OrderFilters = ListParams<OrderSort> & {
+  /** Matches the order number or your PO number. */
+  q?: string;
   statuses?: OrderStatus[];
+  branchId?: string;
+  /** Placed on or after / on or before these days, as "YYYY-MM-DD" (India time). */
+  from?: string;
+  to?: string;
 };
 
 /** What checkout sends. The server prices the lines itself; the browser never sets prices. */

@@ -1,0 +1,48 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Length 1352 >>
+stream
+BT /F1 16 Tf 40 800 Td (TAX INVOICE) Tj ET
+BT /F1 11 Tf 40 778 Td (Kannali Garage \(SpareX\)  |  GSTIN 29AAKCK0000A1Z5 \(sample\)) Tj ET
+BT /F1 9 Tf 40 764 Td (Bengaluru, Karnataka - for demo only, not a real tax invoice) Tj ET
+BT /F1 10 Tf 40 742 Td (Invoice: KG/26-27/1069    Date: 12 Sep 2026    Order: ORD-2026-0398) Tj ET
+BT /F1 10 Tf 40 728 Td (PO: PO/SSW/2026/036    Place of supply: Karnataka \(29\)) Tj ET
+BT /F1 10 Tf 40 708 Td (Bill to: Sri Sai Two Wheeler Works, GSTIN 29AAKFS4821M1Z3) Tj ET
+BT /F1 10 Tf 40 694 Td (Ship to: Whitefield branch, Bengaluru) Tj ET
+BT /F1 9 Tf 40 672 Td (Item                                     Qty        Rate       Taxable) Tj ET
+BT /F1 9 Tf 40 658 Td (Castrol Activ 4T 20W-40, 1 L              48      293.00     14,064.00) Tj ET
+BT /F1 9 Tf 40 642 Td (Bosch spark plug UR5DC                    50       79.00      3,950.00) Tj ET
+BT /F1 9 Tf 40 626 Td (Rolon rear brake shoe set, Activa and.    20      181.00      3,620.00) Tj ET
+BT /F1 9 Tf 40 610 Td () Tj ET
+BT /F1 10 Tf 40 602 Td (Taxable value: Rs 21,634.00) Tj ET
+BT /F1 10 Tf 40 588 Td (CGST 9%: Rs 1,947.06    SGST 9%: Rs 1,947.06) Tj ET
+BT /F1 12 Tf 40 574 Td (Invoice total: Rs 25,528.12) Tj ET
+BT /F1 9 Tf 40 554 Td (Payment: on credit, due 12 Oct 2026) Tj ET
+BT /F1 9 Tf 40 540 Td (SAMPLE DOCUMENT FOR THE DEMO - NOT A REAL TAX INVOICE.) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000336 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1740
+%%EOF

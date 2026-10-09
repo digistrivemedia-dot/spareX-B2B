@@ -213,3 +213,23 @@ Allowed (it is often the reason to ask). The rows still show their stock status.
 
 Short tables (like a quotation's parts) stay a table down to 42rem instead of 48rem, so they
 don't become cards beside the side panel on a laptop.
+
+## Orders and invoices (Screen 7)
+
+### 35. 🔵 GST invoices
+
+Invoices are raised when an order ships, so open orders show "Raised when the order ships" and
+the download appears after dispatch. The three demo invoices are sample PDFs generated from the
+order data (CGST + SGST 9% each, as both parties are in Karnataka), clearly marked as samples.
+The real invoice PDF will come from the backend; Kannali's own GSTIN is needed for it.
+
+### 36. 🟡 "Need help with this order?"
+
+Opens an email to a placeholder address with the order number in the subject. Depends on the
+support contact in item 2 (phone, WhatsApp or email).
+
+### 37. 🔵 Orders list filters
+
+Search by order or PO number (ignores spaces and slashes), status (including "Open"), branch,
+and the date the order was placed. Payment shows "Credit · due <date>" (amber within 3 days, red
+when overdue), "Paid" or "Credit · invoiced at dispatch".

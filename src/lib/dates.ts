@@ -19,3 +19,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export function daysFromToday(iso: string): number {
   return Math.round((indiaDay(new Date(iso)) - indiaDay(new Date())) / DAY_MS);
 }
+
+/** The India calendar day of a moment, as "YYYY-MM-DD" (the format of a date input). */
+export function toIndiaDate(iso: string): string {
+  return indiaDate.format(new Date(iso));
+}

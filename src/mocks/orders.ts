@@ -8,6 +8,7 @@ import type {
   PlaceOrderRequest,
 } from "@/features/orders/types";
 import type { Paginated } from "@/lib/types";
+import { toIndiaDate } from "@/lib/dates";
 import { calculateOrderTotals } from "@/lib/pricing";
 import { lineFor, products } from "@/mocks/catalog";
 import { branches } from "@/mocks/company";
@@ -104,7 +105,11 @@ export const orders: Order[] = [
       orderLine("p-honda-air-filter-activa", 10),
     ],
     payment: { method: "credit", status: "due", dueDate: daysFromToday(28) },
-    invoice: { id: "inv-1158", number: "KG/26-27/1158" },
+    invoice: {
+      id: "inv-1158",
+      number: "KG/26-27/1158",
+      pdfUrl: "/documents/invoices/KG-26-27-1158.pdf",
+    },
     timeline: [
       { status: "placed", at: daysFromToday(-3, 16, 45) },
       { status: "confirmed", at: daysFromToday(-3, 17, 10) },
@@ -130,7 +135,11 @@ export const orders: Order[] = [
       orderLine("p-ktm-pads-200", 4),
     ],
     payment: { method: "credit", status: "due", dueDate: daysFromToday(18) },
-    invoice: { id: "inv-1112", number: "KG/26-27/1112" },
+    invoice: {
+      id: "inv-1112",
+      number: "KG/26-27/1112",
+      pdfUrl: "/documents/invoices/KG-26-27-1112.pdf",
+    },
     timeline: [
       { status: "placed", at: daysFromToday(-13, 12, 10) },
       { status: "confirmed", at: daysFromToday(-13, 12, 40) },
@@ -172,7 +181,11 @@ export const orders: Order[] = [
       orderLine("p-rolon-shoe-honda", 20),
     ],
     payment: { method: "credit", status: "due", dueDate: daysFromToday(3) },
-    invoice: { id: "inv-1069", number: "KG/26-27/1069" },
+    invoice: {
+      id: "inv-1069",
+      number: "KG/26-27/1069",
+      pdfUrl: "/documents/invoices/KG-26-27-1069.pdf",
+    },
     timeline: [
       { status: "placed", at: daysFromToday(-28, 15, 5) },
       { status: "confirmed", at: daysFromToday(-28, 15, 40) },
@@ -189,15 +202,32 @@ function toSummary({ items, timeline, ...summary }: Order): OrderSummary {
   return summary;
 }
 
+/** Upper case without spaces or punctuation, so "po ssw 2026 041" finds "PO/SSW/2026/041". */
+const normalise = (text: string) => text.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
 export async function getOrdersMock({
+  q,
   statuses,
+  branchId,
+  from,
+  to,
   sort = "placedAt",
   order = "desc",
   page,
   pageSize,
 }: OrderFilters): Promise<Paginated<OrderSummary>> {
   await simulateLatency();
-  const matching = orders.filter((o) => !statuses || statuses.includes(o.status));
+  const matching = orders.filter((o) => {
+    const placedOn = toIndiaDate(o.placedAt);
+    const searchable = normalise(`${o.number} ${o.poNumber ?? ""}`);
+    return (
+      (!q || searchable.includes(normalise(q))) &&
+      (!statuses || statuses.includes(o.status)) &&
+      (!branchId || o.branch.id === branchId) &&
+      (!from || placedOn >= from) &&
+      (!to || placedOn <= to)
+    );
+  });
   return paginate(sortItems(matching, sort, order).map(toSummary), page, pageSize);
 }
 

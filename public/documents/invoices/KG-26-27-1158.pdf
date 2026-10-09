@@ -1,0 +1,49 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Length 1451 >>
+stream
+BT /F1 16 Tf 40 800 Td (TAX INVOICE) Tj ET
+BT /F1 11 Tf 40 778 Td (Kannali Garage \(SpareX\)  |  GSTIN 29AAKCK0000A1Z5 \(sample\)) Tj ET
+BT /F1 9 Tf 40 764 Td (Bengaluru, Karnataka - for demo only, not a real tax invoice) Tj ET
+BT /F1 10 Tf 40 742 Td (Invoice: KG/26-27/1158    Date: 7 Oct 2026    Order: ORD-2026-0414) Tj ET
+BT /F1 10 Tf 40 728 Td (PO: PO/SSW/2026/040    Place of supply: Karnataka \(29\)) Tj ET
+BT /F1 10 Tf 40 708 Td (Bill to: Sri Sai Two Wheeler Works, GSTIN 29AAKFS4821M1Z3) Tj ET
+BT /F1 10 Tf 40 694 Td (Ship to: HSR Layout branch, Bengaluru) Tj ET
+BT /F1 9 Tf 40 672 Td (Item                                     Qty        Rate       Taxable) Tj ET
+BT /F1 9 Tf 40 658 Td (Castrol Activ Scooter 10W-30, 800 ml      36      238.00      8,568.00) Tj ET
+BT /F1 9 Tf 40 642 Td (Honda OEM drive belt, Activa 6G            4      738.00      2,952.00) Tj ET
+BT /F1 9 Tf 40 626 Td (TVS Eurogrip Jumbo 90/100-10 tubeless.     8      951.00      7,608.00) Tj ET
+BT /F1 9 Tf 40 610 Td (Honda OEM air filter element, Activa .    10      229.00      2,290.00) Tj ET
+BT /F1 9 Tf 40 594 Td () Tj ET
+BT /F1 10 Tf 40 586 Td (Taxable value: Rs 21,418.00) Tj ET
+BT /F1 10 Tf 40 572 Td (CGST 9%: Rs 1,927.62    SGST 9%: Rs 1,927.62) Tj ET
+BT /F1 12 Tf 40 558 Td (Invoice total: Rs 25,273.24) Tj ET
+BT /F1 9 Tf 40 538 Td (Payment: on credit, due 6 Nov 2026) Tj ET
+BT /F1 9 Tf 40 524 Td (SAMPLE DOCUMENT FOR THE DEMO - NOT A REAL TAX INVOICE.) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000336 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1839
+%%EOF
