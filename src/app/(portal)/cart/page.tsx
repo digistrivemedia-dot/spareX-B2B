@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-import { ComingSoon } from "@/components/layout/ComingSoon";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { CartView } from "@/features/cart/components/CartView";
 
 export const metadata: Metadata = {
   title: "Cart",
@@ -10,8 +10,11 @@ export const metadata: Metadata = {
 export default function CartPage() {
   return (
     <>
-      <PageHeader title="Cart" />
-      <ComingSoon feature="the cart" />
+      <PageHeader
+        title="Cart"
+        description="Prices are your business prices, excl. GST. Stock is for your delivery branch."
+      />
+      <CartView />
     </>
   );
 }

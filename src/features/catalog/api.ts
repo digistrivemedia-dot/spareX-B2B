@@ -7,6 +7,7 @@ import {
   getCatalogMock,
   getFrequentlyOrderedMock,
   getProductMock,
+  getProductsByIdMock,
   getProductsByPartNumberMock,
 } from "@/mocks/catalog";
 
@@ -22,6 +23,12 @@ export async function getCatalog(filters: CatalogFilters = {}): Promise<Paginate
 export async function getProduct(id: string): Promise<Product | null> {
   if (dataSource.catalog === "mock") return getProductMock(id);
   return apiClient<Product | null>(`/catalog/products/${id}`);
+}
+
+/** Several products at once, e.g. everything in the cart. Unknown ids are left out. */
+export async function getProductsById(ids: string[]): Promise<Product[]> {
+  if (dataSource.catalog === "mock") return getProductsByIdMock(ids);
+  return apiClient<Product[]>("/catalog/products", { query: { ids: ids.join(",") } });
 }
 
 /** The products with these part numbers (case, spaces and dashes don't matter). */

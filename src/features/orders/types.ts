@@ -13,12 +13,17 @@ export type OrderStatus =
 
 export type PaymentMethod = "credit" | "online";
 
+/** How an online payment was made. */
+export type OnlinePaymentChannel = "upi" | "netbanking" | "card";
+
 /** "pending": a credit order not invoiced yet (invoices are raised at dispatch). */
 export type PaymentStatus = "pending" | "due" | "overdue" | "paid" | "cancelled";
 
 export type OrderPayment = {
   method: PaymentMethod;
   status: PaymentStatus;
+  /** Online payments only. */
+  channel?: OnlinePaymentChannel;
   /** Credit orders only: when the invoice falls due. */
   dueDate?: string;
   paidAt?: string;
@@ -80,3 +85,15 @@ export type OrderSort = "placedAt" | "totalInPaise";
 export type OrderFilters = ListParams<OrderSort> & {
   statuses?: OrderStatus[];
 };
+
+/** What checkout sends. The server prices the lines itself; the browser never sets prices. */
+export type PlaceOrderRequest = {
+  branchId: string;
+  poNumber?: string;
+  poDate?: string;
+  notes?: string;
+  payment: { method: "credit" } | { method: "online"; channel: OnlinePaymentChannel };
+  items: { productId: string; quantity: number }[];
+};
+
+export type PlacedOrder = Pick<Order, "id" | "number">;

@@ -1,0 +1,16 @@
+import { z } from "zod";
+
+/** Today's date as "YYYY-MM-DD", the format of a date input. */
+const today = () => new Date().toISOString().slice(0, 10);
+
+export const checkoutSchema = z.object({
+  poNumber: z.string().trim().max(30, "Keep the PO number to 30 characters or fewer"),
+  poDate: z
+    .string()
+    .refine((date) => !date || date <= today(), "The PO date can't be in the future"),
+  notes: z.string().trim().max(500, "Keep notes for the warehouse to 500 characters or fewer"),
+  paymentMethod: z.enum(["credit", "online"], { error: "Choose how you'd like to pay" }),
+  onlineChannel: z.enum(["upi", "netbanking", "card"]),
+});
+
+export type CheckoutValues = z.infer<typeof checkoutSchema>;

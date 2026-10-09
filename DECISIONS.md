@@ -40,8 +40,10 @@ The demo quotations list PDF attachments that don't exist yet.
 
 ### 6. 🔵 Delivery charge
 
-Orders over ₹5,000 are delivered free; every demo order is above that, so delivery shows ₹0.
-**Confirm:** the real rule (free over an amount? flat fee? per branch?).
+Orders of ₹5,000 or more (excl. GST) are delivered free; smaller orders pay ₹250 + 18% GST.
+The cart says so when the charge applies. Every demo order is above ₹5,000.
+**Confirm:** the real rule (threshold, fee, per branch or per area?). It lives in one place:
+`src/lib/pricing.ts`.
 
 ### 7. 🔵 Low-stock level
 
@@ -154,3 +156,35 @@ Quick order rows are not saved if you leave the page.
 
 Passes the parts and quantities to the quotation request page in its link
 (`/quotations/new?items=…`); that page is built in Screen 6.
+
+## Cart and checkout (Screen 5)
+
+### 26. 🔵 What stops checkout
+
+Lines that are out of stock at the delivery branch, or below the MOQ / not a whole number of
+packs, must be fixed first (the cart offers a one-click "Change to 10"). Lines above the
+branch's stock can still be ordered, with a note that the rest follows when it arrives.
+**Confirm:** should Kannali accept back-orders like this, or cap orders at stock?
+
+### 27. 🟡 Credit when invoices are overdue
+
+"Use credit" is allowed while an invoice is overdue, with a warning. It is disabled only when
+the order total is more than the credit available.
+**Options:** (a) keep (current); (b) block credit orders while anything is overdue;
+(c) block only after N days overdue.
+
+### 28. 🔵 Delivery branch at checkout is the top-bar branch
+
+Choosing a branch at checkout changes the delivery branch everywhere (and its stock warnings),
+so there is only ever one "delivering to" choice.
+
+### 29. 🟡 Online payment
+
+"Pay online" (UPI / net banking / card) is a demo: no gateway is called and the order is marked
+paid. **Need:** the payment gateway Kannali uses or prefers (e.g. Razorpay, PayU, Cashfree)
+before Phase 1.
+
+### 30. ⚪ Placing an order runs on the server
+
+Checkout calls a Next.js Server Action, which calls the orders API. In the demo the new order is
+kept in server memory, so it appears in orders until the server restarts.

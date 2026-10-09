@@ -1,8 +1,16 @@
 import { getUnitPrice } from "@/features/catalog/utils";
-import type { Order, OrderFilters, OrderLine, OrderSummary } from "@/features/orders/types";
+import type {
+  Order,
+  OrderFilters,
+  OrderLine,
+  OrderSummary,
+  PlacedOrder,
+  PlaceOrderRequest,
+} from "@/features/orders/types";
 import type { Paginated } from "@/lib/types";
-import { summarisePricing } from "@/lib/pricing";
+import { calculateOrderTotals } from "@/lib/pricing";
 import { lineFor, products } from "@/mocks/catalog";
+import { branches } from "@/mocks/company";
 import { daysFromToday, findById, paginate, simulateLatency, sortItems } from "@/mocks/utils";
 
 const WHITEFIELD = { id: "br-whitefield", name: "Whitefield" };
@@ -28,15 +36,7 @@ type OrderSeed = Omit<
 
 /** Works out the totals from the lines, so every amount in the demo adds up. */
 function order(seed: OrderSeed): Order {
-  const pricing = summarisePricing(seed.items);
-  return {
-    ...seed,
-    ...pricing,
-    itemCount: seed.items.length,
-    // Orders over ₹5,000 ship free; every demo order is above that.
-    deliveryInPaise: 0,
-    totalInPaise: pricing.subtotalInPaise + pricing.gstInPaise,
-  };
+  return { ...seed, ...calculateOrderTotals(seed.items), itemCount: seed.items.length };
 }
 
 export const orders: Order[] = [
@@ -200,4 +200,36 @@ export async function getOrdersMock({
 export async function getOrderMock(id: string): Promise<Order | null> {
   await simulateLatency();
   return orders.find((o) => o.id === id) ?? null;
+}
+
+/**
+ * Creates the order the way the backend will: prices come from the catalogue, not the browser.
+ * Kept in memory, so it shows in the order list until the server restarts.
+ */
+export async function placeOrderMock(request: PlaceOrderRequest): Promise<PlacedOrder> {
+  await simulateLatency(900);
+  const { id, name } = findById(branches, request.branchId);
+  const latest = Math.max(...orders.map((o) => Number(o.number.slice(-4))));
+  const serial = String(latest + 1).padStart(4, "0");
+  const placedAt = new Date().toISOString();
+
+  const created = order({
+    id: `ord-${serial}`,
+    number: `ORD-2026-${serial}`,
+    poNumber: request.poNumber,
+    poDate: request.poDate,
+    placedAt,
+    expectedDeliveryDate: daysFromToday(1, 18),
+    branch: { id, name },
+    status: "placed",
+    items: request.items.map(({ productId, quantity }) => orderLine(productId, quantity)),
+    payment:
+      request.payment.method === "credit"
+        ? { method: "credit", status: "pending" }
+        : { method: "online", status: "paid", channel: request.payment.channel, paidAt: placedAt },
+    notes: request.notes,
+    timeline: [{ status: "placed", at: placedAt }],
+  });
+  orders.unshift(created);
+  return { id: created.id, number: created.number };
 }

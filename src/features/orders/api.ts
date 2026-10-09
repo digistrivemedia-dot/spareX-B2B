@@ -1,8 +1,14 @@
-import type { Order, OrderFilters, OrderSummary } from "@/features/orders/types";
+import type {
+  Order,
+  OrderFilters,
+  OrderSummary,
+  PlacedOrder,
+  PlaceOrderRequest,
+} from "@/features/orders/types";
 import { apiClient } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
-import { getOrderMock, getOrdersMock } from "@/mocks/orders";
+import { getOrderMock, getOrdersMock, placeOrderMock } from "@/mocks/orders";
 
 export async function getOrders(filters: OrderFilters = {}): Promise<Paginated<OrderSummary>> {
   if (dataSource.orders === "mock") return getOrdersMock(filters);
@@ -16,4 +22,9 @@ export async function getOrders(filters: OrderFilters = {}): Promise<Paginated<O
 export async function getOrder(id: string): Promise<Order | null> {
   if (dataSource.orders === "mock") return getOrderMock(id);
   return apiClient<Order | null>(`/orders/${id}`);
+}
+
+export async function placeOrder(request: PlaceOrderRequest): Promise<PlacedOrder> {
+  if (dataSource.orders === "mock") return placeOrderMock(request);
+  return apiClient<PlacedOrder>("/orders", { method: "POST", body: request });
 }

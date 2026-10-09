@@ -30,3 +30,29 @@ export function summarisePricing(lines: readonly PricedLine[]): PricingSummary {
     { subtotalInPaise: 0, savingsInPaise: 0, gstInPaise: 0 },
   );
 }
+
+/** Orders at or above this subtotal (excl. GST) are delivered free. */
+export const FREE_DELIVERY_FROM_IN_PAISE = 5_000_00;
+/** The delivery charge (excl. GST) on smaller orders. */
+export const DELIVERY_CHARGE_IN_PAISE = 250_00;
+
+export type OrderTotals = PricingSummary & {
+  deliveryInPaise: number;
+  totalInPaise: number;
+};
+
+/** Everything an order summary shows. Delivery is taxed at the standard rate, like the parts. */
+export function calculateOrderTotals(lines: readonly PricedLine[]): OrderTotals {
+  const pricing = summarisePricing(lines);
+  const deliveryInPaise =
+    lines.length === 0 || pricing.subtotalInPaise >= FREE_DELIVERY_FROM_IN_PAISE
+      ? 0
+      : DELIVERY_CHARGE_IN_PAISE;
+  const gstInPaise = pricing.gstInPaise + calculateGst(deliveryInPaise);
+  return {
+    ...pricing,
+    deliveryInPaise,
+    gstInPaise,
+    totalInPaise: pricing.subtotalInPaise + deliveryInPaise + gstInPaise,
+  };
+}

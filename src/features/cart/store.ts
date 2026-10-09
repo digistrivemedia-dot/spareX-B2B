@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -38,3 +39,12 @@ export const useCartStore = create<CartState>()(
     { name: "sparex-cart", skipHydration: true },
   ),
 );
+
+/** False until the saved cart has been read from the browser, so pages don't flash "empty". */
+export function useCartHasHydrated(): boolean {
+  return useSyncExternalStore(
+    (onChange) => useCartStore.persist.onFinishHydration(onChange),
+    () => useCartStore.persist.hasHydrated(),
+    () => false,
+  );
+}

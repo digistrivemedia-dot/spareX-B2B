@@ -1125,3 +1125,8 @@ export async function getProductsByPartNumberMock(partNumbers: string[]): Promis
   const wanted = new Set(partNumbers.map(normalise));
   return products.filter((product) => wanted.has(normalise(product.partNumber)));
 }
+
+export async function getProductsByIdMock(ids: string[]): Promise<Product[]> {
+  await simulateLatency();
+  return products.filter((product) => ids.includes(product.id));
+}
