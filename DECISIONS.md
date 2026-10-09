@@ -128,3 +128,29 @@ The brief's "react-hook-form + zod through shadcn" is followed with the current 
 
 The sidebar's mobile check, the carousel's scroll buttons and the toast theme were rewritten to
 pass the project's lint rules (no state updates inside effects; light theme only).
+
+## Quick order (Screen 4)
+
+### 22. 🔵 Rows are an entry form, not the shared DataTable
+
+The brief says every table uses the one DataTable. Quick order's rows are a form you type into
+(inputs, suggestions, Enter to move on), so they use their own row layout with the same look.
+Lists of records (orders, invoices, the catalogue) all still use the DataTable.
+
+### 23. 🔵 Keyboard
+
+Enter picks a suggestion, then Enter in the quantity box moves to the next row (adding one if
+needed), as Screen 4 describes. The general UX rule "Enter adds to cart in Quick Order" is
+covered by **Ctrl+Enter** (Cmd+Enter on a Mac), which adds every ready row to the cart.
+**Confirm** that this split works for your users.
+
+### 24. 🔵 What "Add all to cart" takes
+
+Rows that are ready, adjusted (MOQ or pack size) or above the branch's stock go to the cart;
+the cart will warn about stock. Rows that are not found or out of stock stay on the page.
+Quick order rows are not saved if you leave the page.
+
+### 25. ⚪ "Request quotation for these"
+
+Passes the parts and quantities to the quotation request page in its link
+(`/quotations/new?items=…`); that page is built in Screen 6.

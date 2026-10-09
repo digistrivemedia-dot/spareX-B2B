@@ -11,13 +11,25 @@ type QuantityStepperProps = QuantityRules & {
   onChange: (value: number) => void;
   /** Accessible name, e.g. "Quantity of Motul 7100". */
   label: string;
+  /** For focusing the number field from elsewhere, e.g. after picking a part. */
+  id?: string;
+  /** Called after Enter commits the typed quantity, e.g. to move to the next row. */
+  onEnter?: () => void;
 };
 
 /**
  * − / + buttons step by whole packs; typed values snap to the nearest allowed quantity
  * when the field loses focus or Enter is pressed.
  */
-export function QuantityStepper({ value, onChange, label, min, step }: QuantityStepperProps) {
+export function QuantityStepper({
+  value,
+  onChange,
+  label,
+  min,
+  step,
+  id,
+  onEnter,
+}: QuantityStepperProps) {
   // What is being typed; null when the field shows the committed value.
   const [draft, setDraft] = useState<string | null>(null);
 
@@ -42,6 +54,7 @@ export function QuantityStepper({ value, onChange, label, min, step }: QuantityS
         <Minus aria-hidden />
       </Button>
       <input
+        id={id}
         type="text"
         inputMode="numeric"
         aria-label={label}
@@ -53,6 +66,7 @@ export function QuantityStepper({ value, onChange, label, min, step }: QuantityS
           // Enter confirms the quantity here; it must not also submit a surrounding form.
           event.preventDefault();
           commit();
+          onEnter?.();
         }}
         className="h-8 w-10 border-x border-input text-center text-sm font-medium text-gray-900 tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
       />

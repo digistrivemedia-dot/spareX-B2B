@@ -7,6 +7,7 @@ import {
   getCatalogMock,
   getFrequentlyOrderedMock,
   getProductMock,
+  getProductsByPartNumberMock,
 } from "@/mocks/catalog";
 
 export async function getCatalog(filters: CatalogFilters = {}): Promise<Paginated<Product>> {
@@ -21,6 +22,15 @@ export async function getCatalog(filters: CatalogFilters = {}): Promise<Paginate
 export async function getProduct(id: string): Promise<Product | null> {
   if (dataSource.catalog === "mock") return getProductMock(id);
   return apiClient<Product | null>(`/catalog/products/${id}`);
+}
+
+/** The products with these part numbers (case, spaces and dashes don't matter). */
+export async function getProductsByPartNumber(partNumbers: string[]): Promise<Product[]> {
+  if (dataSource.catalog === "mock") return getProductsByPartNumberMock(partNumbers);
+  return apiClient<Product[]>("/catalog/products/lookup", {
+    method: "POST",
+    body: { partNumbers },
+  });
 }
 
 export async function getCatalogFilterOptions(): Promise<CatalogFilterOptions> {

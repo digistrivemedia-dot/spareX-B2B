@@ -1118,3 +1118,10 @@ export async function getCatalogFilterOptionsMock(): Promise<CatalogFilterOption
     bikeModels,
   };
 }
+
+/** Exact part-number lookups for pasted lists, ignoring case, spaces and dashes. */
+export async function getProductsByPartNumberMock(partNumbers: string[]): Promise<Product[]> {
+  await simulateLatency();
+  const wanted = new Set(partNumbers.map(normalise));
+  return products.filter((product) => wanted.has(normalise(product.partNumber)));
+}

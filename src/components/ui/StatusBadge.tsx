@@ -58,6 +58,11 @@ const STATUSES = {
   in_stock: { label: "In stock", tone: "success" },
   low_stock: { label: "Low stock", tone: "warning" },
   out_of_stock: { label: "Out of stock", tone: "danger" },
+  // Order lines being entered (quick order, quotation requests)
+  ready: { label: "Ready", tone: "success" },
+  adjusted: { label: "Adjusted", tone: "warning" },
+  limited_stock: { label: "Limited stock", tone: "warning" },
+  not_found: { label: "Not found", tone: "danger" },
   // Company users
   active: { label: "Active", tone: "success" },
   invited: { label: "Invited", tone: "warning" },
