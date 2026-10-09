@@ -9,7 +9,7 @@ const frameVariants = cva(
       size: {
         sm: "size-10",
         md: "size-16",
-        lg: "aspect-square w-full",
+        lg: "aspect-video w-full",
       },
     },
   },

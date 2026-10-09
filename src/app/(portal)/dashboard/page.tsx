@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { requireSession } from "@/features/auth/session";
 import { getFrequentlyOrdered } from "@/features/catalog/api";
 import { FrequentlyOrdered } from "@/features/catalog/components/FrequentlyOrdered";
-import { getBranches } from "@/features/company/api";
 import { getCreditSummary } from "@/features/credit/api";
 import { AttentionBar } from "@/features/dashboard/components/AttentionBar";
 import { DashboardStats } from "@/features/dashboard/components/DashboardStats";
@@ -24,8 +23,8 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const [session, credit, awaiting, openOrders, recentOrders, offers, frequent, branches] =
-    await Promise.all([
+  const [session, credit, awaiting, openOrders, recentOrders, offers, frequent] = await Promise.all(
+    [
       requireSession(),
       getCreditSummary(),
       getQuotations({ status: "quoted", sort: "validUntil", order: "asc", pageSize: 1 }),
@@ -33,8 +32,8 @@ export default async function DashboardPage() {
       getOrders({ sort: "placedAt", order: "desc", pageSize: 5 }),
       getOffers(),
       getFrequentlyOrdered(),
-      getBranches(),
-    ]);
+    ],
+  );
 
   const firstName = session.user.name.split(" ")[0];
   const lastOrder = recentOrders.items.find((order) => order.status !== "cancelled");
@@ -66,7 +65,7 @@ export default async function DashboardPage() {
       </section>
       <section>
         <SectionHeader title="Frequently ordered" action={<ViewAllLink href="/catalog" />} />
-        <FrequentlyOrdered products={frequent} branches={branches} />
+        <FrequentlyOrdered products={frequent} />
       </section>
     </>
   );

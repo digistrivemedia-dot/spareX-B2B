@@ -15,17 +15,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useBranchStore } from "@/features/company/store";
-import type { Branch } from "@/features/company/types";
+import { useBranches } from "@/features/company/components/BranchesProvider";
 import { useSelectedBranch } from "@/features/company/use-selected-branch";
 
-type BranchSwitcherProps = {
-  branches: Branch[];
-};
-
 /** Chooses the delivery branch used for stock and checkout. */
-export function BranchSwitcher({ branches }: BranchSwitcherProps) {
+export function BranchSwitcher() {
+  const branches = useBranches();
   const selectBranch = useBranchStore((state) => state.selectBranch);
-  const selected = useSelectedBranch(branches);
+  const selected = useSelectedBranch();
 
   if (!selected) return null;
 

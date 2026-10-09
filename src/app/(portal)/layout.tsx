@@ -8,9 +8,11 @@ import { StoreHydration } from "@/components/layout/StoreHydration";
 import { TopBar } from "@/components/layout/TopBar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { requireSession } from "@/features/auth/session";
+import { getBranches } from "@/features/company/api";
+import { BranchesProvider } from "@/features/company/components/BranchesProvider";
 
 export default async function PortalLayout({ children }: { children: ReactNode }) {
-  const session = await requireSession();
+  const [session, branches] = await Promise.all([requireSession(), getBranches()]);
   // Prices and ordering are only for businesses Kannali has approved.
   if (session.approvalStatus !== "approved") redirect("/register/submitted");
 
@@ -18,22 +20,24 @@ export default async function PortalLayout({ children }: { children: ReactNode }
   const sidebarOpen = (await cookies()).get("sidebar_state")?.value !== "false";
 
   return (
-    <SidebarProvider defaultOpen={sidebarOpen}>
-      <a
-        href="#content"
-        className="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-medium text-navy-700 shadow focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
-      >
-        Skip to content
-      </a>
-      <AppSidebar businessType={session.business.type} role={session.role} />
-      {/* min-w-0 lets wide tables scroll inside their own box instead of widening the page. */}
-      <SidebarInset className="min-w-0">
-        <TopBar session={session} />
-        <div id="content" className="flex-1">
-          <Container>{children}</Container>
-        </div>
-      </SidebarInset>
-      <StoreHydration />
-    </SidebarProvider>
+    <BranchesProvider branches={branches}>
+      <SidebarProvider defaultOpen={sidebarOpen}>
+        <a
+          href="#content"
+          className="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-medium text-navy-700 shadow focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+        >
+          Skip to content
+        </a>
+        <AppSidebar businessType={session.business.type} role={session.role} />
+        {/* min-w-0 lets wide tables scroll inside their own box instead of widening the page. */}
+        <SidebarInset className="min-w-0">
+          <TopBar session={session} />
+          <div id="content" className="flex-1">
+            <Container>{children}</Container>
+          </div>
+        </SidebarInset>
+        <StoreHydration />
+      </SidebarProvider>
+    </BranchesProvider>
   );
 }

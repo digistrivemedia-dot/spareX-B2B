@@ -54,7 +54,7 @@ export function QuantityStepper({ value, onChange, label, min, step }: QuantityS
           event.preventDefault();
           commit();
         }}
-        className="h-8 w-12 border-x border-input text-center text-sm font-medium text-gray-900 tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+        className="h-8 w-10 border-x border-input text-center text-sm font-medium text-gray-900 tabular-nums outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
       />
       <Button
         type="button"

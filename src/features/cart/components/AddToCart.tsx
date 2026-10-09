@@ -8,17 +8,18 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 import type { Product } from "@/features/catalog/types";
+import { useBranchStock } from "@/features/catalog/use-branch-stock";
 import { useCartStore } from "@/features/cart/store";
 import { formatCount } from "@/lib/format";
 import { snapQuantity } from "@/lib/quantity";
 
 type AddToCartProps = {
-  product: Pick<Product, "id" | "name" | "unit" | "moq" | "packSize">;
-  isOutOfStock: boolean;
+  product: Pick<Product, "id" | "name" | "unit" | "moq" | "packSize" | "stockByBranch">;
 };
 
-/** A quantity stepper (MOQ and pack size enforced) with an "Add" button. */
-export function AddToCart({ product, isOutOfStock }: AddToCartProps) {
+/** A quantity stepper (MOQ and pack size enforced) with an "Add" button; disabled when out of stock. */
+export function AddToCart({ product }: AddToCartProps) {
+  const isOutOfStock = useBranchStock(product) === 0;
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
   const rules = { min: product.moq, step: product.packSize };

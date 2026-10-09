@@ -11,14 +11,14 @@ type DataTableCardsProps<TData extends RowData> = {
   className?: string;
 };
 
-/** The phone layout of a DataTable: one card per row, columns as label/value pairs. */
+/** The narrow layout of a DataTable: one card per row, columns as label/value pairs. */
 export function DataTableCards<TData extends RowData>({
   label,
   rows,
   className,
 }: DataTableCardsProps<TData>) {
   return (
-    <ul aria-label={label} className={cn("flex flex-col gap-3", className)}>
+    <ul aria-label={label} className={cn("grid gap-3 @xl:grid-cols-2", className)}>
       {rows.map((row) => {
         const cells = row.getVisibleCells();
         const title = cells.find((cell) => cell.column.columnDef.meta?.isCardTitle);

@@ -1,7 +1,32 @@
-import type { Product } from "@/features/catalog/types";
+import type { CatalogFilterOptions, CatalogFilters, Product } from "@/features/catalog/types";
 import { apiClient } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
-import { getFrequentlyOrderedMock } from "@/mocks/catalog";
+import type { Paginated } from "@/lib/types";
+import {
+  getCatalogFilterOptionsMock,
+  getCatalogMock,
+  getFrequentlyOrderedMock,
+  getProductMock,
+} from "@/mocks/catalog";
+
+export async function getCatalog(filters: CatalogFilters = {}): Promise<Paginated<Product>> {
+  if (dataSource.catalog === "mock") return getCatalogMock(filters);
+  const { brands, ...params } = filters;
+  return apiClient<Paginated<Product>>("/catalog/products", {
+    query: { ...params, brands: brands?.join(",") },
+  });
+}
+
+/** One product, or null if it doesn't exist. */
+export async function getProduct(id: string): Promise<Product | null> {
+  if (dataSource.catalog === "mock") return getProductMock(id);
+  return apiClient<Product | null>(`/catalog/products/${id}`);
+}
+
+export async function getCatalogFilterOptions(): Promise<CatalogFilterOptions> {
+  if (dataSource.catalog === "mock") return getCatalogFilterOptionsMock();
+  return apiClient<CatalogFilterOptions>("/catalog/filters");
+}
 
 /** The parts this business reorders most often. */
 export async function getFrequentlyOrdered(): Promise<Product[]> {

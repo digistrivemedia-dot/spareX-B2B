@@ -6,7 +6,6 @@ import { NotificationsMenu } from "@/components/layout/NotificationsMenu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ROLE_LABELS } from "@/features/auth/roles";
 import type { Session } from "@/features/auth/types";
-import { getBranches } from "@/features/company/api";
 import { getNotifications } from "@/features/notifications/api";
 
 type TopBarProps = {
@@ -14,7 +13,7 @@ type TopBarProps = {
 };
 
 export async function TopBar({ session }: TopBarProps) {
-  const [branches, notifications] = await Promise.all([getBranches(), getNotifications()]);
+  const notifications = await getNotifications();
 
   return (
     // Phones get search on its own full-width row; from md up everything sits on one row.
@@ -22,7 +21,7 @@ export async function TopBar({ session }: TopBarProps) {
       <SidebarTrigger className="-ml-1" />
       <GlobalSearch className="order-last basis-full md:order-none md:basis-auto" />
       <div className="ml-auto flex items-center gap-1">
-        <BranchSwitcher branches={branches} />
+        <BranchSwitcher />
         <CartButton />
         <NotificationsMenu notifications={notifications} />
         <AccountMenu

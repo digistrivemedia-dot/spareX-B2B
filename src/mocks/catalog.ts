@@ -1,6 +1,13 @@
-import type { BikeModel, Category, Product } from "@/features/catalog/types";
+import type {
+  BikeModel,
+  CatalogFilterOptions,
+  CatalogFilters,
+  Category,
+  Product,
+} from "@/features/catalog/types";
+import type { Paginated } from "@/lib/types";
 import { DEFAULT_GST_RATE_PERCENT } from "@/lib/gst";
-import { findById, simulateLatency } from "@/mocks/utils";
+import { findById, paginate, simulateLatency, sortItems } from "@/mocks/utils";
 
 export const categories: Category[] = [
   { id: "oils", name: "Oils & lubricants" },
@@ -1049,4 +1056,65 @@ const FREQUENTLY_ORDERED_IDS = [
 export async function getFrequentlyOrderedMock(): Promise<Product[]> {
   await simulateLatency();
   return FREQUENTLY_ORDERED_IDS.map((id) => findById(products, id));
+}
+
+const CATALOG_PAGE_SIZE = 12;
+
+/** Lower case, letters and digits only, so "mot-104092" finds "MOT-104092". */
+const normalise = (text: string) => text.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+function matchesSearch(product: Product, q: string) {
+  const haystack = normalise(`${product.name} ${product.partNumber} ${product.brand}`);
+  return q
+    .split(/\s+/)
+    .map(normalise)
+    .every((term) => haystack.includes(term));
+}
+
+/** Universal parts fit every bike. */
+function fitsBike(product: Product, bikeBrand?: string, bikeId?: string) {
+  if (product.compatibleBikes.length === 0) return true;
+  return product.compatibleBikes.some(
+    (bike) => (!bikeId || bike.id === bikeId) && (!bikeBrand || bike.brand === bikeBrand),
+  );
+}
+
+export async function getCatalogMock({
+  q,
+  categoryId,
+  brands,
+  bikeBrand,
+  bikeId,
+  inStockAtBranchId,
+  sort = "name",
+  order = "asc",
+  page,
+  pageSize = CATALOG_PAGE_SIZE,
+}: CatalogFilters): Promise<Paginated<Product>> {
+  await simulateLatency();
+  const matching = products.filter(
+    (product) =>
+      (!q || matchesSearch(product, q)) &&
+      (!categoryId || product.category.id === categoryId) &&
+      (!brands?.length || brands.includes(product.brand)) &&
+      fitsBike(product, bikeBrand, bikeId) &&
+      (!inStockAtBranchId ||
+        product.stockByBranch.some((s) => s.branchId === inStockAtBranchId && s.quantity > 0)),
+  );
+  const sortKey = sort === "price" ? "businessPriceInPaise" : "name";
+  return paginate(sortItems(matching, sortKey, order), page, pageSize);
+}
+
+export async function getProductMock(id: string): Promise<Product | null> {
+  await simulateLatency();
+  return products.find((product) => product.id === id) ?? null;
+}
+
+export async function getCatalogFilterOptionsMock(): Promise<CatalogFilterOptions> {
+  await simulateLatency(100);
+  return {
+    categories,
+    brands: [...new Set(products.map((product) => product.brand))].sort(),
+    bikeModels,
+  };
 }

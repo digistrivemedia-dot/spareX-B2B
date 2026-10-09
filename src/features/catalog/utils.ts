@@ -65,3 +65,13 @@ export function getPackLabel({
   if (packSize === 1 || !packName) return `Per ${unit}`;
   return `${packName[0].toUpperCase()}${packName.slice(1)} of ${packSize}`;
 }
+
+/** "KTM Duke 200, RC 200 +3", or "Universal" for parts that fit any bike. */
+export function formatFits(bikes: Product["compatibleBikes"]): string {
+  if (bikes.length === 0) return "Universal";
+  const [first, second, ...rest] = bikes;
+  const names = [`${first.brand} ${first.model}`];
+  if (second)
+    names.push(second.brand === first.brand ? second.model : `${second.brand} ${second.model}`);
+  return rest.length ? `${names.join(", ")} +${rest.length}` : names.join(", ");
+}

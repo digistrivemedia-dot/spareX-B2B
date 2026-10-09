@@ -1,18 +1,12 @@
 import { Price } from "@/components/ui/Price";
 import { ProductImage } from "@/components/ui/ProductImage";
-import { StockStatus } from "@/features/catalog/components/StockStatus";
+import { BranchStockStatus } from "@/features/catalog/components/BranchStockStatus";
 import { TierHint } from "@/features/catalog/components/TierHint";
 import type { Product } from "@/features/catalog/types";
 import { getCategoryIcon, getPackLabel } from "@/features/catalog/utils";
 import { AddToCart } from "@/features/cart/components/AddToCart";
 
-type FrequentlyOrderedItemProps = {
-  product: Product;
-  /** Units available at the selected delivery branch. */
-  stock: number;
-};
-
-export function FrequentlyOrderedItem({ product, stock }: FrequentlyOrderedItemProps) {
+export function FrequentlyOrderedItem({ product }: { product: Product }) {
   return (
     <li className="flex flex-col gap-3 px-4 py-3 @4xl:flex-row @4xl:items-center @4xl:gap-6">
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -35,9 +29,9 @@ export function FrequentlyOrderedItem({ product, stock }: FrequentlyOrderedItemP
             <Price amountInPaise={product.businessPriceInPaise} gst="excl" />
             <TierHint tierPrices={product.tierPrices} />
           </div>
-          <StockStatus quantity={stock} />
+          <BranchStockStatus product={product} />
         </div>
-        <AddToCart product={product} isOutOfStock={stock === 0} />
+        <AddToCart product={product} />
       </div>
     </li>
   );

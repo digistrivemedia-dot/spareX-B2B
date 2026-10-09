@@ -1,3 +1,5 @@
+import type { ListParams } from "@/lib/types";
+
 export type Category = {
   id: string;
   name: string;
@@ -53,4 +55,25 @@ export type Product = {
   compatibleBikes: BikeModel[];
   images: string[];
   specs: ProductSpec[];
+};
+
+export type CatalogSort = "name" | "price";
+
+export type CatalogFilters = ListParams<CatalogSort> & {
+  /** Matches name, part number or brand. */
+  q?: string;
+  categoryId?: string;
+  brands?: string[];
+  /** Fits this bike make (e.g. "KTM") or, more precisely, this model id. */
+  bikeBrand?: string;
+  bikeId?: string;
+  /** Only parts with stock at this delivery branch. */
+  inStockAtBranchId?: string;
+};
+
+/** Everything the catalogue filters can offer. */
+export type CatalogFilterOptions = {
+  categories: Category[];
+  brands: string[];
+  bikeModels: BikeModel[];
 };
