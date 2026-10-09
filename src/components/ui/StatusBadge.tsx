@@ -1,4 +1,5 @@
 import { cva } from "class-variance-authority";
+import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -53,6 +54,10 @@ const STATUSES = {
   accepted: { label: "Accepted", tone: "success" },
   rejected: { label: "Rejected", tone: "danger" },
   expired: { label: "Expired", tone: "neutral" },
+  // Stock at the delivery branch
+  in_stock: { label: "In stock", tone: "success" },
+  low_stock: { label: "Low stock", tone: "warning" },
+  out_of_stock: { label: "Out of stock", tone: "danger" },
   // Company users
   active: { label: "Active", tone: "success" },
   invited: { label: "Invited", tone: "warning" },
@@ -63,15 +68,17 @@ export type Status = keyof typeof STATUSES;
 
 type StatusBadgeProps = {
   status: Status;
+  /** Replaces the standard label while keeping the status colour, e.g. "Low · 8". */
+  children?: ReactNode;
   className?: string;
 };
 
-export function StatusBadge({ status, className }: StatusBadgeProps) {
+export function StatusBadge({ status, children, className }: StatusBadgeProps) {
   const { label, tone } = STATUSES[status];
   return (
     <span className={cn(badgeVariants({ tone }), className)}>
       <span aria-hidden className={dotVariants({ tone })} />
-      {label}
+      {children ?? label}
     </span>
   );
 }

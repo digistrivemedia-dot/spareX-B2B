@@ -1,6 +1,6 @@
 import type { CreditSummary, Invoice, StatementEntry } from "@/features/credit/types";
 import { orders } from "@/mocks/orders";
-import { daysFromToday, findById } from "@/mocks/utils";
+import { daysFromToday, findById, simulateLatency } from "@/mocks/utils";
 
 const CREDIT_LIMIT_IN_PAISE = 300_000_00;
 const TERMS_DAYS = 30;
@@ -158,7 +158,7 @@ const overdue = unpaid.filter((inv) => inv.status === "overdue");
 const nextDue = unpaid.find((inv) => inv.status === "due");
 const usedInPaise = unpaid.reduce((sum, inv) => sum + inv.balanceInPaise, 0);
 
-export const creditSummary: CreditSummary = {
+const creditSummary: CreditSummary = {
   limitInPaise: CREDIT_LIMIT_IN_PAISE,
   usedInPaise,
   availableInPaise: CREDIT_LIMIT_IN_PAISE - usedInPaise,
@@ -167,3 +167,8 @@ export const creditSummary: CreditSummary = {
   termsDays: TERMS_DAYS,
   nextDue: nextDue && { date: nextDue.dueDate, amountInPaise: nextDue.balanceInPaise },
 };
+
+export async function getCreditSummaryMock(): Promise<CreditSummary> {
+  await simulateLatency();
+  return creditSummary;
+}

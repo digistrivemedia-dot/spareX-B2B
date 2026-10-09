@@ -1,6 +1,6 @@
 import type { BikeModel, Category, Product } from "@/features/catalog/types";
 import { DEFAULT_GST_RATE_PERCENT } from "@/lib/gst";
-import { findById } from "@/mocks/utils";
+import { findById, simulateLatency } from "@/mocks/utils";
 
 export const categories: Category[] = [
   { id: "oils", name: "Oils & lubricants" },
@@ -1034,4 +1034,19 @@ export function lineFor(productId: string, quantity: number) {
     listPriceInPaise: businessPriceInPaise,
     gstRatePercent,
   };
+}
+
+/** What this business reorders most, worked out by the backend from its order history. */
+const FREQUENTLY_ORDERED_IDS = [
+  "p-castrol-activ-20w40",
+  "p-bosch-spark-plug",
+  "p-rolon-shoe-honda",
+  "p-motul-7100-10w50",
+  "p-castrol-scooter-10w30",
+  "p-philips-hs1",
+];
+
+export async function getFrequentlyOrderedMock(): Promise<Product[]> {
+  await simulateLatency();
+  return FREQUENTLY_ORDERED_IDS.map((id) => findById(products, id));
 }

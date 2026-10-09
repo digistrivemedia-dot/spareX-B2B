@@ -7,11 +7,10 @@ import { Container } from "@/components/layout/Container";
 import { StoreHydration } from "@/components/layout/StoreHydration";
 import { TopBar } from "@/components/layout/TopBar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { getSession } from "@/features/auth/session";
+import { requireSession } from "@/features/auth/session";
 
 export default async function PortalLayout({ children }: { children: ReactNode }) {
-  const session = await getSession();
-  if (!session) redirect("/login");
+  const session = await requireSession();
   // Prices and ordering are only for businesses Kannali has approved.
   if (session.approvalStatus !== "approved") redirect("/register/submitted");
 
@@ -27,7 +26,8 @@ export default async function PortalLayout({ children }: { children: ReactNode }
         Skip to content
       </a>
       <AppSidebar businessType={session.business.type} role={session.role} />
-      <SidebarInset>
+      {/* min-w-0 lets wide tables scroll inside their own box instead of widening the page. */}
+      <SidebarInset className="min-w-0">
         <TopBar session={session} />
         <div id="content" className="flex-1">
           <Container>{children}</Container>

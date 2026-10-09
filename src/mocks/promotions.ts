@@ -1,6 +1,7 @@
 import type { Offer } from "@/features/promotions/types";
+import { simulateLatency } from "@/mocks/utils";
 
-export const offers: Offer[] = [
+const offers: Offer[] = [
   {
     id: "offer-oil-cartons",
     title: "Bulk engine-oil deal: extra 5% on 5+ cartons",
@@ -22,3 +23,8 @@ export const offers: Offer[] = [
     imageAlt: "Motorcycle chain with front and rear sprockets",
   },
 ];
+
+export async function getOffersMock(): Promise<Offer[]> {
+  await simulateLatency();
+  return offers;
+}

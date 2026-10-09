@@ -1,8 +1,9 @@
 import { getUnitPrice } from "@/features/catalog/utils";
-import type { Order, OrderLine } from "@/features/orders/types";
+import type { Order, OrderFilters, OrderLine, OrderSummary } from "@/features/orders/types";
+import type { Paginated } from "@/lib/types";
 import { summarisePricing } from "@/lib/pricing";
 import { lineFor, products } from "@/mocks/catalog";
-import { daysFromToday, findById } from "@/mocks/utils";
+import { daysFromToday, findById, paginate, simulateLatency, sortItems } from "@/mocks/utils";
 
 const WHITEFIELD = { id: "br-whitefield", name: "Whitefield" };
 const HSR = { id: "br-hsr", name: "HSR Layout" };
@@ -179,3 +180,24 @@ export const orders: Order[] = [
     ],
   }),
 ];
+
+function toSummary({ items, timeline, ...summary }: Order): OrderSummary {
+  return summary;
+}
+
+export async function getOrdersMock({
+  statuses,
+  sort = "placedAt",
+  order = "desc",
+  page,
+  pageSize,
+}: OrderFilters): Promise<Paginated<OrderSummary>> {
+  await simulateLatency();
+  const matching = orders.filter((o) => !statuses || statuses.includes(o.status));
+  return paginate(sortItems(matching, sort, order).map(toSummary), page, pageSize);
+}
+
+export async function getOrderMock(id: string): Promise<Order | null> {
+  await simulateLatency();
+  return orders.find((o) => o.id === id) ?? null;
+}

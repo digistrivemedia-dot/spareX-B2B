@@ -7,3 +7,11 @@ export type Paginated<T> = {
 };
 
 export type SortOrder = "asc" | "desc";
+
+/** Paging and sorting parameters every list endpoint accepts. */
+export type ListParams<TSort extends string = string> = {
+  page?: number;
+  pageSize?: number;
+  sort?: TSort;
+  order?: SortOrder;
+};

@@ -1,4 +1,5 @@
 import type { BranchRef } from "@/features/company/types";
+import type { ListParams } from "@/lib/types";
 
 export type OrderStatus =
   | "placed"
@@ -73,3 +74,9 @@ export type Order = {
 
 /** What the order list returns per row. */
 export type OrderSummary = Omit<Order, "items" | "timeline">;
+
+export type OrderSort = "placedAt" | "totalInPaise";
+
+export type OrderFilters = ListParams<OrderSort> & {
+  statuses?: OrderStatus[];
+};

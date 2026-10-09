@@ -1,4 +1,5 @@
 import type { BranchRef } from "@/features/company/types";
+import type { ListParams } from "@/lib/types";
 
 export type QuotationStatus = "requested" | "quoted" | "accepted" | "rejected" | "expired";
 
@@ -52,3 +53,9 @@ export type Quotation = {
 
 /** What the quotation list returns per row. */
 export type QuotationSummary = Omit<Quotation, "items" | "timeline" | "attachments">;
+
+export type QuotationSort = "requestedAt" | "validUntil";
+
+export type QuotationFilters = ListParams<QuotationSort> & {
+  status?: QuotationStatus;
+};

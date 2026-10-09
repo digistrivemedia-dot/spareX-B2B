@@ -1,7 +1,13 @@
-import type { Quotation, QuotationLine } from "@/features/quotations/types";
+import type {
+  Quotation,
+  QuotationFilters,
+  QuotationLine,
+  QuotationSummary,
+} from "@/features/quotations/types";
+import type { Paginated } from "@/lib/types";
 import { summarisePricing } from "@/lib/pricing";
 import { lineFor } from "@/mocks/catalog";
-import { daysFromToday } from "@/mocks/utils";
+import { daysFromToday, paginate, simulateLatency, sortItems } from "@/mocks/utils";
 
 const WHITEFIELD = { id: "br-whitefield", name: "Whitefield" };
 const HSR = { id: "br-hsr", name: "HSR Layout" };
@@ -139,3 +145,19 @@ export const quotations: Quotation[] = [
     ],
   }),
 ];
+
+function toSummary({ items, timeline, attachments, ...summary }: Quotation): QuotationSummary {
+  return summary;
+}
+
+export async function getQuotationsMock({
+  status,
+  sort = "requestedAt",
+  order = "desc",
+  page,
+  pageSize,
+}: QuotationFilters): Promise<Paginated<QuotationSummary>> {
+  await simulateLatency();
+  const matching = quotations.filter((q) => !status || q.status === status);
+  return paginate(sortItems(matching, sort, order).map(toSummary), page, pageSize);
+}

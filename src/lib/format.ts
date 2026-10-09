@@ -67,3 +67,8 @@ export function formatRelativeTime(iso: string): string {
   }
   return "just now";
 }
+
+/** 12, "bottle" → "12 bottles"; 1, "invoice" → "1 invoice" */
+export function formatCount(count: number, noun: string): string {
+  return `${formatNumber(count)} ${count === 1 ? noun : `${noun}s`}`;
+}
