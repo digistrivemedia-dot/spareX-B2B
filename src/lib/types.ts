@@ -15,3 +15,9 @@ export type ListParams<TSort extends string = string> = {
   sort?: TSort;
   order?: SortOrder;
 };
+
+/**
+ * What a Server Action returns. Actions report failures as a message rather than throwing,
+ * because Next.js hides thrown error messages from the browser in production.
+ */
+export type ActionResult<T> = { ok: true; data: T } | { ok: false; message: string };

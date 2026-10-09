@@ -17,9 +17,16 @@ function emptyLine(id = `line-${++lastLineId}`): OrderLineDraft {
 
 const isBlank = (line: OrderLineDraft) => !line.product && !line.query.trim();
 
-/** The rows of a quick order. There is always at least one row to type into. */
-export function useOrderLines() {
-  const [lines, setLines] = useState<OrderLineDraft[]>(() => [emptyLine(FIRST_LINE_ID)]);
+/**
+ * The rows of a quick order or quotation request. There is always at least one row to type
+ * into. `initial` rows (e.g. parts passed from the cart) get fixed ids, like the first row.
+ */
+export function useOrderLines(initial: Omit<OrderLineDraft, "id">[] = []) {
+  const [lines, setLines] = useState<OrderLineDraft[]>(() =>
+    initial.length
+      ? initial.map((line, index) => ({ ...line, id: `${FIRST_LINE_ID}-${index}` }))
+      : [emptyLine(FIRST_LINE_ID)],
+  );
 
   const update = (id: string, changes: Partial<OrderLineDraft>) =>
     setLines((current) => current.map((line) => (line.id === id ? { ...line, ...changes } : line)));

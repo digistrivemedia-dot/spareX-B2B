@@ -26,12 +26,23 @@ type DataTableProps<TData extends { id: string }> = {
   pagination?: PaginationInfo;
   /** Shows a "Columns" menu so users can hide columns. */
   enableColumnToggle?: boolean;
+  /**
+   * "compact" tables (a few short columns) stay a table down to 42rem instead of 48rem,
+   * so they don't turn into cards in a two-column page.
+   */
+  density?: "standard" | "compact";
+};
+
+// Written out in full so Tailwind can find the class names.
+const LAYOUTS = {
+  standard: { toggle: "@3xl:flex", table: "@3xl:block", cards: "@3xl:hidden" },
+  compact: { toggle: "@2xl:flex", table: "@2xl:block", cards: "@2xl:hidden" },
 };
 
 /**
  * The one table used across the app. Sorting and pagination live in the URL and are applied
- * by the API; this component only renders. When its own width is under 48rem (a phone, or a
- * tablet beside the sidebar) rows become cards, so columns are never hidden off to the side.
+ * by the API; this component only renders. When its own width is under 48rem (42rem when
+ * compact; a phone, or a tablet beside the sidebar) rows become cards, so columns are never hidden off to the side.
  */
 export function DataTable<TData extends { id: string }>({
   label,
@@ -40,6 +51,7 @@ export function DataTable<TData extends { id: string }>({
   emptyState,
   pagination,
   enableColumnToggle = false,
+  density = "standard",
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useUrlSorting();
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibilityState>({});
@@ -59,12 +71,17 @@ export function DataTable<TData extends { id: string }>({
   return (
     <div className="@container flex flex-col gap-3">
       {enableColumnToggle && (
-        <div className="hidden justify-end @3xl:flex">
+        <div className={cn("hidden justify-end", LAYOUTS[density].toggle)}>
           <DataTableColumnToggle table={table} />
         </div>
       )}
 
-      <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm @3xl:block">
+      <div
+        className={cn(
+          "hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm",
+          LAYOUTS[density].table,
+        )}
+      >
         {/* The table scrolls inside its own box (so the header can stick); 70svh keeps it on screen. */}
         <Table aria-label={label} containerClassName="max-h-[70svh]">
           <TableHeader>
@@ -95,7 +112,11 @@ export function DataTable<TData extends { id: string }>({
         </Table>
       </div>
 
-      <DataTableCards label={label} rows={table.getRowModel().rows} className="@3xl:hidden" />
+      <DataTableCards
+        label={label}
+        rows={table.getRowModel().rows}
+        className={LAYOUTS[density].cards}
+      />
 
       {pagination && <DataTablePagination {...pagination} />}
     </div>

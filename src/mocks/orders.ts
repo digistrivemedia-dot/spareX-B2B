@@ -17,7 +17,11 @@ const WHITEFIELD = { id: "br-whitefield", name: "Whitefield" };
 const HSR = { id: "br-hsr", name: "HSR Layout" };
 
 /** An order line at the tier price the quantity earns, or at an agreed (quoted) price. */
-function orderLine(productId: string, quantity: number, agreedPriceInPaise?: number): OrderLine {
+export function orderLine(
+  productId: string,
+  quantity: number,
+  agreedPriceInPaise?: number,
+): OrderLine {
   return {
     ...lineFor(productId, quantity),
     unitPriceInPaise: agreedPriceInPaise ?? getUnitPrice(findById(products, productId), quantity),
@@ -202,34 +206,50 @@ export async function getOrderMock(id: string): Promise<Order | null> {
   return orders.find((o) => o.id === id) ?? null;
 }
 
-/**
- * Creates the order the way the backend will: prices come from the catalogue, not the browser.
- * Kept in memory, so it shows in the order list until the server restarts.
- */
-export async function placeOrderMock(request: PlaceOrderRequest): Promise<PlacedOrder> {
-  await simulateLatency(900);
-  const { id, name } = findById(branches, request.branchId);
+type NewOrder = Pick<Order, "poNumber" | "poDate" | "notes" | "quotationId" | "payment"> & {
+  branchId: string;
+  items: OrderLine[];
+};
+
+/** Adds a new order the way the backend will. Kept in memory until the server restarts. */
+export function createOrder({ branchId, ...details }: NewOrder): Order {
+  const { id, name } = findById(branches, branchId);
   const latest = Math.max(...orders.map((o) => Number(o.number.slice(-4))));
   const serial = String(latest + 1).padStart(4, "0");
   const placedAt = new Date().toISOString();
 
   const created = order({
+    ...details,
     id: `ord-${serial}`,
     number: `ORD-2026-${serial}`,
-    poNumber: request.poNumber,
-    poDate: request.poDate,
     placedAt,
     expectedDeliveryDate: daysFromToday(1, 18),
     branch: { id, name },
     status: "placed",
+    timeline: [{ status: "placed", at: placedAt }],
+  });
+  orders.unshift(created);
+  return created;
+}
+
+/** Prices come from the catalogue, never from the browser. */
+export async function placeOrderMock(request: PlaceOrderRequest): Promise<PlacedOrder> {
+  await simulateLatency(900);
+  const { id, number } = createOrder({
+    branchId: request.branchId,
+    poNumber: request.poNumber,
+    poDate: request.poDate,
+    notes: request.notes,
     items: request.items.map(({ productId, quantity }) => orderLine(productId, quantity)),
     payment:
       request.payment.method === "credit"
         ? { method: "credit", status: "pending" }
-        : { method: "online", status: "paid", channel: request.payment.channel, paidAt: placedAt },
-    notes: request.notes,
-    timeline: [{ status: "placed", at: placedAt }],
+        : {
+            method: "online",
+            status: "paid",
+            channel: request.payment.channel,
+            paidAt: new Date().toISOString(),
+          },
   });
-  orders.unshift(created);
-  return { id: created.id, number: created.number };
+  return { id, number };
 }

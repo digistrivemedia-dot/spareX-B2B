@@ -33,10 +33,10 @@ Colours and the "SpareX Business" text logo are placeholders, as the brief says.
 **Need:** the brand guide and logo files. Colours change in one place (`src/app/globals.css`);
 the logo is one file (`src/components/layout/Logo.tsx`).
 
-### 5. 🟡 Quotation attachments (Screen 6)
+### 5. 🔵 Quotation attachments (Screen 6)
 
-The demo quotations list PDF attachments that don't exist yet.
-**Options:** (a) add sample PDFs to the demo (recommended); (b) drop attachments from the demo.
+Two sample PDFs (QT-2026-0093, QT-2026-0088) are in `public/documents/`, clearly marked
+"sample document for the demo". The real PDFs will come from the admin panel / backend.
 
 ### 6. 🔵 Delivery charge
 
@@ -188,3 +188,28 @@ before Phase 1.
 
 Checkout calls a Next.js Server Action, which calls the orders API. In the demo the new order is
 kept in server memory, so it appears in orders until the server restarts.
+
+## Quotations (Screen 6)
+
+### 31. 🟡 What "Accept & convert to order" does
+
+Accepting places the order immediately: at the quoted prices, on credit (Net 30), delivered to
+the branch on the quotation, with an optional PO number. If the credit available is too low it
+says so and nothing is ordered.
+**Options:** (a) keep (fast, current); (b) send the quoted parts to checkout instead, so the buyer
+can change branch or pay online.
+
+### 32. 🔵 Asking for a revision
+
+The quotation goes back to "Requested" with your comment in its history; the old quoted prices
+stay visible until Kannali sends new ones. The brief's five statuses are kept (no separate
+"revision requested" status).
+
+### 33. 🔵 Requesting a quotation for out-of-stock parts
+
+Allowed (it is often the reason to ask). The rows still show their stock status.
+
+### 34. ⚪ Compact tables
+
+Short tables (like a quotation's parts) stay a table down to 42rem instead of 48rem, so they
+don't become cards beside the side panel on a laptop.

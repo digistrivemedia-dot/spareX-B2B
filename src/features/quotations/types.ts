@@ -59,3 +59,14 @@ export type QuotationSort = "requestedAt" | "validUntil";
 export type QuotationFilters = ListParams<QuotationSort> & {
   status?: QuotationStatus;
 };
+
+export type QuotationRequest = {
+  branchId: string;
+  notes?: string;
+  items: { productId: string; quantity: number }[];
+};
+
+/** Accepting turns the quotation into an order on credit, at the quoted prices. */
+export type AcceptQuotationRequest = {
+  poNumber?: string;
+};

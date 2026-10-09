@@ -44,6 +44,18 @@ export function formatDate(iso: string): string {
   return `${part("day")} ${MONTHS[Number(part("month")) - 1]} ${part("year")}`;
 }
 
+const timeOfDay = new Intl.DateTimeFormat(LOCALE, {
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+  timeZone: TIME_ZONE,
+});
+
+/** ISO date string → "12 Oct 2026, 3:45 pm" (India time). */
+export function formatDateTime(iso: string): string {
+  return `${formatDate(iso)}, ${timeOfDay.format(new Date(iso)).toLowerCase()}`;
+}
+
 /** "+919845012345" → "+91 98450 12345" */
 export function formatPhone(e164: string): string {
   const digits = e164.replace(/\D/g, "").slice(-10);

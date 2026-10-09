@@ -18,7 +18,6 @@ import { checkoutSchema, type CheckoutValues } from "@/features/checkout/schemas
 import type { CreditSummary } from "@/features/credit/types";
 import { placeOrderAction } from "@/features/orders/actions";
 import type { PlacedOrder } from "@/features/orders/types";
-import { getErrorMessage } from "@/lib/api-client";
 import { formatPrice } from "@/lib/format";
 import type { OrderTotals } from "@/lib/pricing";
 
@@ -58,23 +57,19 @@ export function CheckoutForm({
     if (values.paymentMethod === "credit" && !canUseCredit) {
       return form.setError("paymentMethod", { message: "Not enough credit: please pay online." });
     }
-    try {
-      onPlaced(
-        await placeOrderAction({
-          branchId,
-          poNumber: values.poNumber || undefined,
-          poDate: values.poDate || undefined,
-          notes: values.notes || undefined,
-          payment:
-            values.paymentMethod === "credit"
-              ? { method: "credit" }
-              : { method: "online", channel: values.onlineChannel },
-          items: lines.map((line) => ({ productId: line.id, quantity: line.quantity })),
-        }),
-      );
-    } catch (error) {
-      form.setError("root", { message: getErrorMessage(error) });
-    }
+    const result = await placeOrderAction({
+      branchId,
+      poNumber: values.poNumber || undefined,
+      poDate: values.poDate || undefined,
+      notes: values.notes || undefined,
+      payment:
+        values.paymentMethod === "credit"
+          ? { method: "credit" }
+          : { method: "online", channel: values.onlineChannel },
+      items: lines.map((line) => ({ productId: line.id, quantity: line.quantity })),
+    });
+    if (result.ok) onPlaced(result.data);
+    else form.setError("root", { message: result.message });
   }
 
   return (

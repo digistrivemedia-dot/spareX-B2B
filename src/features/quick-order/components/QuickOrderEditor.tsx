@@ -4,28 +4,23 @@ import { useRouter } from "next/navigation";
 import type { KeyboardEvent } from "react";
 import { toast } from "sonner";
 
-import { getStockAtBranch, getUnitPrice } from "@/features/catalog/utils";
+import { getUnitPrice } from "@/features/catalog/utils";
 import { useCartStore } from "@/features/cart/store";
-import { useSelectedBranch } from "@/features/company/use-selected-branch";
 import { OrderLineList } from "@/features/quick-order/components/OrderLineList";
 import { PasteListPanel } from "@/features/quick-order/components/PasteListPanel";
 import { QuickOrderFooter } from "@/features/quick-order/components/QuickOrderFooter";
+import { useCheckedLines } from "@/features/quick-order/use-checked-lines";
 import { useOrderLines } from "@/features/quick-order/use-order-lines";
-import { checkLine } from "@/features/quick-order/utils";
 import { formatCount } from "@/lib/format";
 import { summarisePricing } from "@/lib/pricing";
 
 /** Type or paste part numbers, check them against stock, then send them to the cart. */
 export function QuickOrderEditor() {
   const router = useRouter();
-  const branch = useSelectedBranch();
   const addItem = useCartStore((state) => state.addItem);
   const lines = useOrderLines();
 
-  const checked = lines.lines.map((line) => {
-    const stock = line.product && branch ? getStockAtBranch(line.product, branch.id) : 0;
-    return { line, stock, check: checkLine(line, stock) };
-  });
+  const checked = useCheckedLines(lines.lines);
   // Rows the cart can take: a part was found and the branch has some stock.
   const addable = checked.flatMap(({ line, check }) =>
     line.product && check && check.status !== "out_of_stock"

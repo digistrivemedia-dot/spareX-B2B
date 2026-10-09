@@ -1,13 +1,20 @@
+import type { PlacedOrder } from "@/features/orders/types";
 import type {
+  AcceptQuotationRequest,
   Quotation,
   QuotationFilters,
   QuotationLine,
+  QuotationRequest,
   QuotationSummary,
 } from "@/features/quotations/types";
+import { ApiError } from "@/lib/api-client";
 import type { Paginated } from "@/lib/types";
 import { summarisePricing } from "@/lib/pricing";
 import { lineFor } from "@/mocks/catalog";
-import { daysFromToday, paginate, simulateLatency, sortItems } from "@/mocks/utils";
+import { branches } from "@/mocks/company";
+import { getCreditSummaryMock } from "@/mocks/credit";
+import { createOrder, orderLine } from "@/mocks/orders";
+import { daysFromToday, findById, paginate, simulateLatency, sortItems } from "@/mocks/utils";
 
 const WHITEFIELD = { id: "br-whitefield", name: "Whitefield" };
 const HSR = { id: "br-hsr", name: "HSR Layout" };
@@ -83,7 +90,7 @@ export const quotations: Quotation[] = [
       {
         id: "att-0093-1",
         name: "QT-2026-0093.pdf",
-        sizeInBytes: 184_320,
+        sizeInBytes: 1_420,
         url: "/documents/QT-2026-0093.pdf",
       },
     ],
@@ -113,7 +120,7 @@ export const quotations: Quotation[] = [
       {
         id: "att-0088-1",
         name: "QT-2026-0088.pdf",
-        sizeInBytes: 201_728,
+        sizeInBytes: 1_501,
         url: "/documents/QT-2026-0088.pdf",
       },
     ],
@@ -160,4 +167,112 @@ export async function getQuotationsMock({
   await simulateLatency();
   const matching = quotations.filter((q) => !status || q.status === status);
   return paginate(sortItems(matching, sort, order).map(toSummary), page, pageSize);
+}
+
+export async function getQuotationMock(id: string): Promise<Quotation | null> {
+  await simulateLatency();
+  return quotations.find((quotation) => quotation.id === id) ?? null;
+}
+
+function update(id: string, changes: (quotation: Quotation) => Partial<Quotation>): Quotation {
+  const index = quotations.findIndex((quotation) => quotation.id === id);
+  if (index === -1) throw new ApiError(404, { message: "We couldn't find that quotation." });
+  quotations[index] = { ...quotations[index], ...changes(quotations[index]) };
+  return quotations[index];
+}
+
+function requireStatus(id: string, status: Quotation["status"]) {
+  if (findById(quotations, id).status !== status) {
+    throw new ApiError(409, { message: "This quotation has changed. Refresh the page to see it." });
+  }
+}
+
+export async function requestQuotationMock(request: QuotationRequest): Promise<Quotation> {
+  await simulateLatency(700);
+  const latest = Math.max(...quotations.map((q) => Number(q.number.slice(-4))));
+  const serial = String(latest + 1).padStart(4, "0");
+  const now = new Date().toISOString();
+  const { id, name } = findById(branches, request.branchId);
+  const created = quotation({
+    id: `qt-${serial}`,
+    number: `QT-2026-${serial}`,
+    status: "requested",
+    requestedAt: now,
+    branch: { id, name },
+    items: request.items.map(({ productId, quantity }) => quotationLine(productId, quantity)),
+    customerNotes: request.notes,
+    attachments: [],
+    timeline: [{ status: "requested", at: now }],
+  });
+  quotations.unshift(created);
+  return created;
+}
+
+/** Places an order on credit at the quoted prices, if the credit limit allows. */
+export async function acceptQuotationMock(
+  id: string,
+  { poNumber }: AcceptQuotationRequest,
+): Promise<PlacedOrder> {
+  await simulateLatency(900);
+  requireStatus(id, "quoted");
+  const quote = findById(quotations, id);
+  const credit = await getCreditSummaryMock();
+  if ((quote.totalInPaise ?? 0) > credit.availableInPaise) {
+    throw new ApiError(422, {
+      message: "This order is more than your available credit. Pay some invoices first.",
+    });
+  }
+  const created = createOrder({
+    branchId: quote.branch.id,
+    poNumber,
+    quotationId: quote.id,
+    notes: `Converted from quotation ${quote.number}.`,
+    payment: { method: "credit", status: "pending" },
+    items: quote.items.map((line) =>
+      orderLine(line.productId, line.quantity, line.quotedPriceInPaise),
+    ),
+  });
+  update(id, ({ timeline }) => ({
+    status: "accepted",
+    order: { id: created.id, number: created.number },
+    timeline: [
+      ...timeline,
+      { status: "accepted", at: created.placedAt, note: `Converted to ${created.number}` },
+    ],
+  }));
+  return { id: created.id, number: created.number };
+}
+
+/** Sends the quotation back to Kannali with a comment; it waits for a new quote. */
+export async function requestRevisionMock(id: string, comment: string): Promise<Quotation> {
+  await simulateLatency(600);
+  requireStatus(id, "quoted");
+  return update(id, ({ timeline }) => ({
+    status: "requested",
+    validUntil: undefined,
+    timeline: [
+      ...timeline,
+      {
+        status: "requested",
+        at: new Date().toISOString(),
+        note: `You asked for a revision: ${comment}`,
+      },
+    ],
+  }));
+}
+
+export async function rejectQuotationMock(id: string, reason?: string): Promise<Quotation> {
+  await simulateLatency(600);
+  requireStatus(id, "quoted");
+  return update(id, ({ timeline }) => ({
+    status: "rejected",
+    timeline: [
+      ...timeline,
+      {
+        status: "rejected",
+        at: new Date().toISOString(),
+        note: reason ? `Your reason: ${reason}` : undefined,
+      },
+    ],
+  }));
 }
