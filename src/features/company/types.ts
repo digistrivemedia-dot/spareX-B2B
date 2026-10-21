@@ -1,4 +1,5 @@
 import type { Role } from "@/features/auth/types";
+import type { ListParams } from "@/lib/types";
 
 export type BusinessType = "garage" | "fleet" | "dealer" | "retailer" | "reseller" | "corporate";
 
@@ -26,7 +27,14 @@ export type Business = {
   discountPercent: number;
   /** Kannali enables credit per business; credit screens and payment appear only when true. */
   creditEnabled: boolean;
+  /** Shop photos sent with the registration. */
+  photos: string[];
+  /** Licence and certificate photos sent with the registration. */
+  documents: string[];
 };
+
+/** What the business can change itself; name, type, GSTIN and PAN are fixed once verified. */
+export type BusinessContactUpdate = Pick<Business, "email" | "phone">;
 
 export type Branch = {
   id: string;
@@ -39,6 +47,9 @@ export type Branch = {
 
 /** The minimal branch reference embedded in orders and quotations. */
 export type BranchRef = Pick<Branch, "id" | "name">;
+
+/** What is sent to add or change a branch (delivery address). */
+export type BranchInput = Pick<Branch, "name" | "address" | "contactName" | "contactPhone">;
 
 export type CompanyUserStatus = "active" | "invited" | "disabled";
 
@@ -53,6 +64,13 @@ export type CompanyUser = {
   branchId: string;
   status: CompanyUserStatus;
   lastActiveAt?: string;
+};
+
+export type CompanyUserInput = Pick<CompanyUser, "name" | "email" | "phone" | "roles" | "branchId">;
+
+export type CompanyUserFilters = ListParams<"name"> & {
+  role?: Role;
+  branchId?: string;
 };
 
 /** What a PIN code lookup returns, used to fill in city and state. */

@@ -63,7 +63,8 @@ export function FormTextField<T extends FieldValues>({
               }}
               aria-invalid={fieldState.invalid}
               aria-describedby={descriptionId}
-              className={cn(prefixText && "pl-12")}
+              // Room for the prefix: "+91" needs more than a single symbol like "₹".
+              className={cn(prefixText && (prefixText.length > 1 ? "pl-12" : "pl-7"))}
             />
           </div>
           {description && <FieldDescription id={descriptionId}>{description}</FieldDescription>}

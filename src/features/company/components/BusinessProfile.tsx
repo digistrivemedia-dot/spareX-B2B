@@ -1,0 +1,107 @@
+import { Pencil } from "lucide-react";
+import type { ReactNode } from "react";
+
+import { Button } from "@/components/ui/button";
+import { PhotoGallery } from "@/components/ui/PhotoGallery";
+import { SectionCard } from "@/components/ui/SectionCard";
+import { StatusBadge } from "@/components/ui/StatusBadge";
+import { BUSINESS_TYPE_LABELS } from "@/features/company/business-types";
+import { BusinessContactDialog } from "@/features/company/components/BusinessContactDialog";
+import type { Business } from "@/features/company/types";
+import type { CreditSummary } from "@/features/credit/types";
+import { formatDate, formatPhone, formatPrice } from "@/lib/format";
+
+type BusinessProfileProps = {
+  business: Business;
+  /** Null when credit isn't enabled. */
+  credit: CreditSummary | null;
+};
+
+export function BusinessProfile({ business, credit }: BusinessProfileProps) {
+  const { registeredAddress: address } = business;
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <SectionCard title="Business">
+        <DetailList>
+          <Detail label="Name" value={business.name} />
+          <Detail label="Type" value={BUSINESS_TYPE_LABELS[business.type]} />
+          <Detail label="GSTIN" value={business.gstin ?? "Not given"} />
+          <Detail label="PAN" value={business.pan ?? "Not given"} />
+          <Detail
+            label="Registered address"
+            value={`${[address.line1, address.line2, address.city, address.state].filter(Boolean).join(", ")} ${address.pin}`}
+          />
+        </DetailList>
+        <p className="mt-4 text-xs text-gray-500">
+          These are fixed once Kannali verifies your business. Call your account manager to change
+          them.
+        </p>
+      </SectionCard>
+
+      <SectionCard
+        title="Contact"
+        action={
+          <BusinessContactDialog
+            business={business}
+            trigger={
+              <Button variant="ghost" size="sm">
+                <Pencil aria-hidden />
+                Edit
+              </Button>
+            }
+          />
+        }
+      >
+        <DetailList>
+          <Detail label="Business email" value={business.email} />
+          <Detail label="Phone" value={formatPhone(business.phone)} />
+        </DetailList>
+      </SectionCard>
+
+      <SectionCard title="Your terms with Kannali">
+        <DetailList>
+          <Detail label="Verified on" value={formatDate(business.approvedAt)} />
+          <Detail label="Business discount" value={`${business.discountPercent}% off B2C prices`} />
+          <div className="flex flex-col gap-1">
+            <dt className="text-gray-500">Credit</dt>
+            <dd>
+              {credit ? (
+                <span className="flex flex-wrap items-center gap-2 text-gray-900">
+                  <StatusBadge status="active">Enabled</StatusBadge>
+                  {formatPrice(credit.limitInPaise)} limit · Net {credit.termsDays}
+                </span>
+              ) : (
+                <StatusBadge status="disabled">Not enabled</StatusBadge>
+              )}
+            </dd>
+          </div>
+        </DetailList>
+      </SectionCard>
+
+      <SectionCard title="Registration photos">
+        <div className="flex flex-col gap-4 text-sm">
+          <PhotoGallery photos={business.photos} label="Shop photo" />
+          {business.documents.length > 0 ? (
+            <PhotoGallery photos={business.documents} label="Document" />
+          ) : (
+            <p className="text-gray-500">No licence or certificate photos were added.</p>
+          )}
+        </div>
+      </SectionCard>
+    </div>
+  );
+}
+
+function DetailList({ children }: { children: ReactNode }) {
+  return <dl className="flex flex-col gap-3 text-sm">{children}</dl>;
+}
+
+function Detail({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <dt className="text-gray-500">{label}</dt>
+      <dd className="text-gray-900">{value}</dd>
+    </div>
+  );
+}

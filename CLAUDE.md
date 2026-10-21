@@ -387,13 +387,13 @@ Credit pages exist only when `creditEnabled`; otherwise they are hidden from nav
 
 | # | Screen | Route | Status | Must include |
 |---|---|---|---|---|
-| B23 | Business profile | `/company` | PLACEHOLDER | Name, type, GSTIN, PAN read-only after verification; editable contact and phone; registration documents and photos; business discount % and credit status (read-only) |
-| B24 | Delivery addresses | `/company/addresses` | PLACEHOLDER | List, add, edit, remove, set default |
-| B25 | Users list | `/company/users` | TO BUILD | Garages only. Name, email, phone, roles (several badges), branch, status (Invited, Active, Disabled); filter by role and branch; Add user |
-| B26 | Add / edit user | `/company/users/new`, `/company/users/[id]` | TO BUILD | Name, email, phone, roles (the 5, with what each sees), one branch; disable / enable; resend invite |
-| B51 | Fleet | none | PLACEHOLDER | Removed from navigation until the client says to keep it; nothing built |
-| B28 | Garage profile editor | `/garage/profile` | TO BUILD | Photos, about; services with own price (add / edit / remove); vehicle types served; opening hours per day; daily booking limit; holidays |
-| B29 | Branches | `/garage/branches` | TO BUILD | List (address, contact, hours, staff count), add / edit branch |
+| B23 | Business profile | `/company` | BUILT | Name, type, GSTIN, PAN read-only after verification; editable contact and phone; registration documents and photos; business discount % and credit status (read-only) |
+| B24 | Delivery addresses | `/company/addresses` | BUILT | List, add, edit, remove, set default |
+| B25 | Users list | `/company/users` | BUILT | Garages only. Name, email, phone, roles (several badges), branch, status (Invited, Active, Disabled); filter by role and branch; Add user |
+| B26 | Add / edit user | `/company/users/new`, `/company/users/[id]` | BUILT | Name, email, phone, roles (the 5, with what each sees), one branch; disable / enable; resend invite |
+| B51 | Fleet | none | WAIT | Removed from navigation until the client says to keep it; nothing built |
+| B28 | Garage profile editor | `/garage/profile` | BUILT | Photos, about; services with own price (add / edit / remove); vehicle types served; opening hours per day; daily booking limit; holidays |
+| B29 | Branches | `/garage/branches` | BUILT | List (address, contact, hours, staff count), add / edit branch |
 
 ### Phase 6: Garage dashboard, bookings, walk-ins, check-in and job cards
 

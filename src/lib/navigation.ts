@@ -1,5 +1,7 @@
 import {
   Building2,
+  MapPinned,
+  Store,
   FileText,
   Files,
   IndianRupee,
@@ -34,8 +36,8 @@ export type NavSection = {
 };
 
 /**
- * The sidebar, in order. A new module is one entry here, e.g. Garage OS:
- * { label: "Job cards", href: "/job-cards", icon: Wrench, businessTypes: ["garage"] }
+ * The sidebar, in order. A new module is one entry here, e.g.
+ * { label: "Job cards", href: "/garage/jobs", icon: Wrench, businessTypes: ["garage"] }
  */
 export const navigation: NavSection[] = [
   {
@@ -47,6 +49,25 @@ export const navigation: NavSection[] = [
       { label: "Quotations", href: "/quotations", icon: FileText, permission: "quotations:view" },
       { label: "Orders", href: "/orders", icon: Package, permission: "orders:view" },
       { label: "Returns", href: "/returns", icon: Undo2, permission: "orders:view" },
+    ],
+  },
+  {
+    label: "Garage",
+    items: [
+      {
+        label: "Garage profile",
+        href: "/garage/profile",
+        icon: Store,
+        businessTypes: ["garage"],
+        permission: "garage:setup",
+      },
+      {
+        label: "Branches",
+        href: "/garage/branches",
+        icon: MapPinned,
+        businessTypes: ["garage"],
+        permission: "garage:setup",
+      },
     ],
   },
   {

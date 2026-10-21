@@ -372,3 +372,33 @@ demo shows each state with review@, sentback@ and rejected@sparex.example.com.
 New passwords need 8+ characters with a letter and a number, shown as a live checklist. First
 login (demo: new@sparex.example.com) asks for a new password before the dashboard; the reset
 link opens `/reset-password`. **Confirm** the password rules.
+
+## Phase 5: company, users and garage setup (B23–B29, B51)
+
+### 60. 🔵 Branches and delivery addresses are the same thing
+
+Each branch is a delivery address for parts. **Company › Delivery addresses** (every business)
+lists them as cards with add, edit, make main and remove; **Garage › Branches** (garages) shows the
+same branches with staff count and hours. Both use one add/edit form. The main branch is the
+default and can't be removed, nor can a branch that still has staff.
+
+### 61. 🔵 One garage profile for every branch
+
+Photos, about, services and prices, vehicle types, opening hours, the daily booking limit
+(per branch) and holidays are set once and apply to all branches. **Confirm** whether branches
+need their own hours or prices.
+
+### 62. 🔵 Users
+
+New users are "Invited" until they set their password; disabling keeps their history. The
+account must always keep at least one active Owner / admin. Users is a Company tab shown only to
+garages.
+
+### 63. 🔵 Fleet (B51)
+
+Not built and not in the menu, as listed; waiting for the client's decision.
+
+### 64. 🔵 Who can open garage set-up
+
+Garage profile, Branches and Users are for the Owner / admin role only for now
+(`src/features/auth/permissions.ts`).

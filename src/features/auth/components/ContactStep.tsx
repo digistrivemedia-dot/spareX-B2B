@@ -1,46 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { FormTextField } from "@/components/ui/FormTextField";
 import type { RegisterValues } from "@/features/auth/schemas";
-import { lookupPincode } from "@/features/company/api";
-
-type PinLookup = "idle" | "searching" | "found" | "not_found";
-
-const PIN_DESCRIPTIONS: Record<PinLookup, string> = {
-  idle: "We'll fill in the city and state.",
-  searching: "Looking up your PIN code…",
-  found: "City and state filled in. Change them if they're wrong.",
-  not_found: "We couldn't find this PIN code. Please type your city and state.",
-};
-
-// No maxLength on these inputs: it would cut pasted text like "+91 98860 44120" before the
-// spaces and prefix are stripped. The normalisers below cap the length instead.
-
-/** "+91 98860 44120", "098860 44120" or "9886044120" → "9886044120" */
-const toMobileDigits = (value: string) =>
-  value
-    .replace(/\D/g, "")
-    .replace(/^(91|0)(?=\d{10}$)/, "")
-    .slice(0, 10);
-
-const toPinDigits = (value: string) => value.replace(/\D/g, "").slice(0, 6);
+import { usePincodeLookup } from "@/features/company/use-pincode-lookup";
+import { toMobileDigits, toPinDigits } from "@/lib/input-format";
 
 export function ContactStep() {
   const { control, setValue } = useFormContext<RegisterValues>();
-  const [pinLookup, setPinLookup] = useState<PinLookup>("idle");
-
-  async function fillCityFromPin(pin: string) {
-    if (pin.length !== 6) return setPinLookup("idle");
-    setPinLookup("searching");
-    const details = await lookupPincode(pin);
-    if (!details) return setPinLookup("not_found");
-    setValue("city", details.city, { shouldValidate: true });
-    setValue("state", details.state, { shouldValidate: true });
-    setPinLookup("found");
-  }
+  const pinLookup = usePincodeLookup(({ city, state }) => {
+    setValue("city", city, { shouldValidate: true });
+    setValue("state", state, { shouldValidate: true });
+  });
 
   return (
     <>
@@ -88,8 +60,8 @@ export function ContactStep() {
         inputMode="numeric"
         autoComplete="postal-code"
         normalize={toPinDigits}
-        onValueChange={fillCityFromPin}
-        description={PIN_DESCRIPTIONS[pinLookup]}
+        onValueChange={pinLookup.lookUp}
+        description={pinLookup.description}
       />
       <div className="grid gap-5 sm:grid-cols-2">
         <FormTextField control={control} name="city" label="City" autoComplete="address-level2" />

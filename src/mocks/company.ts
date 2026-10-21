@@ -1,5 +1,16 @@
-import type { Branch, Business, CompanyUser, PincodeDetails } from "@/features/company/types";
-import { daysFromToday, simulateLatency } from "@/mocks/utils";
+import type {
+  Branch,
+  BranchInput,
+  Business,
+  BusinessContactUpdate,
+  CompanyUser,
+  CompanyUserFilters,
+  CompanyUserInput,
+  PincodeDetails,
+} from "@/features/company/types";
+import { ApiError } from "@/lib/api-client";
+import type { Paginated } from "@/lib/types";
+import { daysFromToday, paginate, simulateLatency } from "@/mocks/utils";
 
 export const business: Business = {
   id: "biz-ssw",
@@ -19,6 +30,8 @@ export const business: Business = {
   approvedAt: "2026-03-18T10:30:00.000Z",
   discountPercent: 15,
   creditEnabled: true,
+  photos: ["/images/garage/workshop-1.jpg", "/images/garage/workshop-3.jpg"],
+  documents: [],
 };
 
 export const branches: Branch[] = [
@@ -147,4 +160,125 @@ export async function lookupPincodeMock(pin: string): Promise<PincodeDetails | n
   await simulateLatency(200);
   const match = CITIES_BY_PIN_PREFIX[pin.slice(0, 3)];
   return match ? { pin, ...match } : null;
+}
+
+function requireBranch(id: string): Branch {
+  const branch = branches.find((candidate) => candidate.id === id);
+  if (!branch) throw new ApiError(404, { message: "We couldn't find that branch." });
+  return branch;
+}
+
+export async function createBranchMock(input: BranchInput): Promise<Branch> {
+  await simulateLatency(600);
+  const created: Branch = { ...input, id: `br-${Date.now()}`, isMain: false };
+  branches.push(created);
+  return created;
+}
+
+export async function updateBranchMock(id: string, input: BranchInput): Promise<Branch> {
+  await simulateLatency(600);
+  return Object.assign(requireBranch(id), input);
+}
+
+/** The main branch is the default delivery address and can't be removed. */
+export async function deleteBranchMock(id: string): Promise<void> {
+  await simulateLatency(500);
+  if (requireBranch(id).isMain) {
+    throw new ApiError(409, { message: "Make another branch the main one before removing this." });
+  }
+  if (companyUsers.some((user) => user.branchId === id && user.status !== "disabled")) {
+    throw new ApiError(409, { message: "Move this branch's staff to another branch first." });
+  }
+  branches.splice(branches.indexOf(requireBranch(id)), 1);
+}
+
+export async function setMainBranchMock(id: string): Promise<void> {
+  await simulateLatency(400);
+  requireBranch(id);
+  for (const branch of branches) branch.isMain = branch.id === id;
+}
+
+export async function updateBusinessContactMock(update: BusinessContactUpdate): Promise<Business> {
+  await simulateLatency(600);
+  return Object.assign(business, update);
+}
+
+export async function getCompanyUsersMock({
+  role,
+  branchId,
+  page,
+  pageSize,
+}: CompanyUserFilters): Promise<Paginated<CompanyUser>> {
+  await simulateLatency();
+  const matching = companyUsers.filter(
+    (user) => (!role || user.roles.includes(role)) && (!branchId || user.branchId === branchId),
+  );
+  return paginate(matching, page, pageSize);
+}
+
+export async function getCompanyUserMock(id: string): Promise<CompanyUser | null> {
+  await simulateLatency();
+  return companyUsers.find((user) => user.id === id) ?? null;
+}
+
+function requireUser(id: string): CompanyUser {
+  const user = companyUsers.find((candidate) => candidate.id === id);
+  if (!user) throw new ApiError(404, { message: "We couldn't find that user." });
+  return user;
+}
+
+function assertEmailFree(email: string, exceptId?: string) {
+  const taken = companyUsers.some(
+    (user) => user.email.toLowerCase() === email.toLowerCase() && user.id !== exceptId,
+  );
+  if (taken) throw new ApiError(409, { message: "Someone on your team already uses this email." });
+}
+
+/** There must always be an active owner who can manage the account. */
+function assertKeepsAnOwner(changed: CompanyUser) {
+  const owners = companyUsers
+    .map((user) => (user.id === changed.id ? changed : user))
+    .filter((user) => user.roles.includes("owner") && user.status === "active");
+  if (owners.length === 0) {
+    throw new ApiError(409, { message: "Keep at least one active Owner / admin on the account." });
+  }
+}
+
+/** New users get an email invitation to set their password. */
+export async function createCompanyUserMock(input: CompanyUserInput): Promise<CompanyUser> {
+  await simulateLatency(700);
+  assertEmailFree(input.email);
+  const created: CompanyUser = { ...input, id: `usr-${Date.now()}`, status: "invited" };
+  companyUsers.push(created);
+  return created;
+}
+
+export async function updateCompanyUserMock(
+  id: string,
+  input: CompanyUserInput,
+): Promise<CompanyUser> {
+  await simulateLatency(700);
+  const user = requireUser(id);
+  assertEmailFree(input.email, id);
+  assertKeepsAnOwner({ ...user, ...input });
+  return Object.assign(user, input);
+}
+
+export async function setCompanyUserStatusMock(
+  id: string,
+  status: "active" | "disabled",
+): Promise<CompanyUser> {
+  await simulateLatency(500);
+  const user = requireUser(id);
+  // A disabled user who never accepted the invite goes back to "invited" when re-enabled.
+  const next = status === "active" && !user.lastActiveAt ? "invited" : status;
+  assertKeepsAnOwner({ ...user, status: next });
+  return Object.assign(user, { status: next });
+}
+
+export async function resendInviteMock(id: string): Promise<void> {
+  await simulateLatency(500);
+  if (requireUser(id).status !== "invited") {
+    throw new ApiError(409, { message: "This user has already accepted their invitation." });
+  }
 }
