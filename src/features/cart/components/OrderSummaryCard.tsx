@@ -9,12 +9,19 @@ import { cn } from "@/lib/utils";
 type OrderSummaryCardProps = {
   totals: OrderTotals;
   itemCount: number;
+  /** What the savings are measured against. */
+  savingsLabel?: string;
   /** Buttons and notes under the total. */
   children?: ReactNode;
 };
 
 /** Subtotal, savings, delivery, GST and the total, as the cart and checkout show them. */
-export function OrderSummaryCard({ totals, itemCount, children }: OrderSummaryCardProps) {
+export function OrderSummaryCard({
+  totals,
+  itemCount,
+  savingsLabel = "You save against B2C prices",
+  children,
+}: OrderSummaryCardProps) {
   return (
     <Card>
       <CardHeader>
@@ -27,11 +34,7 @@ export function OrderSummaryCard({ totals, itemCount, children }: OrderSummaryCa
             value={formatPrice(totals.subtotalInPaise)}
           />
           {totals.savingsInPaise > 0 && (
-            <SummaryRow
-              label="You save against B2C prices"
-              value={formatPrice(totals.savingsInPaise)}
-              isSaving
-            />
+            <SummaryRow label={savingsLabel} value={formatPrice(totals.savingsInPaise)} isSaving />
           )}
           <SummaryRow
             label="Delivery (excl. GST)"

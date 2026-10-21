@@ -354,11 +354,11 @@ the screen shows the placeholder).
 
 | # | Screen | Route | Status | Must include |
 |---|---|---|---|---|
-| B13 | Orders list + reorder | `/orders` | UPDATE | Payment column shows method + status (Paid, Awaiting transfer, Pay on delivery, Credit · due date); Cancelled status; Reorder per row; this is also the garage's parts history |
-| B14 | Order detail + tracking + invoice | `/orders/[id]` | UPDATE | Cancel order (reason + confirm) until shipped; Return items on delivered orders; payment method and status; existing timeline, invoice and reorder |
-| B15 | Return request + status | `/orders/[id]/return`, `/returns`, `/returns/[id]` | TO BUILD | Pick items and quantities, reason, photos, notes → submit; returns list; return detail with timeline (Requested → Approved → Picked up → Refunded, or Rejected with reason) |
-| B16 | Quotations list | `/quotations` | UPDATE | Valid-until shows days left (7-day validity); status tabs stay |
-| B18 | Quotation detail | `/quotations/[id]` | UPDATE | Auto-priced at the business price; validity countdown out of 7 days; Accept → checkout with the quoted prices; Reject (reason + confirm); Ask for revision (comment) |
+| B13 | Orders list + reorder | `/orders` | BUILT | Payment column shows method + status (Paid, Awaiting transfer, Pay on delivery, Credit · due date); Cancelled status; Reorder per row; this is also the garage's parts history |
+| B14 | Order detail + tracking + invoice | `/orders/[id]` | BUILT | Cancel order (reason + confirm) until shipped; Return items on delivered orders; payment method and status; existing timeline, invoice and reorder |
+| B15 | Return request + status | `/orders/[id]/return`, `/returns`, `/returns/[id]` | BUILT | Pick items and quantities, reason, photos, notes → submit; returns list; return detail with timeline (Requested → Approved → Picked up → Refunded, or Rejected with reason) |
+| B16 | Quotations list | `/quotations` | BUILT | Valid-until shows days left (7-day validity); status tabs stay |
+| B18 | Quotation detail | `/quotations/[id]` | BUILT | Auto-priced at the business price; validity countdown out of 7 days; Accept → checkout with the quoted prices; Reject (reason + confirm); Ask for revision (comment) |
 
 ### Phase 3: Credit, payments, invoices and documents
 

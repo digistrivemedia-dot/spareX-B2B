@@ -20,8 +20,9 @@ export type RazorpayChannel = "upi" | "netbanking" | "card";
 /**
  * "pending": not paid and not yet due. That is a credit order before its invoice (raised at
  * dispatch), a bank transfer Kannali hasn't confirmed yet, or cash due on delivery.
+ * "refunded": paid, then the order was cancelled and the money returned.
  */
-export type PaymentStatus = "pending" | "due" | "overdue" | "paid" | "cancelled";
+export type PaymentStatus = "pending" | "due" | "overdue" | "paid" | "refunded" | "cancelled";
 
 export type OrderPayment = {
   method: PaymentMethod;
@@ -50,6 +51,16 @@ export type OrderLine = {
 
 export type OrderEvent = {
   status: OrderStatus;
+  at: string;
+};
+
+export type CancellationReason =
+  "ordered_by_mistake" | "duplicate" | "bought_elsewhere" | "not_needed" | "too_slow" | "other";
+
+/** Orders can be cancelled until they ship. */
+export type OrderCancellation = {
+  reason: CancellationReason;
+  note?: string;
   at: string;
 };
 
@@ -82,6 +93,7 @@ export type Order = {
   invoice?: OrderInvoice;
   quotationId?: string;
   notes?: string;
+  cancellation?: OrderCancellation;
   timeline: OrderEvent[];
 };
 
@@ -100,8 +112,12 @@ export type OrderFilters = ListParams<OrderSort> & {
   to?: string;
 };
 
-/** What checkout sends. The server prices the lines itself; the browser never sets prices. */
+/**
+ * What checkout sends. The server prices the lines itself; the browser never sets prices.
+ * With a quotationId the server orders that quotation's lines at the quoted prices instead.
+ */
 export type PlaceOrderRequest = {
+  quotationId?: string;
   branchId: string;
   poNumber?: string;
   poDate?: string;
@@ -115,3 +131,5 @@ export type PlaceOrderRequest = {
 };
 
 export type PlacedOrder = Pick<Order, "id" | "number">;
+
+export type CancelOrderRequest = Pick<OrderCancellation, "reason" | "note">;

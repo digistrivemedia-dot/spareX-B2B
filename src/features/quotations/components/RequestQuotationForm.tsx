@@ -53,8 +53,8 @@ export function RequestQuotationForm({ initialLines }: RequestQuotationFormProps
       items,
     });
     if (!result.ok) return form.setError("root", { message: result.message });
-    toast.success(`${result.data.number} sent to Kannali`, {
-      description: "You'll usually have prices within a working day.",
+    toast.success(`${result.data.number} is ready`, {
+      description: "Priced at your business prices and valid for 7 days.",
     });
     router.push(`/quotations/${result.data.id}`);
   }
@@ -92,7 +92,7 @@ export function RequestQuotationForm({ initialLines }: RequestQuotationFormProps
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
         <FormAlert message={errors.root?.message} />
         <SubmitButton size="lg" isPending={isSubmitting || isSubmitSuccessful}>
-          Send request for {formatCount(items.length, "part")}
+          Get quotation for {formatCount(items.length, "part")}
         </SubmitButton>
       </div>
     </form>

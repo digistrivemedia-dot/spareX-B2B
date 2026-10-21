@@ -9,6 +9,7 @@ export const dataSource = {
   company: "mock",
   catalog: "mock",
   orders: "mock",
+  returns: "mock",
   quotations: "mock",
   credit: "mock",
   promotions: "mock",

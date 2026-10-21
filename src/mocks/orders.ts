@@ -1,4 +1,5 @@
 import type {
+  CancelOrderRequest,
   Order,
   OrderFilters,
   OrderLine,
@@ -7,6 +8,8 @@ import type {
   PlaceOrderRequest,
 } from "@/features/orders/types";
 import type { Paginated } from "@/lib/types";
+import { CANCELLABLE_STATUSES } from "@/features/orders/utils";
+import { ApiError } from "@/lib/api-client";
 import { toIndiaDate } from "@/lib/dates";
 import { calculateOrderTotals } from "@/lib/pricing";
 import { lineFor, products } from "@/mocks/catalog";
@@ -166,7 +169,11 @@ export const orders: Order[] = [
     status: "cancelled",
     items: [orderLine("p-exide-xltz5", 4), orderLine("p-mrf-zapper-90-90-12", 4)],
     payment: { method: "cod", status: "cancelled" },
-    notes: "Cancelled at customer's request: duplicate of a counter purchase.",
+    cancellation: {
+      reason: "duplicate",
+      note: "Bought the same batteries at the counter.",
+      at: daysFromToday(-17, 13, 15),
+    },
     timeline: [
       { status: "placed", at: daysFromToday(-17, 10, 30) },
       { status: "cancelled", at: daysFromToday(-17, 13, 15) },
@@ -269,7 +276,7 @@ export function createOrder({ branchId, ...details }: NewOrder): Order {
 }
 
 /** Razorpay confirms at once in the demo; the other methods wait for Kannali or the invoice. */
-function toOrderPayment(payment: PlaceOrderRequest["payment"]): Order["payment"] {
+export function toOrderPayment(payment: PlaceOrderRequest["payment"]): Order["payment"] {
   switch (payment.method) {
     case "razorpay":
       return { ...payment, status: "paid", paidAt: new Date().toISOString() };
@@ -292,4 +299,30 @@ export async function placeOrderMock(request: PlaceOrderRequest): Promise<Placed
     payment: toOrderPayment(request.payment),
   });
   return { id, number };
+}
+
+/** Cancels an order that hasn't shipped; anything already paid is refunded. */
+export async function cancelOrderMock(id: string, request: CancelOrderRequest): Promise<Order> {
+  await simulateLatency(700);
+  const index = orders.findIndex((o) => o.id === id);
+  if (index === -1) throw new ApiError(404, { message: "We couldn't find that order." });
+  const current = orders[index];
+  if (!CANCELLABLE_STATUSES.includes(current.status)) {
+    throw new ApiError(409, {
+      message:
+        "This order has already shipped, so it can't be cancelled. Request a return instead.",
+    });
+  }
+  const at = new Date().toISOString();
+  orders[index] = {
+    ...current,
+    status: "cancelled",
+    cancellation: { ...request, at },
+    payment: {
+      ...current.payment,
+      status: current.payment.status === "paid" ? "refunded" : "cancelled",
+    },
+    timeline: [...current.timeline, { status: "cancelled", at }],
+  };
+  return orders[index];
 }

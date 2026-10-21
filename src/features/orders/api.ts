@@ -1,4 +1,5 @@
 import type {
+  CancelOrderRequest,
   Order,
   OrderFilters,
   OrderSummary,
@@ -8,7 +9,8 @@ import type {
 import { apiClient } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
-import { getOrderMock, getOrdersMock, placeOrderMock } from "@/mocks/orders";
+import { cancelOrderMock, getOrderMock, getOrdersMock, placeOrderMock } from "@/mocks/orders";
+import { placeQuotationOrderMock } from "@/mocks/quotations";
 
 export async function getOrders(filters: OrderFilters = {}): Promise<Paginated<OrderSummary>> {
   if (dataSource.orders === "mock") return getOrdersMock(filters);
@@ -25,6 +27,14 @@ export async function getOrder(id: string): Promise<Order | null> {
 }
 
 export async function placeOrder(request: PlaceOrderRequest): Promise<PlacedOrder> {
-  if (dataSource.orders === "mock") return placeOrderMock(request);
+  if (dataSource.orders === "mock") {
+    return request.quotationId ? placeQuotationOrderMock(request) : placeOrderMock(request);
+  }
   return apiClient<PlacedOrder>("/orders", { method: "POST", body: request });
+}
+
+/** Only orders that haven't shipped can be cancelled. */
+export async function cancelOrder(id: string, request: CancelOrderRequest): Promise<Order> {
+  if (dataSource.orders === "mock") return cancelOrderMock(id, request);
+  return apiClient<Order>(`/orders/${id}/cancel`, { method: "POST", body: request });
 }

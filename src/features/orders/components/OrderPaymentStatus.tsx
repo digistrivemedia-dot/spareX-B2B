@@ -10,6 +10,7 @@ const PAID_BY = { razorpay: "", bank_transfer: "bank transfer", cod: "cash", cre
 /** "Paid · UPI", "Awaiting bank transfer", "Cash on delivery", "Credit · due 12 Oct 2026"… */
 export function OrderPaymentStatus({ payment }: { payment: OrderPayment }) {
   if (payment.status === "cancelled") return <span className="text-gray-500">—</span>;
+  if (payment.status === "refunded") return <StatusBadge status="refunded" />;
   if (payment.status === "paid") {
     const by = payment.channel ? RAZORPAY_CHANNEL_LABELS[payment.channel] : PAID_BY[payment.method];
     return <StatusBadge status="paid">Paid{by ? ` · ${by}` : ""}</StatusBadge>;

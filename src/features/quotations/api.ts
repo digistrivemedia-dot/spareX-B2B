@@ -1,6 +1,4 @@
-import type { PlacedOrder } from "@/features/orders/types";
 import type {
-  AcceptQuotationRequest,
   Quotation,
   QuotationFilters,
   QuotationRequest,
@@ -10,7 +8,6 @@ import { apiClient } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
 import {
-  acceptQuotationMock,
   getQuotationMock,
   getQuotationsMock,
   rejectQuotationMock,
@@ -34,14 +31,6 @@ export async function getQuotation(id: string): Promise<Quotation | null> {
 export async function requestQuotation(request: QuotationRequest): Promise<Quotation> {
   if (dataSource.quotations === "mock") return requestQuotationMock(request);
   return apiClient<Quotation>("/quotations", { method: "POST", body: request });
-}
-
-export async function acceptQuotation(
-  id: string,
-  request: AcceptQuotationRequest,
-): Promise<PlacedOrder> {
-  if (dataSource.quotations === "mock") return acceptQuotationMock(id, request);
-  return apiClient<PlacedOrder>(`/quotations/${id}/accept`, { method: "POST", body: request });
 }
 
 export async function requestRevision(id: string, comment: string): Promise<Quotation> {

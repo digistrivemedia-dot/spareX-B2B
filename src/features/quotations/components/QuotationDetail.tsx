@@ -14,12 +14,7 @@ import type { Quotation } from "@/features/quotations/types";
 import { describeValidity, getQuotationSteps } from "@/features/quotations/utils";
 import { cn } from "@/lib/utils";
 
-type QuotationDetailProps = {
-  quotation: Quotation;
-  termsDays: number;
-};
-
-export function QuotationDetail({ quotation, termsDays }: QuotationDetailProps) {
+export function QuotationDetail({ quotation }: { quotation: Quotation }) {
   const validity =
     quotation.status === "quoted" && quotation.validUntil
       ? describeValidity(quotation.validUntil)
@@ -85,14 +80,7 @@ export function QuotationDetail({ quotation, termsDays }: QuotationDetailProps) 
                 </Link>
               </p>
             )}
-            {quotation.status === "quoted" && quotation.totalInPaise !== undefined && (
-              <QuotationDecision
-                quotationId={quotation.id}
-                totalInPaise={quotation.totalInPaise}
-                branchName={quotation.branch.name}
-                termsDays={termsDays}
-              />
-            )}
+            {quotation.status === "quoted" && <QuotationDecision quotationId={quotation.id} />}
           </CardContent>
         </Card>
         <Section title="History" className="order-last xl:order-none">

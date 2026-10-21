@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Package,
   PackageSearch,
+  Undo2,
   Wallet,
   Zap,
   type LucideIcon,
@@ -43,6 +44,7 @@ export const navigation: NavSection[] = [
       { label: "Quick order", href: "/quick-order", icon: Zap, permission: "orders:place" },
       { label: "Quotations", href: "/quotations", icon: FileText, permission: "quotations:view" },
       { label: "Orders", href: "/orders", icon: Package, permission: "orders:view" },
+      { label: "Returns", href: "/returns", icon: Undo2, permission: "orders:view" },
     ],
   },
   {

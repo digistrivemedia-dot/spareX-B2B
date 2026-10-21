@@ -9,18 +9,21 @@ import { OrderSummaryCard } from "@/features/cart/components/OrderSummaryCard";
 import type { Branch } from "@/features/company/types";
 import { OrderActions } from "@/features/orders/components/OrderActions";
 import { OrderItemsTable } from "@/features/orders/components/OrderItemsTable";
-import { OrderPaymentStatus } from "@/features/orders/components/OrderPaymentStatus";
+import { OrderPaymentDetails } from "@/features/orders/components/OrderPaymentDetails";
+import { OrderReturnsCard } from "@/features/orders/components/OrderReturnsCard";
 import type { Order } from "@/features/orders/types";
-import { getOrderSteps } from "@/features/orders/utils";
-import { formatDate, formatPhone } from "@/lib/format";
+import { CANCELLATION_REASON_LABELS, getOrderSteps } from "@/features/orders/utils";
+import type { ReturnSummary } from "@/features/returns/types";
+import { formatDate, formatDateTime, formatPhone } from "@/lib/format";
 
 type OrderDetailProps = {
   order: Order;
   /** The full delivery branch, for its address. */
   branch?: Branch;
+  returns: ReturnSummary[];
 };
 
-export function OrderDetail({ order, branch }: OrderDetailProps) {
+export function OrderDetail({ order, branch, returns }: OrderDetailProps) {
   const isOpen = order.status !== "delivered" && order.status !== "cancelled";
 
   return (
@@ -80,6 +83,16 @@ export function OrderDetail({ order, branch }: OrderDetailProps) {
             />
           </InfoCard>
         </div>
+        {order.cancellation && (
+          <InfoCard title="Cancellation">
+            <Detail label="Reason" value={CANCELLATION_REASON_LABELS[order.cancellation.reason]} />
+            {order.cancellation.note && (
+              <Detail label="Your note" value={order.cancellation.note} />
+            )}
+            <Detail label="Cancelled on" value={formatDateTime(order.cancellation.at)} />
+          </InfoCard>
+        )}
+        {returns.length > 0 && <OrderReturnsCard returns={returns} />}
         <OrderSummaryCard totals={order} itemCount={order.itemCount} />
       </div>
 
@@ -88,10 +101,7 @@ export function OrderDetail({ order, branch }: OrderDetailProps) {
         <Card className="order-first xl:order-none">
           <CardContent className="flex flex-col gap-4">
             <StatusBadge status={order.status} className="self-start" />
-            <div className="flex flex-col gap-1 text-sm">
-              <span className="text-gray-500">Payment</span>
-              <OrderPaymentStatus payment={order.payment} />
-            </div>
+            <OrderPaymentDetails order={order} />
             <OrderActions order={order} />
           </CardContent>
         </Card>

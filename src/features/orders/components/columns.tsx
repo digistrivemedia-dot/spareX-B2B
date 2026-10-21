@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createAppColumnHelper } from "@/components/ui/data-table/table-hook";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { OrderPaymentStatus } from "@/features/orders/components/OrderPaymentStatus";
+import { ReorderButton } from "@/features/orders/components/ReorderButton";
 import type { OrderSummary } from "@/features/orders/types";
 import { formatDate, formatPrice } from "@/lib/format";
 
@@ -50,7 +51,7 @@ export const orderColumns = column.columns([
   status,
 ]);
 
-/** The full orders list: sortable by date and amount, with payment. */
+/** The full orders list: sortable by date and amount, with payment and a reorder button. */
 export const orderListColumns = column.columns([
   number,
   poNumber,
@@ -68,4 +69,21 @@ export const orderListColumns = column.columns([
     cell: ({ getValue }) => <OrderPaymentStatus payment={getValue()} />,
   }),
   status,
+  column.display({
+    id: "actions",
+    header: () => <span className="sr-only">Actions</span>,
+    enableHiding: false,
+    cell: ({ row }) =>
+      row.original.status !== "cancelled" && (
+        <ReorderButton
+          variant="ghost"
+          size="icon-sm"
+          orderId={row.original.id}
+          orderNumber={row.original.number}
+          title="Reorder"
+        >
+          <span className="sr-only">Reorder {row.original.number}</span>
+        </ReorderButton>
+      ),
+  }),
 ]);

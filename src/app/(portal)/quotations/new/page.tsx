@@ -31,7 +31,7 @@ export default async function RequestQuotationPage({ searchParams }: RequestQuot
     <>
       <PageHeader
         title="Request quotation"
-        description="Kannali usually replies with prices within one working day."
+        description="You'll get a quotation at your business prices straight away, valid for 7 days. Ask for a revision if you need a better price."
       />
       <RequestQuotationForm initialLines={initialLines} />
     </>

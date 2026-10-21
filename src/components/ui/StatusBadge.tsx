@@ -48,12 +48,16 @@ const STATUSES = {
   due: { label: "Due", tone: "warning" },
   overdue: { label: "Overdue", tone: "danger" },
   paid: { label: "Paid", tone: "success" },
+  refunded: { label: "Refunded", tone: "success" },
   // Quotations
   requested: { label: "Requested", tone: "info" },
   quoted: { label: "Awaiting you", tone: "warning" },
   accepted: { label: "Accepted", tone: "success" },
   rejected: { label: "Rejected", tone: "danger" },
   expired: { label: "Expired", tone: "neutral" },
+  // Returns (requested, rejected and refunded are shared above)
+  approved: { label: "Approved", tone: "info" },
+  picked_up: { label: "Picked up", tone: "info" },
   // Stock at the delivery branch
   in_stock: { label: "In stock", tone: "success" },
   low_stock: { label: "Low stock", tone: "warning" },

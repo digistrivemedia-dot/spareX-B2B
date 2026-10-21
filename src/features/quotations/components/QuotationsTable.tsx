@@ -23,7 +23,7 @@ export function QuotationsTable({ quotations }: { quotations: Paginated<Quotatio
         <EmptyState
           icon={FileText}
           title="No quotations here"
-          description="Ask for a price on bulk or special orders and Kannali will quote within a working day."
+          description="Request a quotation for any list of parts. It's priced straight away and valid for 7 days."
           action={
             <Button asChild>
               <Link href="/quotations/new">Request quotation</Link>

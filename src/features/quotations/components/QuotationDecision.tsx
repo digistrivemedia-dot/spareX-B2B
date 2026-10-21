@@ -1,35 +1,23 @@
 "use client";
 
-import { MessageSquareText, X } from "lucide-react";
+import { CircleCheck, MessageSquareText, X } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { rejectQuotationAction, requestRevisionAction } from "@/features/quotations/actions";
-import { AcceptQuotationDialog } from "@/features/quotations/components/AcceptQuotationDialog";
 import { CommentDialog } from "@/features/quotations/components/CommentDialog";
 import { rejectionSchema, revisionSchema } from "@/features/quotations/schemas";
 
-type QuotationDecisionProps = {
-  quotationId: string;
-  totalInPaise: number;
-  branchName: string;
-  termsDays: number;
-};
-
 /** The three choices on a quotation that is waiting for the buyer. */
-export function QuotationDecision({
-  quotationId,
-  totalInPaise,
-  branchName,
-  termsDays,
-}: QuotationDecisionProps) {
+export function QuotationDecision({ quotationId }: { quotationId: string }) {
   return (
     <div className="flex flex-col gap-2">
-      <AcceptQuotationDialog
-        quotationId={quotationId}
-        totalInPaise={totalInPaise}
-        branchName={branchName}
-        termsDays={termsDays}
-      />
+      <Button size="lg" asChild>
+        <Link href={`/checkout?quotation=${quotationId}`}>
+          <CircleCheck aria-hidden />
+          Accept & checkout
+        </Link>
+      </Button>
       <CommentDialog
         trigger={
           <Button variant="outline">
@@ -54,13 +42,13 @@ export function QuotationDecision({
           </Button>
         }
         title="Reject this quotation?"
-        description="The quoted prices will no longer be available."
-        label="Reason (optional)"
+        description="The quoted prices will no longer be available. This can't be undone."
+        label="Reason"
         placeholder="e.g. Found the parts locally."
         submitLabel="Reject quotation"
         successMessage="Quotation rejected."
         schema={rejectionSchema}
-        onSubmit={(comment) => rejectQuotationAction(quotationId, comment || undefined)}
+        onSubmit={(comment) => rejectQuotationAction(quotationId, comment)}
         isDestructive
       />
     </div>

@@ -1,5 +1,11 @@
 import type { TimelineStep } from "@/components/ui/Timeline";
-import type { Order, OrderStatus, PaymentMethod, RazorpayChannel } from "@/features/orders/types";
+import type {
+  CancellationReason,
+  Order,
+  OrderStatus,
+  PaymentMethod,
+  RazorpayChannel,
+} from "@/features/orders/types";
 import { formatDateTime } from "@/lib/format";
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
@@ -14,6 +20,18 @@ export const RAZORPAY_CHANNEL_LABELS: Record<RazorpayChannel, string> = {
   netbanking: "Net banking",
   card: "Card",
 };
+
+export const CANCELLATION_REASON_LABELS: Record<CancellationReason, string> = {
+  ordered_by_mistake: "Ordered by mistake",
+  duplicate: "Duplicate order",
+  bought_elsewhere: "Bought the parts elsewhere",
+  not_needed: "Parts no longer needed",
+  too_slow: "Delivery takes too long",
+  other: "Other",
+};
+
+/** Until an order ships it can still be cancelled. */
+export const CANCELLABLE_STATUSES: OrderStatus[] = ["placed", "confirmed", "processing", "packed"];
 
 /** Orders that are placed but not yet delivered or cancelled. */
 export const OPEN_ORDER_STATUSES: OrderStatus[] = [
@@ -37,15 +55,24 @@ const ORDER_FLOW: { status: OrderStatus; label: string }[] = [
 ];
 
 /** The full delivery journey: steps reached (with times), the current one, and what is left. */
-export function getOrderSteps({ status, timeline }: Order): TimelineStep[] {
+export function getOrderSteps({ status, timeline, cancellation }: Order): TimelineStep[] {
   const reachedAt = new Map(timeline.map((event) => [event.status, event.at]));
 
   if (status === "cancelled") {
-    return timeline.map((event) => ({
-      label: event.status === "cancelled" ? "Cancelled" : "Placed",
-      when: formatDateTime(event.at),
-      state: event.status === "cancelled" ? "stopped" : "done",
-    }));
+    return timeline.map((event) =>
+      event.status === "cancelled"
+        ? {
+            label: "Cancelled",
+            when: formatDateTime(event.at),
+            note: cancellation && CANCELLATION_REASON_LABELS[cancellation.reason],
+            state: "stopped",
+          }
+        : {
+            label: ORDER_FLOW.find((step) => step.status === event.status)?.label ?? "Placed",
+            when: formatDateTime(event.at),
+            state: "done",
+          },
+    );
   }
 
   return ORDER_FLOW.map(({ status: step, label }) => {

@@ -1,11 +1,5 @@
 import { z } from "zod";
 
-export const acceptQuotationSchema = z.object({
-  poNumber: z.string().trim().max(30, "Keep the PO number to 30 characters or fewer"),
-});
-
-export type AcceptQuotationValues = z.infer<typeof acceptQuotationSchema>;
-
 export const revisionSchema = z.object({
   comment: z
     .string()
@@ -15,7 +9,11 @@ export const revisionSchema = z.object({
 });
 
 export const rejectionSchema = z.object({
-  comment: z.string().trim().max(500, "Keep it to 500 characters or fewer"),
+  comment: z
+    .string()
+    .trim()
+    .min(3, "Tell Kannali why, e.g. found the parts locally")
+    .max(500, "Keep it to 500 characters or fewer"),
 });
 
 export type CommentValues = { comment: string };

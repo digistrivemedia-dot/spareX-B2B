@@ -9,9 +9,9 @@ export type QuotationLine = {
   name: string;
   brand: string;
   quantity: number;
-  /** The customer's standard price per unit, excluding GST. */
+  /** This business's price per unit (the B2C price less its discount), excluding GST. */
   listPriceInPaise: number;
-  /** Kannali's quoted price per unit, excluding GST. Absent until quoted. */
+  /** The quoted price per unit, excluding GST: the business price, or lower after a revision. */
   quotedPriceInPaise?: number;
   gstRatePercent: number;
 };
@@ -64,9 +64,4 @@ export type QuotationRequest = {
   branchId: string;
   notes?: string;
   items: { productId: string; quantity: number }[];
-};
-
-/** Accepting turns the quotation into an order on credit, at the quoted prices. */
-export type AcceptQuotationRequest = {
-  poNumber?: string;
 };

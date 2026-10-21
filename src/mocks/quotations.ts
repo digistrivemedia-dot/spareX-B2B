@@ -1,30 +1,32 @@
-import type { PlacedOrder } from "@/features/orders/types";
+import type { PlacedOrder, PlaceOrderRequest } from "@/features/orders/types";
 import type {
-  AcceptQuotationRequest,
   Quotation,
   QuotationFilters,
   QuotationLine,
   QuotationRequest,
   QuotationSummary,
 } from "@/features/quotations/types";
+import { QUOTATION_VALIDITY_DAYS } from "@/features/quotations/utils";
 import { ApiError } from "@/lib/api-client";
 import type { Paginated } from "@/lib/types";
 import { summarisePricing } from "@/lib/pricing";
 import { lineFor } from "@/mocks/catalog";
 import { branches } from "@/mocks/company";
 import { getCreditSummaryMock } from "@/mocks/credit";
-import { createOrder, orderLine } from "@/mocks/orders";
+import { createOrder, orderLine, toOrderPayment } from "@/mocks/orders";
 import { daysFromToday, findById, paginate, simulateLatency, sortItems } from "@/mocks/utils";
 
 const WHITEFIELD = { id: "br-whitefield", name: "Whitefield" };
 const HSR = { id: "br-hsr", name: "HSR Layout" };
 
+/** A quotation line priced automatically at the business price, unless Kannali quoted lower. */
 function quotationLine(
   productId: string,
   quantity: number,
   quotedPriceInPaise?: number,
 ): QuotationLine {
-  return { ...lineFor(productId, quantity), quotedPriceInPaise };
+  const line = lineFor(productId, quantity);
+  return { ...line, quotedPriceInPaise: quotedPriceInPaise ?? line.listPriceInPaise };
 }
 
 type QuotationSeed = Omit<
@@ -58,6 +60,7 @@ export const quotations: Quotation[] = [
     number: "QT-2026-0096",
     status: "requested",
     requestedAt: daysFromToday(-1, 17, 20),
+    quotedAt: daysFromToday(-1, 17, 20),
     branch: HSR,
     items: [
       quotationLine("p-exide-xltz9", 6),
@@ -67,7 +70,15 @@ export const quotations: Quotation[] = [
     customerNotes:
       "Need these for a fleet service contract starting next month. Please share your best price and lead time for the batteries.",
     attachments: [],
-    timeline: [{ status: "requested", at: daysFromToday(-1, 17, 20) }],
+    timeline: [
+      { status: "requested", at: daysFromToday(-1, 17, 20) },
+      { status: "quoted", at: daysFromToday(-1, 17, 20), note: "Priced at your business prices" },
+      {
+        status: "requested",
+        at: daysFromToday(-1, 17, 45),
+        note: "You asked for a revision: best price on 6 batteries, and the lead time",
+      },
+    ],
   }),
   quotation({
     id: "qt-0093",
@@ -193,41 +204,55 @@ export async function requestQuotationMock(request: QuotationRequest): Promise<Q
   const serial = String(latest + 1).padStart(4, "0");
   const now = new Date().toISOString();
   const { id, name } = findById(branches, request.branchId);
+  // Quotations are priced straight away at the business prices; Kannali steps in on a revision.
   const created = quotation({
     id: `qt-${serial}`,
     number: `QT-2026-${serial}`,
-    status: "requested",
+    status: "quoted",
     requestedAt: now,
+    quotedAt: now,
+    // Valid until the end of the 7th day.
+    validUntil: daysFromToday(QUOTATION_VALIDITY_DAYS, 23, 59),
     branch: { id, name },
     items: request.items.map(({ productId, quantity }) => quotationLine(productId, quantity)),
     customerNotes: request.notes,
     attachments: [],
-    timeline: [{ status: "requested", at: now }],
+    timeline: [
+      { status: "requested", at: now },
+      { status: "quoted", at: now, note: "Priced at your business prices" },
+    ],
   });
   quotations.unshift(created);
   return created;
 }
 
-/** Places an order on credit at the quoted prices, if the credit limit allows. */
-export async function acceptQuotationMock(
-  id: string,
-  { poNumber }: AcceptQuotationRequest,
-): Promise<PlacedOrder> {
+/**
+ * Accepting a quotation is checking out with it: the order takes the quotation's lines at the
+ * quoted prices and its delivery branch, whatever the browser sends.
+ */
+export async function placeQuotationOrderMock(request: PlaceOrderRequest): Promise<PlacedOrder> {
   await simulateLatency(900);
+  const id = request.quotationId ?? "";
   requireStatus(id, "quoted");
   const quote = findById(quotations, id);
-  const credit = await getCreditSummaryMock();
-  if ((quote.totalInPaise ?? 0) > credit.availableInPaise) {
-    throw new ApiError(422, {
-      message: "This order is more than your available credit. Pay some invoices first.",
-    });
+  if (quote.validUntil && new Date(quote.validUntil) < new Date()) {
+    throw new ApiError(409, { message: "This quotation has expired. Request a new one." });
+  }
+  if (request.payment.method === "credit") {
+    const credit = await getCreditSummaryMock();
+    if ((quote.totalInPaise ?? 0) > credit.availableInPaise) {
+      throw new ApiError(422, {
+        message: "This order is more than your available credit. Choose another way to pay.",
+      });
+    }
   }
   const created = createOrder({
     branchId: quote.branch.id,
-    poNumber,
+    poNumber: request.poNumber,
+    poDate: request.poDate,
+    notes: request.notes,
     quotationId: quote.id,
-    notes: `Converted from quotation ${quote.number}.`,
-    payment: { method: "credit", status: "pending" },
+    payment: toOrderPayment(request.payment),
     items: quote.items.map((line) =>
       orderLine(line.productId, line.quantity, line.quotedPriceInPaise),
     ),

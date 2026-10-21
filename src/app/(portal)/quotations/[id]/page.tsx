@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/PageHeader";
-import { getCreditSummary } from "@/features/credit/api";
 import { getQuotation } from "@/features/quotations/api";
 import { QuotationDetail } from "@/features/quotations/components/QuotationDetail";
 import { formatDate } from "@/lib/format";
@@ -18,7 +17,7 @@ export async function generateMetadata({ params }: QuotationPageProps): Promise<
 
 export default async function QuotationPage({ params }: QuotationPageProps) {
   const { id } = await params;
-  const [quotation, credit] = await Promise.all([getQuotation(id), getCreditSummary()]);
+  const quotation = await getQuotation(id);
   if (!quotation) notFound();
 
   return (
@@ -27,7 +26,7 @@ export default async function QuotationPage({ params }: QuotationPageProps) {
         title={quotation.number}
         description={`Requested ${formatDate(quotation.requestedAt)} · delivering to ${quotation.branch.name}`}
       />
-      <QuotationDetail quotation={quotation} termsDays={credit.termsDays} />
+      <QuotationDetail quotation={quotation} />
     </>
   );
 }

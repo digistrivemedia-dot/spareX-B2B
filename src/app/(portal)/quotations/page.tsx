@@ -38,7 +38,7 @@ export default async function QuotationsPage({ searchParams }: QuotationsPagePro
     <>
       <PageHeader
         title="Quotations"
-        description="Ask Kannali for special prices on bulk or unusual orders, then accept to order."
+        description="Get a priced quotation for any list of parts, valid for 7 days. Accept it to order, or ask Kannali to revise it."
         actions={
           <Button asChild>
             <Link href="/quotations/new">

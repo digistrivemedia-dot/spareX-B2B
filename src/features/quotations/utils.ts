@@ -1,11 +1,11 @@
 import type { TimelineStep } from "@/components/ui/Timeline";
 import type { Quotation, QuotationLine } from "@/features/quotations/types";
 import { daysFromToday } from "@/lib/dates";
-import { formatCount, formatDate, formatDateTime } from "@/lib/format";
+import { formatDate, formatDateTime } from "@/lib/format";
 
 const EVENT_LABELS = {
   requested: "Requested",
-  quoted: "Quoted by Kannali",
+  quoted: "Quoted",
   accepted: "Accepted and ordered",
   rejected: "Rejected",
   expired: "Expired",
@@ -24,7 +24,7 @@ export function getQuotationSteps(quotation: Quotation): TimelineStep[] {
     return [
       ...history,
       {
-        label: "Kannali prepares your quote",
+        label: "Kannali revises your quote",
         note: "Usually within 1 working day",
         state: "current",
       },
@@ -43,13 +43,21 @@ export function getDiscountPercent({ listPriceInPaise, quotedPriceInPaise }: Quo
   return Math.round(((listPriceInPaise - quotedPriceInPaise) / listPriceInPaise) * 100);
 }
 
-/** "Valid for 5 more days (until 14 Oct 2026)", "Last day today", "Expired on 3 Oct 2026". */
-export function describeValidity(validUntil: string): { text: string; isUrgent: boolean } {
+/** Every quotation can be accepted for this many days after it is priced. */
+export const QUOTATION_VALIDITY_DAYS = 7;
+
+type Validity = { daysLeft: number; text: string; isUrgent: boolean };
+
+/** "5 of 7 days left (until 14 Oct 2026)", "Last day to accept: today", "Expired on 3 Oct 2026". */
+export function describeValidity(validUntil: string): Validity {
   const daysLeft = daysFromToday(validUntil);
-  if (daysLeft < 0) return { text: `Expired on ${formatDate(validUntil)}`, isUrgent: false };
-  if (daysLeft === 0) return { text: "Last day to accept: today", isUrgent: true };
+  if (daysLeft < 0) {
+    return { daysLeft, text: `Expired on ${formatDate(validUntil)}`, isUrgent: false };
+  }
+  if (daysLeft === 0) return { daysLeft, text: "Last day to accept: today", isUrgent: true };
   return {
-    text: `Valid for ${formatCount(daysLeft, "more day")} (until ${formatDate(validUntil)})`,
+    daysLeft,
+    text: `${daysLeft} of ${QUOTATION_VALIDITY_DAYS} days left (until ${formatDate(validUntil)})`,
     isUrgent: daysLeft <= 2,
   };
 }

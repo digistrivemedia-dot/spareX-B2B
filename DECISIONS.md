@@ -191,13 +191,11 @@ kept in server memory, so it appears in orders until the server restarts.
 
 ## Quotations (Screen 6)
 
-### 31. 🟡 What "Accept & convert to order" does
+### 31. 🔵 What "Accept & checkout" does
 
-Accepting places the order immediately: at the quoted prices, on credit (Net 30), delivered to
-the branch on the quotation, with an optional PO number. If the credit available is too low it
-says so and nothing is ordered.
-**Options:** (a) keep (fast, current); (b) send the quoted parts to checkout instead, so the buyer
-can change branch or pay online.
+Now option (b): accepting opens checkout with the quoted parts at the quoted prices, delivered to
+the quotation's branch. The buyer adds a PO number and picks any payment method. The cart isn't
+touched. Changing the branch means asking for a revision.
 
 ### 32. 🔵 Asking for a revision
 
@@ -296,3 +294,29 @@ B51 (Fleet) stays out of the app until the client decides, so its unused demo da
 Bank transfer orders show as "Awaiting bank transfer" and are dispatched once Kannali marks them
 paid; the buyer may add a UTR at checkout. Cash on delivery shows as "Cash on delivery" until
 paid. Razorpay is a demo: the order is marked paid at once.
+
+## Phase 2: orders, returns and quotations (B13–B16, B18)
+
+### 48. 🔵 "Auto-priced" quotations
+
+A new quotation is priced at once at the business prices and is "Awaiting you" for 7 days.
+"Requested" now means the buyer asked for a revision and Kannali is preparing new prices.
+**Confirm** this reading of "quotations are auto-priced".
+
+### 49. 🔵 Cancelling an order
+
+Any order not yet shipped (placed, confirmed, processing, packed) can be cancelled as a whole,
+with a reason from a fixed list and an optional note. Paid orders show "Refunded" and the message
+"refunded in 5–7 working days". **Confirm** the refund wording and whether part-cancellations are needed.
+
+### 50. 🟡 Returns rules (built, can be switched off)
+
+Built as listed in B15, pending the client's answer on B2B returns. Assumptions: any delivered
+order can be returned, with no time limit; a photo is required for "damaged" and "defective";
+credit orders are refunded as a credit note, others to the way they paid; Kannali arranges the
+pickup. **Need:** the return window, the reasons list and who pays for pickup.
+
+### 51. ⚪ Shared photo upload
+
+Photos are resized in the browser to about 1280 px (around 150 KB) before upload. The demo keeps
+them in server memory; the backend will store them and return URLs.

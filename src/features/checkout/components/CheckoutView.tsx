@@ -10,6 +10,7 @@ import { CartLinesFallback } from "@/features/cart/components/CartLinesFallback"
 import { useCartStore } from "@/features/cart/store";
 import { useCartLines } from "@/features/cart/use-cart-lines";
 import { getCartIssue, toPricedLine } from "@/features/cart/utils";
+import { BranchOptions } from "@/features/checkout/components/BranchOptions";
 import { CheckoutForm } from "@/features/checkout/components/CheckoutForm";
 import { useSelectedBranch } from "@/features/company/use-selected-branch";
 import type { CreditSummary } from "@/features/credit/types";
@@ -53,11 +54,14 @@ export function CheckoutView({ credit }: { credit: CreditSummary | null }) {
 
   return (
     <CheckoutForm
-      lines={lines}
+      items={lines.map((line) => ({ productId: line.id, quantity: line.quantity }))}
       totals={calculateOrderTotals(lines.map(toPricedLine))}
+      savingsLabel="You save against B2C prices"
       credit={credit}
       branchId={branch.id}
+      delivery={<BranchOptions />}
       blockingCount={blockingCount}
+      backLink={{ href: "/cart", label: "Back to cart" }}
       onPlaced={handlePlaced}
     />
   );

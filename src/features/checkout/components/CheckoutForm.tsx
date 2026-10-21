@@ -10,8 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormAlert } from "@/components/ui/FormAlert";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { OrderSummaryCard } from "@/features/cart/components/OrderSummaryCard";
-import type { CartLine } from "@/features/cart/types";
-import { BranchOptions } from "@/features/checkout/components/BranchOptions";
 import { PaymentOptions } from "@/features/checkout/components/PaymentOptions";
 import { PurchaseOrderFields } from "@/features/checkout/components/PurchaseOrderFields";
 import { checkoutSchema, type CheckoutValues } from "@/features/checkout/schemas";
@@ -22,23 +20,34 @@ import { formatPrice } from "@/lib/format";
 import type { OrderTotals } from "@/lib/pricing";
 
 type CheckoutFormProps = {
-  lines: CartLine[];
+  /** What is being ordered; the server prices it. */
+  items: PlaceOrderRequest["items"];
   totals: OrderTotals;
+  /** The summary's savings line, e.g. "You save against B2C prices". */
+  savingsLabel: string;
   /** Null when credit isn't enabled for this business. */
   credit: CreditSummary | null;
-  /** The delivery branch chosen above (shared with the top bar's branch switcher). */
   branchId: string;
+  /** The delivery section: branch choices for the cart, the fixed branch for a quotation. */
+  delivery: ReactNode;
+  /** Set when ordering a quotation at its quoted prices. */
+  quotationId?: string;
   /** Lines that can't be delivered from the chosen branch; checkout waits until they're fixed. */
-  blockingCount: number;
+  blockingCount?: number;
+  backLink: { href: string; label: string };
   onPlaced: (order: PlacedOrder) => void;
 };
 
 export function CheckoutForm({
-  lines,
+  items,
   totals,
+  savingsLabel,
   credit,
   branchId,
-  blockingCount,
+  delivery,
+  quotationId,
+  blockingCount = 0,
+  backLink,
   onPlaced,
 }: CheckoutFormProps) {
   const canUseCredit = credit !== null && totals.totalInPaise <= credit.availableInPaise;
@@ -62,12 +71,13 @@ export function CheckoutForm({
       });
     }
     const result = await placeOrderAction({
+      quotationId,
       branchId,
       poNumber: values.poNumber || undefined,
       poDate: values.poDate || undefined,
       notes: values.notes || undefined,
       payment: toPayment(values),
-      items: lines.map((line) => ({ productId: line.id, quantity: line.quantity })),
+      items,
     });
     if (result.ok) onPlaced(result.data);
     else form.setError("root", { message: result.message });
@@ -81,7 +91,7 @@ export function CheckoutForm({
     >
       <div className="flex min-w-0 flex-1 flex-col gap-6">
         <CheckoutSection step={1} title="Delivery branch">
-          <BranchOptions />
+          {delivery}
         </CheckoutSection>
         <CheckoutSection step={2} title="Purchase order">
           <PurchaseOrderFields control={form.control} />
@@ -92,7 +102,7 @@ export function CheckoutForm({
       </div>
 
       <aside className="xl:sticky xl:top-20 xl:w-80 xl:shrink-0">
-        <OrderSummaryCard totals={totals} itemCount={lines.length}>
+        <OrderSummaryCard totals={totals} itemCount={items.length} savingsLabel={savingsLabel}>
           <FormAlert message={errors.root?.message} />
           {blockingCount > 0 && (
             <FormAlert message="Some parts can't be delivered from this branch. Choose another branch or fix the cart." />
@@ -101,7 +111,7 @@ export function CheckoutForm({
             Place order · {formatPrice(totals.totalInPaise)}
           </SubmitButton>
           <Button variant="ghost" asChild>
-            <Link href="/cart">Back to cart</Link>
+            <Link href={backLink.href}>{backLink.label}</Link>
           </Button>
         </OrderSummaryCard>
       </aside>

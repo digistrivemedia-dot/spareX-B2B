@@ -12,6 +12,8 @@ type QuantityStepperProps = {
   onChange: (value: number) => void;
   /** Accessible name, e.g. "Quantity of Motul 7100". */
   label: string;
+  /** The most that can be chosen, e.g. what is left to return. */
+  max?: number;
   /** For focusing the number field from elsewhere, e.g. after picking a part. */
   id?: string;
   /** Called after Enter commits the typed quantity, e.g. to move to the next row. */
@@ -19,14 +21,23 @@ type QuantityStepperProps = {
 };
 
 /** − / + buttons and a number field; a typed value is committed on blur or Enter (at least 1). */
-export function QuantityStepper({ value, onChange, label, id, onEnter }: QuantityStepperProps) {
+export function QuantityStepper({
+  value,
+  onChange,
+  label,
+  max = Infinity,
+  id,
+  onEnter,
+}: QuantityStepperProps) {
+  const clamp = (quantity: number) => Math.min(max, Math.max(MIN_QUANTITY, quantity));
+
   // What is being typed; null when the field shows the committed value.
   const [draft, setDraft] = useState<string | null>(null);
 
   function commit() {
     if (draft === null) return;
     const typed = Number.parseInt(draft, 10);
-    onChange(Math.max(MIN_QUANTITY, Number.isNaN(typed) ? MIN_QUANTITY : typed));
+    onChange(clamp(Number.isNaN(typed) ? MIN_QUANTITY : typed));
     setDraft(null);
   }
 
@@ -36,7 +47,7 @@ export function QuantityStepper({ value, onChange, label, id, onEnter }: Quantit
         type="button"
         variant="ghost"
         size="icon-sm"
-        onClick={() => onChange(Math.max(MIN_QUANTITY, value - 1))}
+        onClick={() => onChange(clamp(value - 1))}
         disabled={value <= MIN_QUANTITY}
         aria-label={`Decrease ${label.toLowerCase()}`}
         className="rounded-r-none"
@@ -64,7 +75,8 @@ export function QuantityStepper({ value, onChange, label, id, onEnter }: Quantit
         type="button"
         variant="ghost"
         size="icon-sm"
-        onClick={() => onChange(value + 1)}
+        onClick={() => onChange(clamp(value + 1))}
+        disabled={value >= max}
         aria-label={`Increase ${label.toLowerCase()}`}
         className="rounded-l-none"
       >
