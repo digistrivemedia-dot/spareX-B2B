@@ -24,3 +24,8 @@ export function daysFromToday(iso: string): number {
 export function toIndiaDate(iso: string): string {
   return indiaDate.format(new Date(iso));
 }
+
+/** The India calendar day that many days from today, as "YYYY-MM-DD"; negative is the past. */
+export function indiaDateFromToday(days: number): string {
+  return indiaDate.format(new Date(Date.now() + days * DAY_MS));
+}

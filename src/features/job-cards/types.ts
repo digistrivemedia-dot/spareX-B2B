@@ -125,8 +125,11 @@ export type GaragePayment = {
   method: "online" | "cash";
   amountInPaise: number;
   receivedAt: string;
+  receivedBy?: StaffRef;
   /** UPI or payment-link reference for online payments. */
   reference?: string;
+  /** Cash handed over, when it was more than the bill. */
+  cashReceivedInPaise?: number;
 };
 
 export type Handover = {
@@ -134,6 +137,8 @@ export type Handover = {
   by: StaffRef;
   odometerKm: number;
   checklist: { label: string; isDone: boolean }[];
+  /** The vehicle as it left. */
+  photos?: string[];
 };
 
 export type JobEvent = {
@@ -239,3 +244,12 @@ export type ProgressRequest = {
 };
 
 export type QualityCheckRequest = Omit<QualityCheck, "at" | "by">;
+
+export type CollectPaymentRequest =
+  { method: "online"; reference: string } | { method: "cash"; cashReceivedInPaise: number };
+
+export type HandoverRequest = Omit<Handover, "at" | "by"> & {
+  nextService?: JobCard["nextService"];
+  /** The vehicle as it leaves, for the completion report. */
+  photos: string[];
+};

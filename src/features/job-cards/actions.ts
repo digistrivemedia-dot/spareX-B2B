@@ -7,9 +7,12 @@ import {
   addProgressNote,
   assignTechnician,
   checkIn,
+  collectPayment,
+  createInvoice,
   createWalkIn,
   finishWork,
   getTechnicianLoad,
+  handOver,
   recordApproval,
   recordQualityCheck,
   respondToJob,
@@ -22,7 +25,9 @@ import {
 import type {
   ApprovalRequest,
   CheckInRequest,
+  CollectPaymentRequest,
   EstimateRequest,
+  HandoverRequest,
   InspectionRequest,
   ProgressRequest,
   QualityCheckRequest,
@@ -117,4 +122,16 @@ export async function finishWorkAction(jobId: string) {
 
 export async function recordQualityCheckAction(jobId: string, request: QualityCheckRequest) {
   return jobChange(() => recordQualityCheck(jobId, request));
+}
+
+export async function createInvoiceAction(jobId: string) {
+  return jobChange(() => createInvoice(jobId));
+}
+
+export async function collectPaymentAction(jobId: string, request: CollectPaymentRequest) {
+  return jobChange(() => collectPayment(jobId, request));
+}
+
+export async function handOverAction(jobId: string, request: HandoverRequest) {
+  return jobChange(() => handOver(jobId, request));
 }

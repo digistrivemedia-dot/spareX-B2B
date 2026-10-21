@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checklist } from "@/components/ui/Checklist";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/FormAlert";
 import { SectionCard } from "@/components/ui/SectionCard";
@@ -54,30 +54,15 @@ export function QualityCheckForm({ job }: { job: JobCard }) {
     <div className="flex max-w-2xl flex-col gap-6">
       <FormAlert message={error} />
       <SectionCard title="Checks">
-        <ul className="flex flex-col divide-y divide-gray-100">
-          {checks.map((check, index) => (
-            <li key={check.label}>
-              <label
-                htmlFor={`qa-${index}`}
-                className="flex min-h-12 cursor-pointer items-center gap-3 py-2 text-sm text-gray-900"
-              >
-                <Checkbox
-                  id={`qa-${index}`}
-                  checked={check.isOk}
-                  onCheckedChange={(checked) =>
-                    setChecks((current) =>
-                      current.map((item, i) =>
-                        i === index ? { ...item, isOk: checked === true } : item,
-                      ),
-                    )
-                  }
-                  className="size-6"
-                />
-                {check.label}
-              </label>
-            </li>
-          ))}
-        </ul>
+        <Checklist
+          id="qa"
+          items={checks.map((check) => ({ label: check.label, checked: check.isOk }))}
+          onToggle={(index, isOk) =>
+            setChecks((current) =>
+              current.map((item, i) => (i === index ? { ...item, isOk } : item)),
+            )
+          }
+        />
       </SectionCard>
       <Field>
         <FieldLabel htmlFor="qa-note">Note (needed to send back for rework)</FieldLabel>

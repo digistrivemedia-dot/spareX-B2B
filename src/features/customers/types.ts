@@ -56,3 +56,10 @@ export type NewCustomerInput = {
 };
 
 export type NewVehicleInput = Pick<CustomerVehicle, "plate" | "type" | "make" | "model" | "year">;
+
+/** A vehicle with every visit on record, newest first. */
+export type VehicleHistory = CustomerVehicle & { visits: ServiceVisit[] };
+
+export type CustomerDetail = Customer & { vehicles: VehicleHistory[] };
+
+export type NewCustomerRequest = NewCustomerInput & { vehicle?: NewVehicleInput };

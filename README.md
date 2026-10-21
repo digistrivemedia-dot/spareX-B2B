@@ -1,7 +1,9 @@
 # SpareX Business
 
-The B2B portal of Kannali Garage's SpareX platform: garages, fleets and dealers buy two-wheeler
-parts in bulk at business prices. `CLAUDE.md` is the full product and engineering brief.
+The B2B website of Kannali Garage's SpareX platform. Verified businesses (garages, fleets,
+dealers, retailers) buy parts at business prices, and garages run their workshop: bookings, job
+cards, estimates, technicians, billing and customers. `CLAUDE.md` is the full product and
+engineering brief; `DECISIONS.md` lists the open questions.
 
 ## Getting started
 
@@ -12,8 +14,21 @@ cp .env.example .env.local
 npm run dev        # http://localhost:3000
 ```
 
-Every feature reads demo data for now, so no backend is needed. The demo account is signed in
-automatically.
+Every feature reads demo data for now, so no backend is needed. Without signing in you are the
+owner of the demo garage. Any password of 8+ characters works; these emails show other views:
+
+| Email                                             | Shows                                              |
+| ------------------------------------------------- | -------------------------------------------------- |
+| mahesh@srisaiworks.example.com                    | Owner, with 2-step verification (any code)         |
+| ravi@srisaiworks.example.com                      | Manager / service advisor, HSR Layout              |
+| imran@srisaiworks.example.com                     | Technician, Whitefield ("My jobs")                 |
+| venkatesh@srisaiworks.example.com                 | Technician and spares, HSR Layout                  |
+| shilpa@srisaiworks.example.com                    | Billing, QA & delivery                             |
+| review@ / sentback@ / rejected@sparex.example.com | An application under review, sent back or rejected |
+| new@sparex.example.com                            | A first login (set a password)                     |
+
+Demo changes (orders, payments, jobs) are kept in server memory, so they reset when the server
+restarts.
 
 ## Scripts
 

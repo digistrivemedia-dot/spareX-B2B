@@ -2,16 +2,9 @@
 
 import { Controller, useFormContext } from "react-hook-form";
 
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FieldGroup } from "@/components/ui/field";
 import { FormTextField } from "@/components/ui/FormTextField";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { VEHICLE_TYPE_LABELS } from "@/features/catalog/utils";
+import { VehicleTypeSelect } from "@/features/catalog/components/VehicleTypeSelect";
 import type { WalkInValues } from "@/features/job-cards/schemas";
 import { toMobileDigits } from "@/lib/input-format";
 
@@ -25,21 +18,7 @@ export function NewVehicleFields() {
         control={control}
         name="type"
         render={({ field }) => (
-          <Field>
-            <FieldLabel htmlFor="vehicle-type">Vehicle type</FieldLabel>
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger id="vehicle-type" className="w-full sm:w-64">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(VEHICLE_TYPE_LABELS).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
+          <VehicleTypeSelect id="vehicle-type" value={field.value} onChange={field.onChange} />
         )}
       />
       <div className="grid gap-5 sm:grid-cols-2">

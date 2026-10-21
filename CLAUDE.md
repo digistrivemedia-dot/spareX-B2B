@@ -425,14 +425,14 @@ All garage lists are scoped to the selected branch; staff see only their own bra
 
 | # | Screen | Route | Status | Must include |
 |---|---|---|---|---|
-| B43 | Completion report | `/garage/jobs/[id]/report` | TO BUILD | Work done, parts replaced, before / after photos, technician, QA result, next service due (date or km); download / print |
-| B44 | Billing + invoice | `/garage/jobs/[id]/invoice` | TO BUILD | Invoice from the approved estimate, in the garage's name and GSTIN; CGST / SGST; invoice no.; download → Payment pending |
-| B45 | Collect payment | dialog on the invoice | TO BUILD | Amount due; online (payment link / UPI, demo) or cash (amount received) → Paid |
-| B46 | Delivery / handover | `/garage/jobs/[id]/handover` | TO BUILD | Handover checklist, odometer out → Completed |
-| B47 | Customers list | `/garage/customers` | TO BUILD | Name, phone, vehicles, last visit, job count; search; add customer |
-| B48 | Customer + vehicle history | `/garage/customers/[id]` | TO BUILD | Customer details, vehicles, service history per vehicle; other garages' jobs without prices; walk-in history linked by plate |
-| B49 | Reviews received | `/garage/reviews` | TO BUILD | Average rating, rating breakdown, list (rating, comment, customer, job, date); filter by rating and branch |
-| B50 | Branch reports | `/garage/reports` | TO BUILD | Per branch and date range: jobs completed, revenue, average job value, jobs by status, technician workload, top services |
+| B43 | Completion report | `/garage/jobs/[id]/report` | BUILT | Work done, parts replaced, before / after photos, technician, QA result, next service due (date or km); download / print |
+| B44 | Billing + invoice | `/garage/jobs/[id]/invoice` | BUILT | Invoice from the approved estimate, in the garage's name and GSTIN; CGST / SGST; invoice no.; download → Payment pending |
+| B45 | Collect payment | dialog on the invoice | BUILT | Amount due; online (payment link / UPI, demo) or cash (amount received) → Paid |
+| B46 | Delivery / handover | `/garage/jobs/[id]/handover` | BUILT | Handover checklist, odometer out → Completed |
+| B47 | Customers list | `/garage/customers` | BUILT | Name, phone, vehicles, last visit, job count; search; add customer |
+| B48 | Customer + vehicle history | `/garage/customers/[id]` | BUILT | Customer details, vehicles, service history per vehicle; other garages' jobs without prices; walk-in history linked by plate |
+| B49 | Reviews received | `/garage/reviews` | BUILT | Average rating, rating breakdown, list (rating, comment, customer, job, date); filter by rating and branch |
+| B50 | Branch reports | `/garage/reports` | BUILT | Per branch and date range: jobs completed, revenue, average job value, jobs by status, technician workload, top services |
 | B52 | 404 / error | global | BUILT | Final pass: every route checked at all 4 widths; no dead links |
 
 ### Waiting on client answers

@@ -6,23 +6,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DetailItem, DetailList } from "@/components/ui/DetailList";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { AssignTechnicianDialog } from "@/features/job-cards/components/AssignTechnicianDialog";
+import { can } from "@/features/auth/permissions";
+import type { Role } from "@/features/auth/types";
 import type { JobCard } from "@/features/job-cards/types";
 import { getNextAction } from "@/features/job-cards/utils";
 import { formatDateTime } from "@/lib/format";
 
-export type JobAccess = {
-  /** Managers get the job's next step and its other actions. */
-  canManage: boolean;
-  /** Quality checks can also be done by the billing and QA role. */
-  canCheckQuality: boolean;
-};
-
-/** Where the job stands, and the one thing to do next (for whoever may do it). */
-export function JobStatusCard({ job, access }: { job: JobCard; access: JobAccess }) {
-  const { canManage, canCheckQuality } = access;
+/** Where the job stands, and the one thing to do next (when this person may do it). */
+export function JobStatusCard({ job, roles }: { job: JobCard; roles: Role[] }) {
   const action = getNextAction(job);
-  const isQualityCheck = job.status === "quality_check";
-  const next = (isQualityCheck ? canCheckQuality : canManage) ? action : undefined;
+  const next = action && can(roles, action.permission) ? action : undefined;
+  const canManage = can(roles, "jobs:manage");
   const isWorking = job.status === "approved" || job.status === "in_progress";
   const extraWork = job.progress.findLast((note) => note.isExtraWork);
 

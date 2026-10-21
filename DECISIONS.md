@@ -464,3 +464,39 @@ technician ticks them as fitted; ordering from SpareX and stock tracking are not
 Every check must be ticked to pass ("Ready for delivery"); "Send back for rework" needs a note
 and returns the job to the technician. Both the manager and the billing, QA & delivery role can
 do it until the client decides who owns QA.
+
+## Phase 8: billing, handover, customers, reviews and reports (B43–B50, B52)
+
+### 74. 🔵 The garage's invoice
+
+Raised once the vehicle passes QA, from the approved lines, in the garage's name, branch address
+and GSTIN, with GST split into CGST and SGST (both in Karnataka). Numbered SSW/26-27/0001 onwards.
+It prints or saves as a PDF from the browser, like receipts. **Confirm** the invoice number format
+and whether a garage without GSTIN gets a bill of supply instead.
+
+### 75. 🔵 Collecting payment
+
+Online (the UPI or payment-link reference is noted; no link is really sent in the demo) or cash
+(the amount handed over, with the change to give back). Billing, QA & delivery and the owner can
+collect; the job then waits for handover.
+
+### 76. 🔵 Handover and completion report
+
+The handover asks for four ticks (vehicle back, old parts shown, belongings returned, invoice
+and report shared), the odometer, and the next service (default: 3 months or 3,000 km). The
+completion report (printable) lists work done, parts replaced, the QA result, before and after
+photos and the next service. **Confirm** the default next-service interval.
+
+### 77. 🔵 Customers and history
+
+Customers are listed with their vehicles, last visit and job count, and can be added before
+they first come in. Each vehicle's history shows this garage's jobs with prices and visits to
+other SpareX garages (matched by plate) without prices.
+
+### 78. 🔵 Reviews and reports
+
+Reviews come from the SpareX app after a job; the page shows the average, the split by stars
+and each review, filtered by stars and branch. Replying to reviews isn't built. Branch reports
+cover the last 30 days by default: jobs completed, revenue (payments received), average job
+value, open jobs by status, technician workload and the top services. Six recently completed
+jobs were added to the demo so the reports have data.

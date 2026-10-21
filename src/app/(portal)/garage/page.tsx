@@ -15,7 +15,7 @@ import { TodayList } from "@/features/garage/components/TodayList";
 import { getJobCards } from "@/features/job-cards/api";
 import type { JobStatus } from "@/features/job-cards/types";
 import { getNextAction, JOB_STATUS_GROUPS, type JobStatusGroup } from "@/features/job-cards/utils";
-import { toIndiaDate } from "@/lib/dates";
+import { indiaDateFromToday } from "@/lib/dates";
 import { formatTimeOfDay } from "@/lib/format";
 import { getParam, type RawSearchParams } from "@/lib/search-params";
 
@@ -45,7 +45,7 @@ export default async function GarageDashboardPage({ searchParams }: GarageDashbo
   const groups = Object.keys(JOB_STATUS_GROUPS) as JobStatusGroup[];
   const [newBookings, todaysBookings, groupCounts, needsAction, branches] = await Promise.all([
     getBookings({ status: "new", branchId, pageSize: 1 }),
-    getBookings({ date: toIndiaDate(new Date().toISOString()), branchId, pageSize: 20 }),
+    getBookings({ date: indiaDateFromToday(0), branchId, pageSize: 20 }),
     Promise.all(
       groups.map((group) =>
         getJobCards({ statuses: JOB_STATUS_GROUPS[group].statuses, branchId, pageSize: 1 }),

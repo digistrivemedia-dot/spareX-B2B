@@ -1,4 +1,5 @@
 import type { TimelineStep } from "@/components/ui/Timeline";
+import type { Permission } from "@/features/auth/permissions";
 import type { EstimateLineValues } from "@/features/job-cards/schemas";
 import type {
   EstimateLine,
@@ -107,35 +108,55 @@ export const JOB_STATUS_GROUPS = {
 
 export type JobStatusGroup = keyof typeof JOB_STATUS_GROUPS;
 
-type NextAction = { label: string; page: string };
+type NextAction = { label: string; page: string; permission: Permission };
 
 /**
- * What the garage does next for a job in each status, and the job card page that does it.
- * Statuses without an entry are waiting on someone else (the customer, the technician).
+ * What the garage does next for a job in each status, the job card page that does it, and who
+ * may do it. Statuses without an entry are waiting on someone else (the customer, the technician).
  */
 const NEXT_ACTIONS: Partial<Record<JobStatus, NextAction>> = {
-  confirmed: { label: "Check in vehicle", page: "check-in" },
-  vehicle_received: { label: "Check in vehicle", page: "check-in" },
-  job_card_created: { label: "Inspect vehicle", page: "inspection" },
-  inspection: { label: "Build estimate", page: "estimate" },
-  awaiting_approval: { label: "Record customer's answer", page: "estimate" },
-  quality_check: { label: "Do quality check", page: "quality-check" },
+  confirmed: { label: "Check in vehicle", page: "check-in", permission: "jobs:manage" },
+  vehicle_received: { label: "Check in vehicle", page: "check-in", permission: "jobs:manage" },
+  job_card_created: { label: "Inspect vehicle", page: "inspection", permission: "jobs:inspect" },
+  inspection: { label: "Build estimate", page: "estimate", permission: "jobs:manage" },
+  awaiting_approval: {
+    label: "Record customer's answer",
+    page: "estimate",
+    permission: "jobs:manage",
+  },
+  quality_check: { label: "Do quality check", page: "quality-check", permission: "jobs:qa" },
+  ready: { label: "Create invoice", page: "invoice", permission: "jobs:billing" },
+  payment_pending: { label: "Collect payment", page: "invoice", permission: "jobs:billing" },
+  paid: { label: "Hand over vehicle", page: "handover", permission: "jobs:billing" },
 };
 
-export type JobAction =
-  | { kind: "link"; label: string; href: string }
-  /** Opens the assign-technician dialog on the job card. */
-  | { kind: "assign"; label: string; href: string };
+export type JobAction = {
+  /** "assign" opens the assign-technician dialog on the job card instead of a page. */
+  kind: "link" | "assign";
+  label: string;
+  href: string;
+  permission: Permission;
+};
 
 export function getNextAction(
   job: Pick<JobCard, "id" | "status" | "technician">,
 ): JobAction | undefined {
   if (job.status === "approved" && !job.technician) {
-    return { kind: "assign", label: "Assign technician", href: `/garage/jobs/${job.id}` };
+    return {
+      kind: "assign",
+      label: "Assign technician",
+      href: `/garage/jobs/${job.id}`,
+      permission: "jobs:manage",
+    };
   }
   const action = NEXT_ACTIONS[job.status];
   return (
-    action && { kind: "link", label: action.label, href: `/garage/jobs/${job.id}/${action.page}` }
+    action && {
+      kind: "link",
+      label: action.label,
+      href: `/garage/jobs/${job.id}/${action.page}`,
+      permission: action.permission,
+    }
   );
 }
 

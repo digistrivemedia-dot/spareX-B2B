@@ -1,6 +1,8 @@
 import type {
   ApprovalRequest,
   CheckInRequest,
+  CollectPaymentRequest,
+  HandoverRequest,
   EstimateRequest,
   InspectionRequest,
   ProgressRequest,
@@ -27,6 +29,7 @@ import {
   sendRevisionMock,
   setLineDoneMock,
 } from "@/mocks/job-card-work";
+import { collectPaymentMock, createInvoiceMock, handoverMock } from "@/mocks/job-card-billing";
 
 export async function getJobCards(
   filters: JobCardFilters = {},
@@ -134,4 +137,21 @@ export async function recordQualityCheck(
 ): Promise<JobCard> {
   if (dataSource.jobCards === "mock") return recordQualityCheckMock(id, request);
   return apiClient<JobCard>(`/garage/jobs/${id}/quality-check`, { method: "POST", body: request });
+}
+
+/** Bills the approved work once the vehicle has passed its quality check. */
+export async function createInvoice(id: string): Promise<JobCard> {
+  if (dataSource.jobCards === "mock") return createInvoiceMock(id);
+  return apiClient<JobCard>(`/garage/jobs/${id}/invoice`, { method: "POST" });
+}
+
+export async function collectPayment(id: string, request: CollectPaymentRequest): Promise<JobCard> {
+  if (dataSource.jobCards === "mock") return collectPaymentMock(id, request);
+  return apiClient<JobCard>(`/garage/jobs/${id}/payment`, { method: "POST", body: request });
+}
+
+/** Hands the vehicle back to the customer, which completes the job. */
+export async function handOver(id: string, request: HandoverRequest): Promise<JobCard> {
+  if (dataSource.jobCards === "mock") return handoverMock(id, request);
+  return apiClient<JobCard>(`/garage/jobs/${id}/handover`, { method: "POST", body: request });
 }
