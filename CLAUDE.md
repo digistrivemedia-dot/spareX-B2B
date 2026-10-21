@@ -346,9 +346,9 @@ the screen shows the placeholder).
 | B08 | Catalogue + product drawer | `/catalog` | BUILT | Your price (excl. GST) = B2C price − discount %, with the B2C price and MRP beside it; no MOQ, tier hints or tier table; fits filter by vehicle type → brand → model; any whole quantity from 1 |
 | B09 | Quick order | `/quick-order` | BUILT | Remove MOQ and pack checks; flags: not found, out of stock, more than in stock, OK |
 | B10 | Cart | `/cart` | BUILT | No minimum quantity; savings line = business discount vs B2C price; stock warnings stay |
-| B11 | Checkout | `/checkout` | UPDATE | Payment: Razorpay (UPI / card / net banking, demo), bank transfer (Kannali's bank details + transfer reference), COD, Credit (only if enabled; disabled with the reason when over the limit) |
-| B12 | Order placed | `/checkout/success` | UPDATE | Payment status per method: paid, awaiting bank transfer (with bank details), pay on delivery, on credit (due date) |
-| B17 | New quotation | `/quotations/new` | UPDATE | Follows B09's rows |
+| B11 | Checkout | `/checkout` | BUILT | Payment: Razorpay (UPI / card / net banking, demo), bank transfer (Kannali's bank details + transfer reference), COD, Credit (only if enabled; disabled with the reason when over the limit) |
+| B12 | Order placed | `/checkout/success` | BUILT | Payment status per method: paid, awaiting bank transfer (with bank details), pay on delivery, on credit (due date) |
+| B17 | New quotation | `/quotations/new` | BUILT | Follows B09's rows |
 
 ### Phase 2: Orders, cancellations, returns and quotations
 
