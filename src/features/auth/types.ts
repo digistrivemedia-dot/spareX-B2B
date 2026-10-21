@@ -7,7 +7,8 @@ import type { Address, Business } from "@/features/company/types";
  */
 export type Role = "owner" | "manager" | "technician" | "spares" | "billing";
 
-export type ApprovalStatus = "pending" | "approved" | "rejected";
+/** "sent_back": Kannali asked for corrections; the business edits and resubmits. */
+export type ApprovalStatus = "pending" | "sent_back" | "approved" | "rejected";
 
 export type User = {
   id: string;
@@ -39,21 +40,56 @@ export type TwoFactorChallenge = {
   maskedPhone: string;
 };
 
-export type SignInResult = { status: "signed_in" } | TwoFactorChallenge;
+export type SignInResult =
+  | {
+      status: "signed_in";
+      approvalStatus: ApprovalStatus;
+      /** True on first login, before the user has chosen their own password. */
+      mustSetPassword: boolean;
+      /** The registration reference, for accounts not yet approved. */
+      applicationRef?: string;
+    }
+  | TwoFactorChallenge;
 
 export type TwoFactorRequest = {
   challengeId: string;
   code: string;
 };
 
-/** A business applying for an account. Kannali staff approve it in the admin panel. */
+/** A business applying for an account. Kannali staff verify it in the admin panel. */
 export type RegistrationApplication = {
-  business: Pick<Business, "name" | "type" | "gstin" | "pan">;
-  contact: { name: string; email: string; phone: string };
+  business: Pick<Business, "name" | "type" | "gstin" | "pan"> & {
+    licenceNumber?: string;
+    /** e.g. a Udyam (MSME) number. */
+    otherRegistration?: string;
+  };
+  /** The contact person, when it isn't the person applying. */
+  contact: { name?: string; email: string; phone: string };
   address: Address;
+  /** Shop or workshop photos (at least one). */
+  photos: string[];
+  /** Photos of licences or registration certificates. */
+  documents: string[];
 };
 
 export type RegistrationReceipt = {
   referenceNumber: string;
   submittedAt: string;
+};
+
+/** Where an application stands, as the applicant sees it. */
+export type ApplicationStatus = RegistrationReceipt & {
+  status: ApprovalStatus;
+  application: RegistrationApplication;
+  reviewedAt?: string;
+  /** What Kannali needs changed, when it is sent back. */
+  reviewNotes?: string[];
+  /** Why it was turned down, when rejected. */
+  rejectionReason?: string;
+};
+
+export type SetPasswordRequest = {
+  password: string;
+  /** From the reset link; first-login password changes don't need one. */
+  resetToken?: string;
 };

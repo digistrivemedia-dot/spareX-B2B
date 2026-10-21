@@ -14,8 +14,9 @@ export type Business = {
   id: string;
   name: string;
   type: BusinessType;
-  gstin: string;
-  pan: string;
+  /** Optional at registration; businesses without GST can still buy. */
+  gstin?: string;
+  pan?: string;
   email: string;
   /** E.164, e.g. "+919886044120" */
   phone: string;

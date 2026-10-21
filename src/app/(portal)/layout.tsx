@@ -14,7 +14,7 @@ import { BranchesProvider } from "@/features/company/components/BranchesProvider
 export default async function PortalLayout({ children }: { children: ReactNode }) {
   const [session, branches] = await Promise.all([requireSession(), getBranches()]);
   // Prices and ordering are only for businesses Kannali has approved.
-  if (session.approvalStatus !== "approved") redirect("/register/submitted");
+  if (session.approvalStatus !== "approved") redirect("/application");
 
   // shadcn's sidebar remembers collapsed/expanded in this cookie.
   const sidebarOpen = (await cookies()).get("sidebar_state")?.value !== "false";

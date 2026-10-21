@@ -376,12 +376,12 @@ Credit pages exist only when `creditEnabled`; otherwise they are hidden from nav
 
 | # | Screen | Route | Status | Must include |
 |---|---|---|---|---|
-| B01 | Sign in + 2-step | `/login` | UPDATE | After sign-in: unverified accounts go to B05, first login goes to B06 |
-| B02 | Forgot / reset password | `/forgot-password`, `/reset-password` | UPDATE | Add the reset page the email link opens: new password + confirm → sign in |
-| B03 | Registration | `/register` | UPDATE | Steps: Business (name, type, optional GSTIN → PAN and state, optional PAN, optional licence / other registration with upload) · Contact and location (optional contact person, email, phone, address with PIN → city and state) · Photos (1–6, at least one) · Review + terms |
+| B01 | Sign in + 2-step | `/login` | BUILT | After sign-in: unverified accounts go to B05, first login goes to B06 |
+| B02 | Forgot / reset password | `/forgot-password`, `/reset-password` | BUILT | Add the reset page the email link opens: new password + confirm → sign in |
+| B03 | Registration | `/register` | BUILT | Steps: Business (name, type, optional GSTIN → PAN and state, optional PAN, optional licence / other registration with upload) · Contact and location (optional contact person, email, phone, address with PIN → city and state) · Photos (1–6, at least one) · Review + terms |
 | B04 | Application submitted | `/register/submitted` | BUILT | |
-| B05 | Application status | `/application` | TO BUILD | Under review (reference, submitted date, what's next) · Sent back (Kannali's notes, edit and resubmit) · Rejected (reason, reapply with the form pre-filled) |
-| B06 | First login: set password | `/set-password` | TO BUILD | New password + confirm with the rules shown → dashboard |
+| B05 | Application status | `/application` | BUILT | Under review (reference, submitted date, what's next) · Sent back (Kannali's notes, edit and resubmit) · Rejected (reason, reapply with the form pre-filled) |
+| B06 | First login: set password | `/set-password` | BUILT | New password + confirm with the rules shown → dashboard |
 
 ### Phase 5: Company, users and garage setup
 

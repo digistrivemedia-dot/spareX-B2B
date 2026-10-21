@@ -15,6 +15,7 @@ import { DemoHint } from "@/features/auth/components/DemoHint";
 import { PasswordInput } from "@/features/auth/components/PasswordInput";
 import { signInSchema, type SignInValues } from "@/features/auth/schemas";
 import type { TwoFactorChallenge } from "@/features/auth/types";
+import { getSignedInDestination } from "@/features/auth/utils";
 import { getErrorMessage } from "@/lib/api-client";
 
 type CredentialsFormProps = {
@@ -33,7 +34,7 @@ export function CredentialsForm({ onTwoFactorRequired }: CredentialsFormProps) {
     try {
       const result = await signIn(values);
       if (result.status === "two_factor_required") onTwoFactorRequired(result);
-      else router.push("/dashboard");
+      else router.push(getSignedInDestination(result));
     } catch (error) {
       form.setError("root", { message: getErrorMessage(error) });
     }
@@ -84,8 +85,10 @@ export function CredentialsForm({ onTwoFactorRequired }: CredentialsFormProps) {
             Sign in
           </SubmitButton>
           <DemoHint>
-            Sign in with any email and a password of 8 or more characters. Use
-            mahesh@srisaiworks.example.com to see 2-step verification.
+            Any email and a password of 8 or more characters signs in. Try
+            mahesh@srisaiworks.example.com for 2-step verification; review@, sentback@ or
+            rejected@sparex.example.com for an application&apos;s status; and new@sparex.example.com
+            for a first login.
           </DemoHint>
         </FieldGroup>
       </form>

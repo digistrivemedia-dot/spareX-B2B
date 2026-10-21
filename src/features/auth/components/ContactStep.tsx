@@ -47,8 +47,9 @@ export function ContactStep() {
       <FormTextField
         control={control}
         name="contactName"
-        label="Contact person"
+        label="Contact person (optional)"
         autoComplete="name"
+        description="If someone other than you should hear from us about this account."
       />
       <FormTextField
         control={control}

@@ -11,20 +11,50 @@ import { Button } from "@/components/ui/button";
 import { FieldGroup } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/FormAlert";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { registerBusiness } from "@/features/auth/api";
+import { registerBusinessAction, resubmitApplicationAction } from "@/features/auth/actions";
 import { AuthHeading } from "@/features/auth/components/AuthHeading";
 import { BusinessStep } from "@/features/auth/components/BusinessStep";
 import { ContactStep } from "@/features/auth/components/ContactStep";
+import { PhotosStep } from "@/features/auth/components/PhotosStep";
 import { RegisterProgress } from "@/features/auth/components/RegisterProgress";
 import { ReviewStep } from "@/features/auth/components/ReviewStep";
 import { REGISTER_STEPS, registerSchema, type RegisterValues } from "@/features/auth/schemas";
-import { toRegistrationApplication } from "@/features/auth/utils";
-import { getErrorMessage } from "@/lib/api-client";
+import { toRegistrationApplication, toRegisterValues } from "@/features/auth/utils";
 
 const LAST_STEP = REGISTER_STEPS.length - 1;
 
-/** A 3-step wizard over one form; each step validates only its own fields before moving on. */
-export function RegisterForm() {
+const EMPTY_VALUES = {
+  businessName: "",
+  gstin: "",
+  pan: "",
+  licenceNumber: "",
+  otherRegistration: "",
+  documents: [],
+  contactName: "",
+  email: "",
+  mobile: "",
+  addressLine1: "",
+  addressLine2: "",
+  pin: "",
+  city: "",
+  state: "",
+  photos: [],
+};
+
+type RegisterFormProps = {
+  /**
+   * An earlier application to start from: "resubmit" corrects a sent-back one under the same
+   * reference; "reapply" starts a new application after a rejection.
+   */
+  previous?: {
+    ref: string;
+    mode: "resubmit" | "reapply";
+    values: ReturnType<typeof toRegisterValues>;
+  };
+};
+
+/** A 4-step wizard over one form; each step validates only its own fields before moving on. */
+export function RegisterForm({ previous }: RegisterFormProps) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -32,20 +62,7 @@ export function RegisterForm() {
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
     mode: "onTouched",
-    defaultValues: {
-      businessName: "",
-      gstin: "",
-      pan: "",
-      contactName: "",
-      email: "",
-      mobile: "",
-      addressLine1: "",
-      addressLine2: "",
-      pin: "",
-      city: "",
-      state: "",
-      acceptTerms: false,
-    },
+    defaultValues: { ...(previous?.values ?? EMPTY_VALUES), acceptTerms: false },
   });
   const { isSubmitting, isSubmitSuccessful, errors } = form.formState;
 
@@ -56,12 +73,13 @@ export function RegisterForm() {
   }
 
   async function submitApplication(values: RegisterValues) {
-    try {
-      const receipt = await registerBusiness(toRegistrationApplication(values));
-      router.push(`/register/submitted?ref=${encodeURIComponent(receipt.referenceNumber)}`);
-    } catch (error) {
-      form.setError("root", { message: getErrorMessage(error) });
-    }
+    const application = toRegistrationApplication(values);
+    const result =
+      previous?.mode === "resubmit"
+        ? await resubmitApplicationAction(previous.ref, application)
+        : await registerBusinessAction(application);
+    if (!result.ok) return form.setError("root", { message: result.message });
+    router.push(`/register/submitted?ref=${encodeURIComponent(result.data.referenceNumber)}`);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -77,8 +95,14 @@ export function RegisterForm() {
   return (
     <>
       <AuthHeading
-        title="Register your business"
-        description="Get business pricing, 30-day credit and GST invoices. It takes about 3 minutes."
+        title={
+          previous?.mode === "resubmit" ? "Correct your application" : "Register your business"
+        }
+        description={
+          previous?.mode === "resubmit"
+            ? `Make the changes Kannali asked for, then send ${previous.ref} again.`
+            : "Get business prices on every part, quotations and GST invoices. It takes about 3 minutes."
+        }
       />
       <RegisterProgress currentStep={step} />
       <FormProvider {...form}>
@@ -94,7 +118,8 @@ export function RegisterForm() {
             <FormAlert message={errors.root?.message} />
             {step === 0 && <BusinessStep />}
             {step === 1 && <ContactStep />}
-            {step === 2 && <ReviewStep onEditStep={goToStep} />}
+            {step === 2 && <PhotosStep />}
+            {step === 3 && <ReviewStep onEditStep={goToStep} />}
             <div className="flex gap-3">
               {step > 0 && (
                 <Button
@@ -111,7 +136,11 @@ export function RegisterForm() {
                 size="lg"
                 className="flex-1"
               >
-                {step === LAST_STEP ? "Submit application" : "Continue"}
+                {step !== LAST_STEP
+                  ? "Continue"
+                  : previous?.mode === "resubmit"
+                    ? "Send corrections"
+                    : "Submit application"}
               </SubmitButton>
             </div>
           </FieldGroup>

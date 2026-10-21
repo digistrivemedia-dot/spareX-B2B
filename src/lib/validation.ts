@@ -25,7 +25,8 @@ export const gstinField = z
 
 export const panField = z
   .string()
-  .regex(/^[A-Z]{5}\d{4}[A-Z]$/, "Enter a valid GSTIN above and we'll fill in your PAN");
+  .trim()
+  .regex(/^[A-Z]{5}\d{4}[A-Z]$/, "Enter a 10-character PAN, e.g. AAKFS4821M");
 
 export function requiredText(message: string) {
   return z.string().trim().min(1, message);

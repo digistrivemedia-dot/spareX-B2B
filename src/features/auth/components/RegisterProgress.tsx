@@ -40,6 +40,8 @@ export function RegisterProgress({ currentStep }: RegisterProgressProps) {
               className={cn(
                 "text-sm",
                 state === "upcoming" ? "text-gray-500" : "font-medium text-gray-900",
+                // Four labels don't fit a phone, so only the current one shows there.
+                state !== "current" && "sr-only sm:not-sr-only",
               )}
             >
               {step.label}

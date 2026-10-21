@@ -2,8 +2,9 @@
 
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { FormTextField } from "@/components/ui/FormTextField";
+import { PhotoUpload } from "@/components/ui/PhotoUpload";
 import {
   Select,
   SelectContent,
@@ -11,24 +12,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { RegisterValues } from "@/features/auth/schemas";
+import { MAX_DOCUMENT_PHOTOS, type RegisterValues } from "@/features/auth/schemas";
 import { BUSINESS_TYPE_LABELS, BUSINESS_TYPES } from "@/features/company/business-types";
 import { getPanFromGstin, getStateFromGstin, isValidGstin } from "@/lib/gst";
 
 /**
- * GSTINs are 15 upper-case characters; accept them however they are typed or pasted.
- * (No maxLength on the input: it would cut a pasted "29AAKFS 4821M1Z3" before the space goes.)
+ * GSTINs and PANs are upper case without spaces; accept them however they are typed or pasted.
+ * (No maxLength on the inputs: it would cut a pasted "29AAKFS 4821M1Z3" before the space goes.)
  */
-const toGstinFormat = (value: string) => value.toUpperCase().replace(/\s/g, "").slice(0, 15);
+const toUpperCompact = (length: number) => (value: string) =>
+  value.toUpperCase().replace(/\s/g, "").slice(0, length);
 
 export function BusinessStep() {
   const { control, setValue } = useFormContext<RegisterValues>();
   const gstin = useWatch({ control, name: "gstin" });
-  const gstinState = isValidGstin(gstin) ? getStateFromGstin(gstin) : undefined;
+  const hasValidGstin = isValidGstin(gstin);
 
   function fillPanFromGstin(value: string) {
-    const isValid = isValidGstin(value);
-    setValue("pan", isValid ? getPanFromGstin(value) : "", { shouldValidate: isValid });
+    if (isValidGstin(value)) setValue("pan", getPanFromGstin(value), { shouldValidate: true });
   }
 
   return (
@@ -38,7 +39,6 @@ export function BusinessStep() {
         name="businessName"
         label="Business name"
         autoComplete="organization"
-        description="As it appears on your GST registration certificate."
       />
       <Controller
         control={control}
@@ -71,25 +71,63 @@ export function BusinessStep() {
       <FormTextField
         control={control}
         name="gstin"
-        label="GSTIN"
+        label="GSTIN (optional)"
         autoCapitalize="characters"
         spellCheck={false}
-        normalize={toGstinFormat}
+        normalize={toUpperCompact(15)}
         onValueChange={fillPanFromGstin}
         description={
-          gstinState
-            ? `Registered in ${gstinState}. We've filled in your PAN below.`
-            : "15 characters, e.g. 29AAKFS4821M1Z3."
+          hasValidGstin
+            ? `Registered in ${getStateFromGstin(gstin)}. We've filled in your PAN below.`
+            : "15 characters, e.g. 29AAKFS4821M1Z3. Needed for GST invoices with input credit."
         }
       />
       <FormTextField
         control={control}
         name="pan"
-        label="PAN"
-        readOnly
-        tabIndex={-1}
-        placeholder="Filled in from your GSTIN"
-        description="Characters 3 to 12 of your GSTIN."
+        label="PAN (optional)"
+        autoCapitalize="characters"
+        spellCheck={false}
+        normalize={toUpperCompact(10)}
+        readOnly={hasValidGstin}
+        description={hasValidGstin ? "Taken from your GSTIN." : "10 characters, e.g. AAKFS4821M."}
+      />
+      <div className="grid gap-5 sm:grid-cols-2">
+        <FormTextField
+          control={control}
+          name="licenceNumber"
+          label="Shop or trade licence no. (optional)"
+        />
+        <FormTextField
+          control={control}
+          name="otherRegistration"
+          label="Other registration (optional)"
+          placeholder="e.g. Udyam number"
+        />
+      </div>
+      <Controller
+        control={control}
+        name="documents"
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor="register-documents">
+              Licence or certificate photos (optional)
+            </FieldLabel>
+            <FieldDescription id="register-documents-description">
+              Photos of your GST certificate, licence or registration help us verify you faster.
+            </FieldDescription>
+            <PhotoUpload
+              id="register-documents"
+              value={field.value}
+              onChange={field.onChange}
+              max={MAX_DOCUMENT_PHOTOS}
+              label="Document photo"
+              isInvalid={fieldState.invalid}
+              describedBy="register-documents-description"
+            />
+            <FieldError errors={[fieldState.error]} />
+          </Field>
+        )}
       />
     </>
   );

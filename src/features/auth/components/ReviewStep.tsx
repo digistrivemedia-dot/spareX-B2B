@@ -4,10 +4,11 @@ import { Controller, useFormContext } from "react-hook-form";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { ReviewSection } from "@/features/auth/components/ReviewSection";
 import type { RegisterValues } from "@/features/auth/schemas";
 import { BUSINESS_TYPE_LABELS } from "@/features/company/business-types";
-import { formatPhone } from "@/lib/format";
+import { formatCount, formatPhone } from "@/lib/format";
 import { getStateFromGstin } from "@/lib/gst";
 
 type ReviewStepProps = {
@@ -30,9 +31,15 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
         rows={[
           { label: "Name", value: values.businessName },
           { label: "Type", value: BUSINESS_TYPE_LABELS[values.businessType] },
-          { label: "GSTIN", value: values.gstin },
-          { label: "PAN", value: values.pan },
+          { label: "GSTIN", value: values.gstin || "Not given" },
+          { label: "PAN", value: values.pan || "Not given" },
           { label: "GST state", value: getStateFromGstin(values.gstin) ?? "" },
+          { label: "Licence no.", value: values.licenceNumber },
+          { label: "Other registration", value: values.otherRegistration },
+          {
+            label: "Documents",
+            value: values.documents.length ? formatCount(values.documents.length, "photo") : "",
+          },
         ]}
       />
       <ReviewSection
@@ -45,6 +52,9 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
           { label: "Address", value: address },
         ]}
       />
+      <ReviewSection title="Shop photos" onEdit={() => onEditStep(2)} rows={[]}>
+        <PhotoGallery photos={values.photos} label="Shop photo" />
+      </ReviewSection>
       <Controller
         control={control}
         name="acceptTerms"

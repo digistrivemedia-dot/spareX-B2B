@@ -13,7 +13,10 @@ type PaymentReceiptProps = {
 /** A printable receipt for one payment. */
 export function PaymentReceipt({ payment, business }: PaymentReceiptProps) {
   const details = [
-    { label: "Received from", value: `${business.name} (GSTIN ${business.gstin})` },
+    {
+      label: "Received from",
+      value: business.gstin ? `${business.name} (GSTIN ${business.gstin})` : business.name,
+    },
     { label: "Date", value: formatDateTime(payment.date) },
     { label: "Method", value: describeMethod(payment) },
     { label: "Reference", value: payment.reference ?? "—" },

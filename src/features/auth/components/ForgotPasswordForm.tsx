@@ -13,6 +13,7 @@ import { FormTextField } from "@/components/ui/FormTextField";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { requestPasswordReset } from "@/features/auth/api";
 import { AuthHeading } from "@/features/auth/components/AuthHeading";
+import { DemoHint } from "@/features/auth/components/DemoHint";
 import { forgotPasswordSchema, type ForgotPasswordValues } from "@/features/auth/schemas";
 import { getErrorMessage } from "@/lib/api-client";
 
@@ -44,7 +45,20 @@ export function ForgotPasswordForm() {
         title="Check your inbox"
         // Deliberately vague, so the form can't be used to find out which emails have accounts.
         description={`If ${form.getValues("email")} has a SpareX Business account, we've emailed a link to reset the password. It expires in 30 minutes.`}
-        action={backToSignIn}
+        action={
+          <div className="flex flex-col items-center gap-3">
+            <DemoHint>
+              No email is sent in the demo.{" "}
+              <Link
+                href="/reset-password?token=demo"
+                className="font-medium text-navy-700 underline"
+              >
+                Open the reset link
+              </Link>
+            </DemoHint>
+            {backToSignIn}
+          </div>
+        }
         className="py-4"
       />
     );

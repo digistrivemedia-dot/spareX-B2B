@@ -9,7 +9,7 @@ what the options are, and what I recommend. Nothing here blocks the demo; change
 
 ## Content and business rules
 
-### 1. 🟡 Terms of trade (Screen 1, registration)
+### 1. 🟡 Terms of trade (B03, registration)
 
 The registration checkbox says "I agree to Kannali Garage's terms of trade for business customers"
 with no link, because there is no terms document yet.
@@ -349,3 +349,26 @@ serve garage invoices and completion reports (B43, B44).
 
 Every invoice and credit note in the demo has a sample PDF in `public/documents/`, marked as a
 sample. Kannali's own GSTIN (shown as a placeholder) is needed for real ones.
+
+## Phase 4: access (B01–B06)
+
+### 57. 🔵 Registration fields
+
+Four steps: Business (name, type, optional GSTIN which fills PAN and state, optional PAN,
+optional licence number, other registration and certificate photos) · Contact and location
+(optional contact person, email, mobile, address with PIN lookup) · Shop photos (1 to 6) ·
+Review. Licences and certificates are uploaded as photos; PDFs aren't accepted yet.
+**Confirm** whether PDF uploads are needed.
+
+### 58. 🔵 Application status
+
+Unverified accounts land on `/application` after sign-in: under review, sent back (with
+Kannali's notes and "Correct and resubmit", which keeps the same reference) or rejected (with the
+reason and "Apply again", which starts a new application with the old details filled in). The
+demo shows each state with review@, sentback@ and rejected@sparex.example.com.
+
+### 59. 🔵 Passwords
+
+New passwords need 8+ characters with a letter and a number, shown as a live checklist. First
+login (demo: new@sparex.example.com) asks for a new password before the dashboard; the reset
+link opens `/reset-password`. **Confirm** the password rules.
