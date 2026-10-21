@@ -1,5 +1,12 @@
 import type { TimelineStep } from "@/components/ui/Timeline";
-import type { EstimateLine, FuelLevel, JobCard, JobStatus } from "@/features/job-cards/types";
+import type { EstimateLineValues } from "@/features/job-cards/schemas";
+import type {
+  EstimateLine,
+  EstimateLineInput,
+  FuelLevel,
+  JobCard,
+  JobStatus,
+} from "@/features/job-cards/types";
 import { formatDateTime } from "@/lib/format";
 import { calculateGst } from "@/lib/gst";
 
@@ -100,21 +107,65 @@ export const JOB_STATUS_GROUPS = {
 
 export type JobStatusGroup = keyof typeof JOB_STATUS_GROUPS;
 
-type NextAction = { label: string; href: (jobId: string) => string };
+type NextAction = { label: string; page: string };
 
 /**
- * What the garage does next for a job in each status, with the screen that does it.
+ * What the garage does next for a job in each status, and the job card page that does it.
  * Statuses without an entry are waiting on someone else (the customer, the technician).
  */
 const NEXT_ACTIONS: Partial<Record<JobStatus, NextAction>> = {
-  confirmed: { label: "Check in vehicle", href: (id) => `/garage/jobs/${id}/check-in` },
-  vehicle_received: { label: "Check in vehicle", href: (id) => `/garage/jobs/${id}/check-in` },
+  confirmed: { label: "Check in vehicle", page: "check-in" },
+  vehicle_received: { label: "Check in vehicle", page: "check-in" },
+  job_card_created: { label: "Inspect vehicle", page: "inspection" },
+  inspection: { label: "Build estimate", page: "estimate" },
+  awaiting_approval: { label: "Record customer's answer", page: "estimate" },
+  quality_check: { label: "Do quality check", page: "quality-check" },
 };
 
-export function getNextAction(job: Pick<JobCard, "id" | "status">) {
+export type JobAction =
+  | { kind: "link"; label: string; href: string }
+  /** Opens the assign-technician dialog on the job card. */
+  | { kind: "assign"; label: string; href: string };
+
+export function getNextAction(
+  job: Pick<JobCard, "id" | "status" | "technician">,
+): JobAction | undefined {
+  if (job.status === "approved" && !job.technician) {
+    return { kind: "assign", label: "Assign technician", href: `/garage/jobs/${job.id}` };
+  }
   const action = NEXT_ACTIONS[job.status];
-  return action && { label: action.label, href: action.href(job.id) };
+  return (
+    action && { kind: "link", label: action.label, href: `/garage/jobs/${job.id}/${action.page}` }
+  );
 }
+
+/** Statuses in which a technician is (or can be) working on the job. */
+export const TECHNICIAN_STATUSES: JobStatus[] = ["approved", "in_progress", "quality_check"];
+
+/** The inspection checklist, by area. Every item starts as OK. */
+export const INSPECTION_CHECKLIST: { area: string; items: string[] }[] = [
+  { area: "Engine", items: ["Engine oil level and colour", "Oil leaks", "Idling and pick-up"] },
+  { area: "Brakes", items: ["Front brake", "Rear brake", "Brake fluid"] },
+  { area: "Electricals", items: ["Lights and indicators", "Horn", "Battery and self start"] },
+  {
+    area: "Tyres and wheels",
+    items: ["Front tyre tread and pressure", "Rear tyre tread and pressure", "Wheel bearings"],
+  },
+  { area: "Chain and transmission", items: ["Chain slack and wear", "Clutch play"] },
+  {
+    area: "Suspension and body",
+    items: ["Front forks", "Rear shock absorbers", "Mirrors and side stand"],
+  },
+];
+
+/** Standard quality checks, after the job's own work lines. */
+export const QUALITY_CHECKLIST = [
+  "Road test done",
+  "No oil or fuel leaks",
+  "Brakes bite evenly",
+  "Old parts kept for the customer",
+  "Vehicle washed and cleaned",
+];
 
 export const ESTIMATE_KIND_LABELS: Record<EstimateLine["kind"], string> = {
   labour: "Labour",
@@ -137,4 +188,30 @@ export function sumLines(lines: EstimateLine[]) {
     0,
   );
   return { subtotalInPaise, gstInPaise, totalInPaise: subtotalInPaise + gstInPaise };
+}
+
+/** An empty estimate line of the given kind. */
+export function newEstimateLine(kind: EstimateLine["kind"] = "labour"): EstimateLineValues {
+  return {
+    id: `line-${Date.now()}-${Math.round(Math.random() * 1000)}`,
+    kind,
+    description: "",
+    partNumber: "",
+    quantity: "1",
+    price: "",
+    gst: "18",
+  };
+}
+
+/** The builder's string fields → the line the API takes. */
+export function toLineInput(values: EstimateLineValues): EstimateLineInput {
+  return {
+    id: values.id,
+    kind: values.kind,
+    description: values.description,
+    partNumber: values.partNumber || undefined,
+    quantity: Number(values.quantity),
+    unitPriceInPaise: Math.round(Number(values.price) * 100),
+    gstRatePercent: Number(values.gst),
+  };
 }

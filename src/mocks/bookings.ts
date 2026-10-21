@@ -3,7 +3,7 @@ import type { JobCard } from "@/features/job-cards/types";
 import { ApiError } from "@/lib/api-client";
 import { toIndiaDate } from "@/lib/dates";
 import type { Paginated } from "@/lib/types";
-import { currentStaffMock } from "@/mocks/auth";
+import { currentStaffMock } from "@/mocks/session";
 import { customers, vehicles } from "@/mocks/customers";
 import { getGarageProfileMock } from "@/mocks/garage";
 import { jobCards, nextJobNumber } from "@/mocks/job-cards";
@@ -164,7 +164,7 @@ function findOrAddVehicle(booking: Booking) {
 /** Accepting confirms the slot and opens a job card waiting for the vehicle. */
 export async function acceptBookingMock(id: string): Promise<JobCard> {
   await simulateLatency(700);
-  const by = currentStaffMock();
+  const by = await currentStaffMock();
   const booking = requireNewBooking(id);
   const { dailyBookingLimit } = await getGarageProfileMock();
   const sameDay = bookings.filter(

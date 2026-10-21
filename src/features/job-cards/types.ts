@@ -100,6 +100,8 @@ export type ProgressNote = {
   by: StaffRef;
   text: string;
   photos: string[];
+  /** The technician found more work that needs the customer's approval. */
+  isExtraWork?: boolean;
 };
 
 export type QualityCheck = {
@@ -214,3 +216,26 @@ export type WalkInRequest = {
 };
 
 export type CheckInRequest = Omit<CheckIn, "at" | "by">;
+
+export type InspectionRequest = { items: InspectionItem[] };
+
+/** A line as the estimate builder sends it; the customer's approval is recorded separately. */
+export type EstimateLineInput = Omit<EstimateLine, "approval" | "isExtra" | "isDone">;
+
+export type EstimateRequest = { lines: EstimateLineInput[] };
+
+export type ApprovalRequest = {
+  /** The customer's answer for each line waiting on them. */
+  decisions: Record<string, "approved" | "rejected">;
+  /** How they answered, e.g. "By phone". */
+  note: string;
+};
+
+export type ProgressRequest = {
+  text: string;
+  photos: string[];
+  /** True when the technician found more work that needs the customer's approval. */
+  isExtraWork: boolean;
+};
+
+export type QualityCheckRequest = Omit<QualityCheck, "at" | "by">;

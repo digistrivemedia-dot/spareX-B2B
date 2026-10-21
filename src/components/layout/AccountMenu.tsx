@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { signOutAction } from "@/features/auth/actions";
 
 type AccountMenuProps = {
   userName: string;
@@ -61,12 +62,14 @@ export function AccountMenu({ userName, email, businessName, roleLabel }: Accoun
               Company profile
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/login">
-              <LogOut aria-hidden />
-              Sign out
-            </Link>
-          </DropdownMenuItem>
+          <form action={signOutAction}>
+            <DropdownMenuItem asChild>
+              <button type="submit" className="w-full">
+                <LogOut aria-hidden />
+                Sign out
+              </button>
+            </DropdownMenuItem>
+          </form>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>

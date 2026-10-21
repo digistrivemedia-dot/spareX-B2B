@@ -65,3 +65,30 @@ export const checkInSchema = z.object({
 });
 
 export type CheckInValues = z.infer<typeof checkInSchema>;
+
+export const GST_RATES = ["0", "5", "12", "18", "28"] as const;
+
+export const estimateSchema = z.object({
+  lines: z
+    .array(
+      z.object({
+        id: z.string(),
+        kind: z.enum(["labour", "service", "part", "consumable"]),
+        description: requiredText("Describe the work or part"),
+        partNumber: z.string(),
+        quantity: z
+          .string()
+          .trim()
+          .regex(/^[1-9]\d{0,3}$/, "Enter a quantity from 1"),
+        price: z
+          .string()
+          .trim()
+          .regex(/^\d{1,6}(\.\d{1,2})?$/, "Enter a price in rupees"),
+        gst: z.enum(GST_RATES),
+      }),
+    )
+    .min(1, "Add at least one line"),
+});
+
+export type EstimateValues = z.infer<typeof estimateSchema>;
+export type EstimateLineValues = EstimateValues["lines"][number];

@@ -12,6 +12,7 @@ import {
   Package,
   PackageSearch,
   Undo2,
+  Wrench,
   Wallet,
   Zap,
   type LucideIcon,
@@ -82,6 +83,13 @@ export const navigation: NavSection[] = [
         icon: ClipboardList,
         businessTypes: ["garage"],
         permission: "jobs:view",
+      },
+      {
+        label: "My jobs",
+        href: "/garage/my-jobs",
+        icon: Wrench,
+        businessTypes: ["garage"],
+        permission: "jobs:work",
       },
       {
         label: "Garage profile",

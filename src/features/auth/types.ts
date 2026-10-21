@@ -43,6 +43,8 @@ export type TwoFactorChallenge = {
 export type SignInResult =
   | {
       status: "signed_in";
+      /** Kept in an httpOnly cookie by the sign-in Server Action; absent for unverified accounts. */
+      sessionToken?: string;
       approvalStatus: ApprovalStatus;
       /** True on first login, before the user has chosen their own password. */
       mustSetPassword: boolean;
@@ -51,10 +53,16 @@ export type SignInResult =
     }
   | TwoFactorChallenge;
 
+/** What the page learns from signing in; the session token itself stays on the server. */
+export type SignInOutcome =
+  Omit<Extract<SignInResult, { status: "signed_in" }>, "sessionToken"> | TwoFactorChallenge;
+
 export type TwoFactorRequest = {
   challengeId: string;
   code: string;
 };
+
+export type TwoFactorResult = { sessionToken: string };
 
 /** A business applying for an account. Kannali staff verify it in the admin panel. */
 export type RegistrationApplication = {

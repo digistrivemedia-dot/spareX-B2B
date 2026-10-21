@@ -1,5 +1,5 @@
 import type { RegisterValues } from "@/features/auth/schemas";
-import type { RegistrationApplication, SignInResult } from "@/features/auth/types";
+import type { RegistrationApplication, SignInOutcome } from "@/features/auth/types";
 
 /** Turns the flat wizard values into the application the API expects. */
 export function toRegistrationApplication(values: RegisterValues): RegistrationApplication {
@@ -55,9 +55,10 @@ export function toRegisterValues(
 }
 
 /** Where to go after signing in: application status, a new password, or the portal. */
-export function getSignedInDestination(result: Extract<SignInResult, { status: "signed_in" }>) {
+export function getSignedInDestination(result: Extract<SignInOutcome, { status: "signed_in" }>) {
   if (result.approvalStatus !== "approved" && result.applicationRef) {
     return `/application?ref=${encodeURIComponent(result.applicationRef)}`;
   }
-  return result.mustSetPassword ? "/set-password" : "/dashboard";
+  // "/" sends each person to the home page for their role.
+  return result.mustSetPassword ? "/set-password" : "/";
 }

@@ -129,8 +129,7 @@ export function jobFromSeed(seed: JobSeed): JobCard {
     scheduledAt:
       seed.source === "booking" ? daysFromToday(seed.day, (seed.hour ?? 9) + 2) : undefined,
     promisedAt: reached("approved") ? daysFromToday(seed.day + (isOld ? 1 : 0), 18) : undefined,
-    technician:
-      reached("in_progress") || seed.status === "inspection" ? seed.technician : undefined,
+    technician: seed.technician,
     checkIn: reached("job_card_created")
       ? {
           at: eventAt("job_card_created"),
@@ -142,9 +141,9 @@ export function jobFromSeed(seed: JobSeed): JobCard {
           photos: [],
         }
       : undefined,
-    inspection: reached("awaiting_approval")
+    inspection: reached("inspection")
       ? {
-          at: eventAt("awaiting_approval"),
+          at: eventAt("inspection"),
           by: seed.technician ?? lead,
           items: [
             {

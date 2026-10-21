@@ -6,6 +6,7 @@ import type {
   SignInRequest,
   SignInResult,
   TwoFactorRequest,
+  TwoFactorResult,
 } from "@/features/auth/types";
 import { apiClient } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
@@ -25,9 +26,9 @@ export async function signIn(request: SignInRequest): Promise<SignInResult> {
   return apiClient<SignInResult>("/auth/sign-in", { method: "POST", body: request });
 }
 
-export async function verifyTwoFactor(request: TwoFactorRequest): Promise<void> {
+export async function verifyTwoFactor(request: TwoFactorRequest): Promise<TwoFactorResult> {
   if (dataSource.auth === "mock") return verifyTwoFactorMock(request);
-  return apiClient<void>("/auth/two-factor/verify", { method: "POST", body: request });
+  return apiClient<TwoFactorResult>("/auth/two-factor/verify", { method: "POST", body: request });
 }
 
 export async function resendTwoFactorCode(challengeId: string): Promise<void> {

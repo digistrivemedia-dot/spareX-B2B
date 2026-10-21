@@ -9,7 +9,7 @@ import type { Product } from "@/features/catalog/types";
 import { getPackLabel } from "@/features/catalog/utils";
 import { LINE_COLUMNS } from "@/features/quick-order/components/line-columns";
 import { LineStatusNote } from "@/features/quick-order/components/LineStatusNote";
-import { PartNumberInput } from "@/features/quick-order/components/PartNumberInput";
+import { PartNumberInput } from "@/features/catalog/components/PartNumberInput";
 import type { LineCheck, OrderLineDraft } from "@/features/quick-order/types";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";

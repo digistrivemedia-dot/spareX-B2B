@@ -7,6 +7,7 @@ import type {
   SignInRequest,
   SignInResult,
   TwoFactorRequest,
+  TwoFactorResult,
 } from "@/features/auth/types";
 import { ApiError } from "@/lib/api-client";
 import { formatPhone } from "@/lib/format";
@@ -15,22 +16,22 @@ import { daysFromToday, findById, simulateLatency } from "@/mocks/utils";
 
 const owner = findById(companyUsers, "usr-mahesh");
 
-const demoSession: Session = {
-  user: { id: owner.id, name: owner.name, email: owner.email, phone: owner.phone },
-  business,
-  roles: owner.roles,
-  branchId: owner.branchId,
-  approvalStatus: "approved",
-};
-
-/** Who is acting, as the real API reads it from the session token. */
-export function currentStaffMock() {
-  return { id: demoSession.user.id, name: demoSession.user.name };
-}
-
-export async function getSessionMock(): Promise<Session | null> {
+/**
+ * The demo's session token is the user's id. With no token the owner is signed in, so every
+ * link in the demo works without signing in first.
+ */
+export async function getSessionMock(token?: string): Promise<Session | null> {
   await simulateLatency(100);
-  return demoSession;
+  const user =
+    companyUsers.find((candidate) => candidate.id === token && candidate.status !== "disabled") ??
+    owner;
+  return {
+    user: { id: user.id, name: user.name, email: user.email, phone: user.phone },
+    business,
+    roles: user.roles,
+    branchId: user.branchId,
+    approvalStatus: "approved",
+  };
 }
 
 const WORKSHOP_PHOTOS = ["/images/garage/workshop-1.jpg", "/images/garage/workshop-3.jpg"];
@@ -108,9 +109,10 @@ const applications: ApplicationStatus[] = [
 const FIRST_LOGIN_EMAIL = "new@sparex.example.com";
 
 /**
- * Demo rules: any email with a password of 8+ characters signs in. The demo owner's email has
- * 2-step verification switched on; the application emails above open their application status,
- * and FIRST_LOGIN_EMAIL asks for a new password.
+ * Demo rules: any email with a password of 8+ characters signs in, as the owner unless it is a
+ * team member's email (then as them, to show their role). The owner's email has 2-step
+ * verification on; the application emails above open their application status; invited team
+ * members and FIRST_LOGIN_EMAIL are asked for a new password.
  */
 export async function signInMock({ email }: SignInRequest): Promise<SignInResult> {
   await simulateLatency(600);
@@ -124,11 +126,16 @@ export async function signInMock({ email }: SignInRequest): Promise<SignInResult
       applicationRef: applicant.referenceNumber,
     };
   }
+  const member = companyUsers.find((user) => user.email === address);
+  if (member?.status === "disabled") {
+    throw new ApiError(403, { message: "This login has been disabled. Ask your garage owner." });
+  }
   if (address !== owner.email) {
     return {
       status: "signed_in",
+      sessionToken: member?.id ?? owner.id,
       approvalStatus: "approved",
-      mustSetPassword: address === FIRST_LOGIN_EMAIL,
+      mustSetPassword: address === FIRST_LOGIN_EMAIL || member?.status === "invited",
     };
   }
 
@@ -140,9 +147,10 @@ export async function signInMock({ email }: SignInRequest): Promise<SignInResult
   };
 }
 
-export async function verifyTwoFactorMock({ code }: TwoFactorRequest): Promise<void> {
+export async function verifyTwoFactorMock({ code }: TwoFactorRequest): Promise<TwoFactorResult> {
   await simulateLatency(500);
-  if (!/^\d{6}$/.test(code)) throw new Error("The code must be 6 digits");
+  if (!/^\d{6}$/.test(code)) throw new ApiError(422, { message: "The code must be 6 digits" });
+  return { sessionToken: owner.id };
 }
 
 export async function resendTwoFactorCodeMock(): Promise<void> {

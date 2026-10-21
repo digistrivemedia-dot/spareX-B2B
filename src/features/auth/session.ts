@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
@@ -8,14 +9,18 @@ import { apiClient } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import { getSessionMock } from "@/mocks/auth";
 
+/** The cookie holding the session token, set by the sign-in Server Actions. */
+export const SESSION_COOKIE = "sparex-session";
+
 /**
  * The signed-in user and business, or null when nobody is signed in.
- * Real auth replaces only this file (reading the session cookie and passing its token on).
- * Cached per request, so the layout and the page share one lookup.
+ * Real auth replaces only this file. Cached per request, so the layout and the page share one lookup.
  */
 export const getSession = cache(async (): Promise<Session | null> => {
-  if (dataSource.auth === "mock") return getSessionMock();
-  return apiClient<Session>("/auth/session");
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  if (dataSource.auth === "mock") return getSessionMock(token);
+  if (!token) return null;
+  return apiClient<Session>("/auth/session", { token });
 });
 
 /** For pages behind login: the session, or a redirect to sign in. */

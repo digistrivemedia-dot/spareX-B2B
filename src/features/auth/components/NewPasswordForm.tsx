@@ -56,7 +56,7 @@ export function NewPasswordForm(props: NewPasswordFormProps) {
       });
       if (props.mode === "first_login") {
         toast.success("Password saved");
-        router.push("/dashboard");
+        router.push("/");
       }
     } catch (error) {
       form.setError("root", { message: getErrorMessage(error) });

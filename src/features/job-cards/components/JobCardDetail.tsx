@@ -6,7 +6,10 @@ import {
   InspectionSection,
   VehicleCustomerSection,
 } from "@/features/job-cards/components/detail/JobSections";
-import { JobStatusCard } from "@/features/job-cards/components/detail/JobStatusCard";
+import {
+  JobStatusCard,
+  type JobAccess,
+} from "@/features/job-cards/components/detail/JobStatusCard";
 import {
   EstimateSection,
   PartsSection,
@@ -17,7 +20,7 @@ import type { JobCard } from "@/features/job-cards/types";
 import { getJobSteps } from "@/features/job-cards/utils";
 
 /** Everything about one job, in the order the work happens. */
-export function JobCardDetail({ job }: { job: JobCard }) {
+export function JobCardDetail({ job, access }: { job: JobCard; access: JobAccess }) {
   return (
     <div className="flex flex-col gap-6 xl:flex-row xl:items-start">
       <div className="flex min-w-0 flex-1 flex-col gap-6">
@@ -38,7 +41,7 @@ export function JobCardDetail({ job }: { job: JobCard }) {
       {/* Below xl the aside dissolves so the status card leads the page and the timeline closes it. */}
       <aside className="contents xl:sticky xl:top-20 xl:flex xl:w-80 xl:shrink-0 xl:flex-col xl:gap-6">
         <div className="order-first xl:order-none">
-          <JobStatusCard job={job} />
+          <JobStatusCard job={job} access={access} />
         </div>
         <SectionCard title="Timeline" className="order-last xl:order-none">
           <Timeline label="Job progress" steps={getJobSteps(job)} />

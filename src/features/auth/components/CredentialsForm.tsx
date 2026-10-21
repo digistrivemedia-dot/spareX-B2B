@@ -9,14 +9,13 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { FormAlert } from "@/components/ui/FormAlert";
 import { FormTextField } from "@/components/ui/FormTextField";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { signIn } from "@/features/auth/api";
+import { signInAction } from "@/features/auth/actions";
 import { AuthHeading } from "@/features/auth/components/AuthHeading";
 import { DemoHint } from "@/features/auth/components/DemoHint";
 import { PasswordInput } from "@/features/auth/components/PasswordInput";
 import { signInSchema, type SignInValues } from "@/features/auth/schemas";
 import type { TwoFactorChallenge } from "@/features/auth/types";
 import { getSignedInDestination } from "@/features/auth/utils";
-import { getErrorMessage } from "@/lib/api-client";
 
 type CredentialsFormProps = {
   onTwoFactorRequired: (challenge: TwoFactorChallenge) => void;
@@ -31,13 +30,10 @@ export function CredentialsForm({ onTwoFactorRequired }: CredentialsFormProps) {
   const { isSubmitting, isSubmitSuccessful, errors } = form.formState;
 
   async function onSubmit(values: SignInValues) {
-    try {
-      const result = await signIn(values);
-      if (result.status === "two_factor_required") onTwoFactorRequired(result);
-      else router.push(getSignedInDestination(result));
-    } catch (error) {
-      form.setError("root", { message: getErrorMessage(error) });
-    }
+    const result = await signInAction(values);
+    if (!result.ok) return form.setError("root", { message: result.message });
+    if (result.data.status === "two_factor_required") onTwoFactorRequired(result.data);
+    else router.push(getSignedInDestination(result.data));
   }
 
   return (
@@ -85,10 +81,11 @@ export function CredentialsForm({ onTwoFactorRequired }: CredentialsFormProps) {
             Sign in
           </SubmitButton>
           <DemoHint>
-            Any email and a password of 8 or more characters signs in. Try
-            mahesh@srisaiworks.example.com for 2-step verification; review@, sentback@ or
-            rejected@sparex.example.com for an application&apos;s status; and new@sparex.example.com
-            for a first login.
+            Any email and a password of 8 or more characters signs in as the owner. Try
+            mahesh@srisaiworks.example.com for 2-step verification; ravi@, imran@ or
+            shilpa@srisaiworks.example.com to see a manager, technician or billing login; review@,
+            sentback@ or rejected@sparex.example.com for an application&apos;s status; and
+            new@sparex.example.com for a first login.
           </DemoHint>
         </FieldGroup>
       </form>

@@ -11,7 +11,8 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { FormAlert } from "@/components/ui/FormAlert";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { resendTwoFactorCode, verifyTwoFactor } from "@/features/auth/api";
+import { verifyTwoFactorAction } from "@/features/auth/actions";
+import { resendTwoFactorCode } from "@/features/auth/api";
 import { AuthHeading } from "@/features/auth/components/AuthHeading";
 import { DemoHint } from "@/features/auth/components/DemoHint";
 import { twoFactorSchema, type TwoFactorValues } from "@/features/auth/schemas";
@@ -35,12 +36,9 @@ export function TwoFactorForm({ challengeId, maskedPhone, onBack }: TwoFactorFor
   const { isSubmitting, isSubmitSuccessful, errors } = form.formState;
 
   async function onSubmit({ code }: TwoFactorValues) {
-    try {
-      await verifyTwoFactor({ challengeId, code });
-      router.push("/dashboard");
-    } catch (error) {
-      form.setError("root", { message: getErrorMessage(error) });
-    }
+    const result = await verifyTwoFactorAction({ challengeId, code });
+    if (result.ok) router.push("/");
+    else form.setError("root", { message: result.message });
   }
 
   async function handleResend() {

@@ -9,7 +9,7 @@ import type {
 import { sumLines } from "@/features/job-cards/utils";
 import { ApiError } from "@/lib/api-client";
 import type { Paginated } from "@/lib/types";
-import { currentStaffMock } from "@/mocks/auth";
+import { currentStaffMock } from "@/mocks/session";
 import { branches } from "@/mocks/company";
 import { customers, vehicles } from "@/mocks/customers";
 import { jobFromSeed, STAFF, type JobSeed } from "@/mocks/job-card-seeds";
@@ -105,6 +105,7 @@ const seeds: JobSeed[] = [
     day: 0,
     hour: 8,
     odometerKm: 18320,
+    technician: STAFF.imran,
     complaints: ["Due for service"],
     lines: GENERAL_SERVICE,
   },
@@ -388,7 +389,7 @@ export function nextJobNumber(): string {
 /** A walk-in starts at "Vehicle received"; a new plate creates the customer and vehicle too. */
 export async function createWalkInMock(request: WalkInRequest): Promise<JobCard> {
   await simulateLatency(800);
-  const by = currentStaffMock();
+  const by = await currentStaffMock();
   const vehicle = request.vehicleId
     ? findById(vehicles, request.vehicleId)
     : addVehicleWithCustomer(request.newVehicle);
@@ -452,7 +453,7 @@ function addVehicleWithCustomer(details: WalkInRequest["newVehicle"]) {
 /** Recording the vehicle's condition turns a received vehicle into an open job card. */
 export async function checkInMock(id: string, request: CheckInRequest): Promise<JobCard> {
   await simulateLatency(800);
-  const by = currentStaffMock();
+  const by = await currentStaffMock();
   const job = requireJob(id);
   const now = new Date().toISOString();
   if (job.status === "confirmed") advanceJob(job, ["confirmed"], "vehicle_received");

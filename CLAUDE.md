@@ -413,13 +413,13 @@ All garage lists are scoped to the selected branch; staff see only their own bra
 
 | # | Screen | Route | Status | Must include |
 |---|---|---|---|---|
-| B36 | Inspection checklist + photos | `/garage/jobs/[id]/inspection` | TO BUILD | Checklist by area; each item OK / Needs attention / Replace with note and photo → estimate |
-| B37 | Estimate builder | `/garage/jobs/[id]/estimate` | TO BUILD | Lines: labour, services (garage prices), parts (from the SpareX catalogue or typed), consumables; qty, price, GST; totals; record the customer's approval per line; all rejected → job closes with no fee |
-| B38 | Revised estimate (extra work) | `/garage/jobs/[id]/estimate/revision` | TO BUILD | Approved work shown; extra lines added; back to Waiting for customer approval; approval recorded per line |
-| B39 | Assign technician | dialog on the job card | TO BUILD | Branch technicians with their current job count; assign or reassign |
-| B40 | My jobs (technician) | `/garage/my-jobs`, `/garage/my-jobs/[id]` | TO BUILD | Phone-first. Assigned jobs; accept / reject (reason); approved tasks to tick off; progress notes and photos; report extra work (→ B38); parts used |
+| B36 | Inspection checklist + photos | `/garage/jobs/[id]/inspection` | BUILT | Checklist by area; each item OK / Needs attention / Replace with note and photo → estimate |
+| B37 | Estimate builder | `/garage/jobs/[id]/estimate` | BUILT | Lines: labour, services (garage prices), parts (from the SpareX catalogue or typed), consumables; qty, price, GST; totals; record the customer's approval per line; all rejected → job closes with no fee |
+| B38 | Revised estimate (extra work) | `/garage/jobs/[id]/estimate/revision` | BUILT | Approved work shown; extra lines added; back to Waiting for customer approval; approval recorded per line |
+| B39 | Assign technician | dialog on the job card | BUILT | Branch technicians with their current job count; assign or reassign |
+| B40 | My jobs (technician) | `/garage/my-jobs`, `/garage/my-jobs/[id]` | BUILT | Phone-first. Assigned jobs; accept / reject (reason); approved tasks to tick off; progress notes and photos; report extra work (→ B38); parts used |
 | B41 | Parts for this job | section on the job card | WAIT | Parts used + order from SpareX; build only once the client answers on inventory |
-| B42 | Quality check | `/garage/jobs/[id]/quality-check` | TO BUILD | Checklist from the job's tasks; Pass → Ready for delivery, Rework (note) → Service in progress |
+| B42 | Quality check | `/garage/jobs/[id]/quality-check` | BUILT | Checklist from the job's tasks; Pass → Ready for delivery, Rework (note) → Service in progress |
 
 ### Phase 8: Billing, payment, handover, customers, reviews, reports; final pass
 

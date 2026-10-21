@@ -429,3 +429,38 @@ job to "Job card created". Plates are checked against the usual Indian format an
 Manager / service advisor: dashboard, bookings, walk-ins, check-in and job cards. Billing:
 dashboard and job cards. Technician: only "My jobs" (Phase 7). Spares: job cards (for parts) and
 buying. Owner: everything. Each role's home page follows from this.
+
+## Phase 7: inspection, estimates, technicians and quality check (B36–B42)
+
+### 69. 🔵 Demo sign-in as a team member
+
+Signing in now keeps a session cookie, as real sign-in will. In the demo, team members' emails
+sign in as them: ravi@ (manager, HSR), imran@ (technician, Whitefield), venkatesh@ (technician
+and spares, HSR), shilpa@ (billing) at srisaiworks.example.com. Without signing in, the demo is
+the owner. Disabled users can't sign in; invited ones are asked for a password first.
+
+### 70. 🔵 The estimate
+
+Built from the inspection (one line per item that needs work). Services come from the garage's
+price list; parts are searched in the SpareX catalogue and default to their MRP (excl. GST), since
+garages sell parts on at retail. GST per line (18% by default). The customer's answer is recorded
+line by line with how they answered (in person, phone, WhatsApp, app). All turned down on a first
+estimate → the job closes with no fee. **Confirm** the default part price.
+
+### 71. 🔵 Technicians accept their jobs
+
+Assigning a technician (branch technicians, with how many jobs each has on) leaves the job at
+"Approved" until they accept in My jobs, which starts the service; they can hand it back with a
+reason. They tick off tasks and parts, add updates with photos, flag extra work for the manager,
+and send the vehicle to quality check once everything is ticked.
+
+### 72. 🟡 Parts for this job (B41)
+
+Waiting for the inventory answer. The job card's Parts section lists the approved parts and the
+technician ticks them as fitted; ordering from SpareX and stock tracking are not built.
+
+### 73. 🔵 Quality check
+
+Every check must be ticked to pass ("Ready for delivery"); "Send back for rework" needs a note
+and returns the job to the technician. Both the manager and the billing, QA & delivery role can
+do it until the client decides who owns QA.
