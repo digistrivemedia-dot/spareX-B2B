@@ -233,3 +233,26 @@ support contact in item 2 (phone, WhatsApp or email).
 Search by order or PO number (ignores spaces and slashes), status (including "Open"), branch,
 and the date the order was placed. Payment shows "Credit · due <date>" (amber within 3 days, red
 when overdue), "Paid" or "Credit · invoiced at dispatch".
+
+## New screen list (21 Oct 2026)
+
+The brief (`CLAUDE.md`) now follows the 52-screen launch list. Items 7, 23, 24 and 26 (MOQ and
+pack-size rules) and 29 (online payment) will be reworked when B08–B11 are updated.
+
+### 38. 🔵 Email is required at registration
+
+The list makes only name, phone, location and photos required, but login is by business email,
+so email (and business type, which decides the Garage section) are required too.
+
+### 39. 🔵 Pack sizes
+
+"No minimum order quantity" is read as: buyers can order any number of units. Pack size
+("carton of 12") stays as product information only, not a rule.
+
+### 40. 🔵 Corrections to the screen list
+
+- **Counts:** the summary didn't match the tables. With the changes below it is 8 BUILT,
+  8 UPDATE, 5 PLACEHOLDER, 30 TO BUILD and 1 WAIT.
+- **B52 (404 / error):** marked BUILT, as both pages already exist.
+- **B25 (Users list):** marked TO BUILD, as it was never built.
+- **B09 (Quick order) and B10 (Cart):** marked UPDATE, as they still check MOQ and pack sizes.
