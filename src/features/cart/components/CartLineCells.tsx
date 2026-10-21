@@ -5,25 +5,18 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
-import { getUnitPrice } from "@/features/catalog/utils";
 import { useCartStore } from "@/features/cart/store";
 import type { CartLine } from "@/features/cart/types";
 import { formatPrice } from "@/lib/format";
 
-/** The unit price the quantity earns; a struck-through standard price when a bulk tier applies. */
+/** Your price, with the B2C price it is discounted from struck through. */
 export function CartUnitPrice({ line }: { line: CartLine }) {
-  const unitPrice = getUnitPrice(line.product, line.quantity);
-  const hasTier = unitPrice < line.product.businessPriceInPaise;
-
   return (
     <div className="flex flex-col items-end">
-      <span className="font-semibold text-gray-900">{formatPrice(unitPrice)}</span>
-      {hasTier && (
-        <span className="text-xs text-success-700">
-          Bulk price ·{" "}
-          <s className="text-gray-500">{formatPrice(line.product.businessPriceInPaise)}</s>
-        </span>
-      )}
+      <span className="font-semibold text-gray-900">
+        {formatPrice(line.product.businessPriceInPaise)}
+      </span>
+      <s className="text-xs text-gray-500">{formatPrice(line.product.b2cPriceInPaise)}</s>
     </div>
   );
 }
@@ -33,8 +26,6 @@ export function CartQuantity({ line }: { line: CartLine }) {
   return (
     <QuantityStepper
       label={`Quantity of ${line.product.name}`}
-      min={line.product.moq}
-      step={line.product.packSize}
       value={line.quantity}
       onChange={(quantity) => setQuantity(line.id, quantity)}
     />
@@ -44,7 +35,7 @@ export function CartQuantity({ line }: { line: CartLine }) {
 export function CartLineTotal({ line }: { line: CartLine }) {
   return (
     <span className="font-semibold text-gray-900">
-      {formatPrice(getUnitPrice(line.product, line.quantity) * line.quantity)}
+      {formatPrice(line.product.businessPriceInPaise * line.quantity)}
     </span>
   );
 }

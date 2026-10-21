@@ -2,20 +2,17 @@
 
 import { CircleAlert, TriangleAlert } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/components/ui/ProductImage";
 import { useBranchStock } from "@/features/catalog/use-branch-stock";
 import { getCategoryIcon, getPackLabel } from "@/features/catalog/utils";
-import { useCartStore } from "@/features/cart/store";
 import type { CartLine } from "@/features/cart/types";
 import { getCartIssue } from "@/features/cart/utils";
 import { cn } from "@/lib/utils";
 
-/** The part, its pack rules, and any problem with the line (with a one-click fix when there is one). */
+/** The part, the pack it ships in, and any stock problem with the line. */
 export function CartLinePart({ line }: { line: CartLine }) {
   const { product } = line;
   const issue = getCartIssue(line, useBranchStock(product));
-  const setQuantity = useCartStore((state) => state.setQuantity);
   const Icon = issue?.isBlocking ? CircleAlert : TriangleAlert;
 
   return (
@@ -29,7 +26,7 @@ export function CartLinePart({ line }: { line: CartLine }) {
       <div className="flex max-w-72 min-w-0 flex-col gap-0.5 whitespace-normal">
         <span className="font-medium text-gray-900">{product.name}</span>
         <span className="text-xs text-gray-500">
-          {product.partNumber} · {product.brand} · {getPackLabel(product)} · MOQ {product.moq}
+          {product.partNumber} · {product.brand} · {getPackLabel(product)}
         </span>
         {issue && (
           <span
@@ -39,19 +36,7 @@ export function CartLinePart({ line }: { line: CartLine }) {
             )}
           >
             <Icon aria-hidden className="mt-px size-3.5 shrink-0" />
-            <span>
-              {issue.message}{" "}
-              {issue.fix && (
-                <Button
-                  variant="link"
-                  size="xs"
-                  className="h-auto px-0"
-                  onClick={() => issue.fix && setQuantity(product.id, issue.fix.quantity)}
-                >
-                  {issue.fix.label}
-                </Button>
-              )}
-            </span>
+            <span>{issue.message}</span>
           </span>
         )}
       </div>

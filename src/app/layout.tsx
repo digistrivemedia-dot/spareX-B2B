@@ -15,7 +15,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: { default: APP_NAME, template: `%s · ${APP_NAME}` },
-  description: "Bulk two-wheeler spare parts for garages, fleets and dealers, from Kannali Garage.",
+  description:
+    "Spare parts at business prices for garages, fleets and dealers, from Kannali Garage.",
   // A private portal behind login; nothing here should be indexed.
   robots: { index: false, follow: false },
 };

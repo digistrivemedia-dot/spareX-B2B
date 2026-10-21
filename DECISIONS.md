@@ -236,8 +236,8 @@ when overdue), "Paid" or "Credit · invoiced at dispatch".
 
 ## New screen list (21 Oct 2026)
 
-The brief (`CLAUDE.md`) now follows the 52-screen launch list. Items 7, 23, 24 and 26 (MOQ and
-pack-size rules) and 29 (online payment) will be reworked when B08–B11 are updated.
+The brief (`CLAUDE.md`) now follows the 52-screen launch list. Phase 1 removed MOQ, pack rules and
+tier prices, so items 24 and 26 now only concern stock, and item 29 is answered (Razorpay).
 
 ### 38. 🔵 Email is required at registration
 
@@ -256,3 +256,43 @@ so email (and business type, which decides the Garage section) are required too.
 - **B52 (404 / error):** marked BUILT, as both pages already exist.
 - **B25 (Users list):** marked TO BUILD, as it was never built.
 - **B09 (Quick order) and B10 (Cart):** marked UPDATE, as they still check MOQ and pack sizes.
+
+## Phase 1: pricing and payment (B07–B12, B17)
+
+### 41. 🔵 Business prices are rounded to whole rupees
+
+Business price = B2C price × (100 − discount %) ÷ 100, rounded to the nearest rupee
+(`getBusinessPrice` in `src/lib/pricing.ts`). The demo business has a 15% discount. The real
+backend should return the same number. **Confirm** the rounding rule.
+
+### 42. 🔵 Who can buy until the role permissions are final
+
+Owner: everything. Spares & inventory executive: catalogue, quick order, cart, orders and
+quotations. Manager, technician and billing see only the dashboard until the Garage screens
+arrive; credit and company are owner-only. One list per role in `src/features/auth/permissions.ts`.
+
+### 43. 🔵 Pasted lines without a quantity
+
+A pasted line with only a part number asks for 1 unit, with no warning, since there is no
+minimum quantity any more.
+
+### 44. 🟡 Kannali's bank account
+
+Bank transfer shows placeholder account details (`src/features/payments/bank-account.ts`).
+**Need:** Kannali's real account name, bank, account number and IFSC.
+
+### 45. 🔵 Vehicle types
+
+The catalogue now covers Two-wheeler, Three-wheeler, Car and Commercial vehicle, filtered type →
+make → model. Five car and three-wheeler parts were added to the demo (45 parts in all).
+**Confirm** the list of vehicle types.
+
+### 46. ⚪ Fleet vehicles removed from the demo data
+
+B51 (Fleet) stays out of the app until the client decides, so its unused demo data was removed.
+
+### 47. 🔵 Bank transfer and cash on delivery
+
+Bank transfer orders show as "Awaiting bank transfer" and are dispatched once Kannali marks them
+paid; the buyer may add a UTR at checkout. Cash on delivery shows as "Cash on delivery" until
+paid. Razorpay is a demo: the order is marked paid at once.

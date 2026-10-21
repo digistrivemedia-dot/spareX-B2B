@@ -27,7 +27,7 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
     <>
       <PageHeader
         title="Catalogue"
-        description="Search by part number or name, filter by the bikes you service, and add to cart."
+        description="Search by part number or name, filter by the vehicles you service, and add to cart."
       />
       <div className="flex gap-6">
         <aside aria-label="Filters" className="hidden w-52 shrink-0 xl:block">

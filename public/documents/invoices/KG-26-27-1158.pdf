@@ -12,26 +12,27 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
 endobj
 5 0 obj
-<< /Length 1451 >>
+<< /Length 1489 >>
 stream
 BT /F1 16 Tf 40 800 Td (TAX INVOICE) Tj ET
-BT /F1 11 Tf 40 778 Td (Kannali Garage \(SpareX\)  |  GSTIN 29AAKCK0000A1Z5 \(sample\)) Tj ET
-BT /F1 9 Tf 40 764 Td (Bengaluru, Karnataka - for demo only, not a real tax invoice) Tj ET
-BT /F1 10 Tf 40 742 Td (Invoice: KG/26-27/1158    Date: 7 Oct 2026    Order: ORD-2026-0414) Tj ET
-BT /F1 10 Tf 40 728 Td (PO: PO/SSW/2026/040    Place of supply: Karnataka \(29\)) Tj ET
-BT /F1 10 Tf 40 708 Td (Bill to: Sri Sai Two Wheeler Works, GSTIN 29AAKFS4821M1Z3) Tj ET
-BT /F1 10 Tf 40 694 Td (Ship to: HSR Layout branch, Bengaluru) Tj ET
-BT /F1 9 Tf 40 672 Td (Item                                     Qty        Rate       Taxable) Tj ET
-BT /F1 9 Tf 40 658 Td (Castrol Activ Scooter 10W-30, 800 ml      36      238.00      8,568.00) Tj ET
-BT /F1 9 Tf 40 642 Td (Honda OEM drive belt, Activa 6G            4      738.00      2,952.00) Tj ET
-BT /F1 9 Tf 40 626 Td (TVS Eurogrip Jumbo 90/100-10 tubeless.     8      951.00      7,608.00) Tj ET
-BT /F1 9 Tf 40 610 Td (Honda OEM air filter element, Activa .    10      229.00      2,290.00) Tj ET
-BT /F1 9 Tf 40 594 Td () Tj ET
-BT /F1 10 Tf 40 586 Td (Taxable value: Rs 21,418.00) Tj ET
-BT /F1 10 Tf 40 572 Td (CGST 9%: Rs 1,927.62    SGST 9%: Rs 1,927.62) Tj ET
-BT /F1 12 Tf 40 558 Td (Invoice total: Rs 25,273.24) Tj ET
-BT /F1 9 Tf 40 538 Td (Payment: on credit, due 6 Nov 2026) Tj ET
-BT /F1 9 Tf 40 524 Td (SAMPLE DOCUMENT FOR THE DEMO - NOT A REAL TAX INVOICE.) Tj ET
+BT /F1 11 Tf 40 779 Td (Kannali Garage \(SpareX\)  |  GSTIN 29AAKCK0000A1Z5 \(sample\)) Tj ET
+BT /F1 9 Tf 40 763 Td (Bengaluru, Karnataka - for demo only, not a real tax invoice) Tj ET
+BT /F1 10 Tf 40 749 Td (Invoice: KG/26-27/1158    Date: 19 Oct 2026    Order: ORD-2026-0414) Tj ET
+BT /F1 10 Tf 40 734 Td (PO: PO/SSW/2026/040    Place of supply: Karnataka \(29\)) Tj ET
+BT /F1 10 Tf 40 719 Td (Bill to: Sri Sai Two Wheeler Works, GSTIN 29AAKFS4821M1Z3) Tj ET
+BT /F1 10 Tf 40 704 Td (Ship to: HSR Layout branch, Bengaluru) Tj ET
+BT /F1 9 Tf 40 689 Td (Item                                     Qty        Rate       Taxable) Tj ET
+BT /F1 9 Tf 40 675 Td (Castrol Activ Scooter 10W-30, 800 ml       36      245.00      8,820.00) Tj ET
+BT /F1 9 Tf 40 661 Td (Honda OEM drive belt, Activa 6G             4      712.00      2,848.00) Tj ET
+BT /F1 9 Tf 40 647 Td (TVS Eurogrip Jumbo 90/100-10 tubeless ty    8      950.00      7,600.00) Tj ET
+BT /F1 9 Tf 40 633 Td (Honda OEM air filter element, Activa 6G    10      223.00      2,230.00) Tj ET
+BT /F1 9 Tf 40 619 Td () Tj ET
+BT /F1 10 Tf 40 605 Td (Taxable value: Rs 21,498.00) Tj ET
+BT /F1 10 Tf 40 590 Td (CGST 9%: Rs 1,934.82    SGST 9%: Rs 1,934.82) Tj ET
+BT /F1 10 Tf 40 575 Td (Invoice total: Rs 25,367.64) Tj ET
+BT /F1 10 Tf 40 560 Td (Payment: on credit, due 18 Nov 2026) Tj ET
+BT /F1 9 Tf 40 545 Td () Tj ET
+BT /F1 9 Tf 40 531 Td (SAMPLE DOCUMENT FOR THE DEMO - NOT A REAL TAX INVOICE.) Tj ET
 endstream
 endobj
 xref
@@ -45,5 +46,5 @@ xref
 trailer
 << /Size 6 /Root 1 0 R >>
 startxref
-1839
+1877
 %%EOF

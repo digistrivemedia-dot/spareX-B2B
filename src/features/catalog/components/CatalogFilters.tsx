@@ -4,10 +4,10 @@ import { useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { BikeFilter } from "@/features/catalog/components/BikeFilter";
 import { FilterSection } from "@/features/catalog/components/FilterSection";
+import { VehicleFilter } from "@/features/catalog/components/VehicleFilter";
 import { CATALOG_FILTER_KEYS } from "@/features/catalog/search-params";
-import type { CatalogFilterOptions } from "@/features/catalog/types";
+import type { CatalogFilterOptions, VehicleType } from "@/features/catalog/types";
 import { useSelectedBranch } from "@/features/company/use-selected-branch";
 import { useUpdateSearchParams } from "@/hooks/use-update-search-params";
 import { cn } from "@/lib/utils";
@@ -76,12 +76,17 @@ export function CatalogFilters({ options }: { options: CatalogFilterOptions }) {
         </div>
       </FilterSection>
 
-      <FilterSection title="Fits bike">
-        <BikeFilter
-          bikeModels={options.bikeModels}
-          make={searchParams.get("make") ?? undefined}
-          bikeId={searchParams.get("bike") ?? undefined}
-          onChange={(make, bike) => setFilters({ make, bike })}
+      <FilterSection title="Fits vehicle">
+        <VehicleFilter
+          vehicleModels={options.vehicleModels}
+          value={{
+            type: (searchParams.get("type") as VehicleType | null) ?? undefined,
+            make: searchParams.get("make") ?? undefined,
+            model: searchParams.get("model") ?? undefined,
+          }}
+          onChange={({ type, make, model }) =>
+            setFilters({ type: type ?? null, make: make ?? null, model: model ?? null })
+          }
         />
       </FilterSection>
 

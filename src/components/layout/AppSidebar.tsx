@@ -16,20 +16,13 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import type { Role } from "@/features/auth/types";
-import type { BusinessType } from "@/features/company/types";
-import { getVisibleNavigation } from "@/lib/navigation";
-
-type AppSidebarProps = {
-  businessType: BusinessType;
-  role: Role;
-};
+import { getVisibleNavigation, type NavViewer } from "@/lib/navigation";
 
 /** Collapses to icons on desktop and opens as a drawer on mobile. */
-export function AppSidebar({ businessType, role }: AppSidebarProps) {
+export function AppSidebar({ viewer }: { viewer: NavViewer }) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
-  const sections = getVisibleNavigation({ businessType, role });
+  const sections = getVisibleNavigation(viewer);
 
   return (
     <Sidebar collapsible="icon">

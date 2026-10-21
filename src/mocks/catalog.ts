@@ -1,5 +1,4 @@
 import type {
-  BikeModel,
   CatalogFilterOptions,
   CatalogFilters,
   Category,
@@ -7,7 +6,10 @@ import type {
 } from "@/features/catalog/types";
 import type { Paginated } from "@/lib/types";
 import { DEFAULT_GST_RATE_PERCENT } from "@/lib/gst";
+import { getBusinessPrice } from "@/lib/pricing";
+import { business } from "@/mocks/company";
 import { findById, paginate, simulateLatency, sortItems } from "@/mocks/utils";
+import { vehicleModels } from "@/mocks/vehicles";
 
 export const categories: Category[] = [
   { id: "oils", name: "Oils & lubricants" },
@@ -23,57 +25,33 @@ export const categories: Category[] = [
   { id: "helmets", name: "Helmets" },
 ];
 
-export const bikeModels: BikeModel[] = [
-  { id: "bajaj-dominar-400", brand: "Bajaj", model: "Dominar 400" },
-  { id: "bajaj-platina-110", brand: "Bajaj", model: "Platina 110" },
-  { id: "bajaj-pulsar-150", brand: "Bajaj", model: "Pulsar 150" },
-  { id: "bajaj-pulsar-220f", brand: "Bajaj", model: "Pulsar 220F" },
-  { id: "bajaj-pulsar-ns200", brand: "Bajaj", model: "Pulsar NS200" },
-  { id: "hero-hf-deluxe", brand: "Hero", model: "HF Deluxe" },
-  { id: "hero-splendor-plus", brand: "Hero", model: "Splendor Plus" },
-  { id: "honda-activa-6g", brand: "Honda", model: "Activa 6G" },
-  { id: "honda-dio", brand: "Honda", model: "Dio" },
-  { id: "honda-hornet-2", brand: "Honda", model: "Hornet 2.0" },
-  { id: "honda-shine", brand: "Honda", model: "Shine 125" },
-  { id: "honda-unicorn", brand: "Honda", model: "Unicorn" },
-  { id: "ktm-duke-200", brand: "KTM", model: "Duke 200" },
-  { id: "ktm-duke-250", brand: "KTM", model: "Duke 250" },
-  { id: "ktm-duke-390", brand: "KTM", model: "Duke 390" },
-  { id: "ktm-rc-200", brand: "KTM", model: "RC 200" },
-  { id: "ktm-rc-390", brand: "KTM", model: "RC 390" },
-  { id: "re-bullet-350", brand: "Royal Enfield", model: "Bullet 350" },
-  { id: "re-classic-350", brand: "Royal Enfield", model: "Classic 350" },
-  { id: "re-himalayan-411", brand: "Royal Enfield", model: "Himalayan 411" },
-  { id: "re-hunter-350", brand: "Royal Enfield", model: "Hunter 350" },
-  { id: "re-meteor-350", brand: "Royal Enfield", model: "Meteor 350" },
-  { id: "suzuki-access-125", brand: "Suzuki", model: "Access 125" },
-  { id: "tvs-apache-rtr-160", brand: "TVS", model: "Apache RTR 160" },
-  { id: "tvs-jupiter", brand: "TVS", model: "Jupiter" },
-  { id: "tvs-ntorq-125", brand: "TVS", model: "Ntorq 125" },
-  { id: "yamaha-fz-s", brand: "Yamaha", model: "FZ-S" },
-  { id: "yamaha-r15-v4", brand: "Yamaha", model: "R15 V4" },
-];
-
 /** The compact form demo products are written in; `product()` expands it to the API shape. */
 type ProductSeed = Omit<
   Product,
-  "category" | "gstRatePercent" | "stockByBranch" | "compatibleBikes" | "images"
+  | "category"
+  | "gstRatePercent"
+  | "businessPriceInPaise"
+  | "stockByBranch"
+  | "compatibleVehicles"
+  | "images"
 > & {
   categoryId: string;
   stock: { whitefield: number; hsr: number };
-  bikeIds: string[];
+  vehicleIds: string[];
 };
 
-function product({ categoryId, stock, bikeIds, ...seed }: ProductSeed): Product {
+/** The server prices every product for the signed-in business, as the real API will. */
+function product({ categoryId, stock, vehicleIds, ...seed }: ProductSeed): Product {
   return {
     ...seed,
+    businessPriceInPaise: getBusinessPrice(seed.b2cPriceInPaise, business.discountPercent),
     category: findById(categories, categoryId),
     gstRatePercent: DEFAULT_GST_RATE_PERCENT,
     stockByBranch: [
       { branchId: "br-whitefield", quantity: stock.whitefield },
       { branchId: "br-hsr", quantity: stock.hsr },
     ],
-    compatibleBikes: bikeIds.map((id) => findById(bikeModels, id)),
+    compatibleVehicles: vehicleIds.map((id) => findById(vehicleModels, id)),
     images: [],
   };
 }
@@ -88,17 +66,12 @@ export const products: Product[] = [
     description: "Ester-based fully synthetic 4-stroke oil for high-revving performance bikes.",
     hsnCode: "27101980",
     mrpInPaise: 105000,
-    businessPriceInPaise: 74700,
-    tierPrices: [
-      { minQty: 24, priceInPaise: 71700 },
-      { minQty: 60, priceInPaise: 69500 },
-    ],
+    b2cPriceInPaise: 87900,
     unit: "bottle",
     packName: "carton",
     packSize: 12,
-    moq: 12,
     stock: { whitefield: 240, hsr: 96 },
-    bikeIds: [
+    vehicleIds: [
       "ktm-duke-200",
       "ktm-duke-250",
       "ktm-duke-390",
@@ -122,13 +95,12 @@ export const products: Product[] = [
     description: "Technosynthese oil for everyday commuter and 150–200 cc bikes.",
     hsnCode: "27101980",
     mrpInPaise: 56000,
-    businessPriceInPaise: 40800,
+    b2cPriceInPaise: 47400,
     unit: "bottle",
     packName: "carton",
     packSize: 12,
-    moq: 12,
     stock: { whitefield: 180, hsr: 120 },
-    bikeIds: ["honda-shine", "honda-unicorn", "honda-hornet-2", "yamaha-fz-s"],
+    vehicleIds: ["honda-shine", "honda-unicorn", "honda-hornet-2", "yamaha-fz-s"],
     specs: [
       { label: "Grade", value: "SAE 10W-30" },
       { label: "Type", value: "Semi-synthetic" },
@@ -145,17 +117,12 @@ export const products: Product[] = [
     description: "Recommended grade for Royal Enfield 350 and 411 cc engines.",
     hsnCode: "27101980",
     mrpInPaise: 52000,
-    businessPriceInPaise: 37500,
-    tierPrices: [
-      { minQty: 24, priceInPaise: 36000 },
-      { minQty: 60, priceInPaise: 35300 },
-    ],
+    b2cPriceInPaise: 44000,
     unit: "bottle",
     packName: "carton",
     packSize: 12,
-    moq: 12,
     stock: { whitefield: 300, hsr: 144 },
-    bikeIds: [
+    vehicleIds: [
       "re-classic-350",
       "re-bullet-350",
       "re-hunter-350",
@@ -178,17 +145,12 @@ export const products: Product[] = [
     description: "Workhorse mineral oil for 100–150 cc commuter bikes.",
     hsnCode: "27101980",
     mrpInPaise: 41000,
-    businessPriceInPaise: 30200,
-    tierPrices: [
-      { minQty: 24, priceInPaise: 29300 },
-      { minQty: 60, priceInPaise: 28400 },
-    ],
+    b2cPriceInPaise: 34700,
     unit: "bottle",
     packName: "carton",
     packSize: 12,
-    moq: 12,
     stock: { whitefield: 420, hsr: 200 },
-    bikeIds: [
+    vehicleIds: [
       "hero-splendor-plus",
       "hero-hf-deluxe",
       "bajaj-platina-110",
@@ -211,13 +173,12 @@ export const products: Product[] = [
     description: "Semi-synthetic oil for sporty 150–200 cc bikes.",
     hsnCode: "27101980",
     mrpInPaise: 48000,
-    businessPriceInPaise: 35000,
+    b2cPriceInPaise: 40600,
     unit: "bottle",
     packName: "carton",
     packSize: 12,
-    moq: 12,
     stock: { whitefield: 8, hsr: 0 },
-    bikeIds: ["tvs-apache-rtr-160", "bajaj-pulsar-ns200", "yamaha-r15-v4", "yamaha-fz-s"],
+    vehicleIds: ["tvs-apache-rtr-160", "bajaj-pulsar-ns200", "yamaha-r15-v4", "yamaha-fz-s"],
     specs: [
       { label: "Grade", value: "SAE 10W-40" },
       { label: "Type", value: "Semi-synthetic" },
@@ -234,13 +195,12 @@ export const products: Product[] = [
     description: "Fully synthetic oil for touring and big-single engines.",
     hsnCode: "27101980",
     mrpInPaise: 89000,
-    businessPriceInPaise: 62600,
+    b2cPriceInPaise: 73600,
     unit: "bottle",
     packName: "carton",
     packSize: 12,
-    moq: 12,
     stock: { whitefield: 60, hsr: 24 },
-    bikeIds: ["re-meteor-350", "re-himalayan-411", "re-classic-350", "bajaj-dominar-400"],
+    vehicleIds: ["re-meteor-350", "re-himalayan-411", "re-classic-350", "bajaj-dominar-400"],
     specs: [
       { label: "Grade", value: "SAE 15W-50" },
       { label: "Type", value: "Fully synthetic" },
@@ -257,17 +217,18 @@ export const products: Product[] = [
     description: "Scooter-specific oil with JASO MB friction rating.",
     hsnCode: "27101980",
     mrpInPaise: 34000,
-    businessPriceInPaise: 24800,
-    tierPrices: [
-      { minQty: 24, priceInPaise: 23800 },
-      { minQty: 60, priceInPaise: 23100 },
-    ],
+    b2cPriceInPaise: 28800,
     unit: "bottle",
     packName: "carton",
     packSize: 12,
-    moq: 12,
     stock: { whitefield: 150, hsr: 90 },
-    bikeIds: ["honda-activa-6g", "honda-dio", "tvs-jupiter", "tvs-ntorq-125", "suzuki-access-125"],
+    vehicleIds: [
+      "honda-activa-6g",
+      "honda-dio",
+      "tvs-jupiter",
+      "tvs-ntorq-125",
+      "suzuki-access-125",
+    ],
     specs: [
       { label: "Grade", value: "SAE 10W-30" },
       { label: "Type", value: "Mineral" },
@@ -284,13 +245,12 @@ export const products: Product[] = [
     description: "White chain lubricant that stays put at high speed.",
     hsnCode: "34031900",
     mrpInPaise: 34000,
-    businessPriceInPaise: 24500,
+    b2cPriceInPaise: 28800,
     unit: "can",
     packName: "box",
     packSize: 12,
-    moq: 12,
     stock: { whitefield: 96, hsr: 48 },
-    bikeIds: [],
+    vehicleIds: [],
     specs: [
       { label: "Volume", value: "150 ml" },
       { label: "Type", value: "Aerosol spray" },
@@ -306,16 +266,11 @@ export const products: Product[] = [
     description: "OE-quality semi-metallic pads for Bajaj Pulsar front discs.",
     hsnCode: "87141090",
     mrpInPaise: 42000,
-    businessPriceInPaise: 29900,
-    tierPrices: [
-      { minQty: 10, priceInPaise: 28400 },
-      { minQty: 25, priceInPaise: 27500 },
-    ],
+    b2cPriceInPaise: 35200,
     unit: "pair",
     packSize: 1,
-    moq: 5,
     stock: { whitefield: 64, hsr: 30 },
-    bikeIds: ["bajaj-pulsar-150", "bajaj-pulsar-220f", "bajaj-pulsar-ns200"],
+    vehicleIds: ["bajaj-pulsar-150", "bajaj-pulsar-220f", "bajaj-pulsar-ns200"],
     specs: [
       { label: "Position", value: "Front" },
       { label: "Material", value: "Semi-metallic" },
@@ -331,12 +286,11 @@ export const products: Product[] = [
     description: "Genuine KTM sintered front pads.",
     hsnCode: "87141090",
     mrpInPaise: 145000,
-    businessPriceInPaise: 108100,
+    b2cPriceInPaise: 122800,
     unit: "pair",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 18, hsr: 6 },
-    bikeIds: ["ktm-duke-200", "ktm-rc-200", "ktm-duke-250"],
+    vehicleIds: ["ktm-duke-200", "ktm-rc-200", "ktm-duke-250"],
     specs: [
       { label: "Position", value: "Front" },
       { label: "Material", value: "Sintered" },
@@ -352,16 +306,11 @@ export const products: Product[] = [
     description: "Asbestos-free rear brake shoes for Honda scooters and commuters.",
     hsnCode: "87141090",
     mrpInPaise: 26000,
-    businessPriceInPaise: 18100,
-    tierPrices: [
-      { minQty: 25, priceInPaise: 17200 },
-      { minQty: 50, priceInPaise: 16700 },
-    ],
+    b2cPriceInPaise: 21300,
     unit: "set",
     packSize: 1,
-    moq: 10,
     stock: { whitefield: 140, hsr: 85 },
-    bikeIds: ["honda-activa-6g", "honda-shine", "honda-dio"],
+    vehicleIds: ["honda-activa-6g", "honda-shine", "honda-dio"],
     specs: [
       { label: "Position", value: "Rear drum" },
       { label: "Drum size", value: "130 mm" },
@@ -377,12 +326,11 @@ export const products: Product[] = [
     description: "Genuine pads for the J-platform 350s.",
     hsnCode: "87141090",
     mrpInPaise: 75000,
-    businessPriceInPaise: 55300,
+    b2cPriceInPaise: 63500,
     unit: "pair",
     packSize: 1,
-    moq: 4,
     stock: { whitefield: 36, hsr: 20 },
-    bikeIds: ["re-classic-350", "re-hunter-350", "re-meteor-350"],
+    vehicleIds: ["re-classic-350", "re-hunter-350", "re-meteor-350"],
     specs: [
       { label: "Position", value: "Front" },
       { label: "Material", value: "Organic" },
@@ -398,13 +346,12 @@ export const products: Product[] = [
     description: "High-boiling-point brake fluid for disc brake systems.",
     hsnCode: "38190010",
     mrpInPaise: 22000,
-    businessPriceInPaise: 15800,
+    b2cPriceInPaise: 18600,
     unit: "bottle",
     packName: "box",
     packSize: 12,
-    moq: 12,
     stock: { whitefield: 72, hsr: 36 },
-    bikeIds: [],
+    vehicleIds: [],
     specs: [
       { label: "Standard", value: "DOT 4" },
       { label: "Volume", value: "250 ml" },
@@ -420,13 +367,11 @@ export const products: Product[] = [
     description: "Heavy-duty chain with matched front and rear sprockets.",
     hsnCode: "87149990",
     mrpInPaise: 165000,
-    businessPriceInPaise: 117500,
-    tierPrices: [{ minQty: 10, priceInPaise: 111600 }],
+    b2cPriceInPaise: 138200,
     unit: "kit",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 40, hsr: 12 },
-    bikeIds: ["bajaj-pulsar-150"],
+    vehicleIds: ["bajaj-pulsar-150"],
     specs: [
       { label: "Chain", value: "428H × 130 links" },
       { label: "Front sprocket", value: "14T" },
@@ -442,12 +387,11 @@ export const products: Product[] = [
     description: "Chain kit sized for Royal Enfield J-platform 350s.",
     hsnCode: "87149990",
     mrpInPaise: 245000,
-    businessPriceInPaise: 176500,
+    b2cPriceInPaise: 207600,
     unit: "kit",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 22, hsr: 10 },
-    bikeIds: ["re-classic-350", "re-hunter-350", "re-meteor-350"],
+    vehicleIds: ["re-classic-350", "re-hunter-350", "re-meteor-350"],
     specs: [
       { label: "Chain", value: "520 × 102 links" },
       { label: "Front sprocket", value: "15T" },
@@ -463,13 +407,11 @@ export const products: Product[] = [
     description: "Sealed O-ring chain kit for KTM 200s.",
     hsnCode: "87149990",
     mrpInPaise: 315000,
-    businessPriceInPaise: 229600,
-    tierPrices: [{ minQty: 6, priceInPaise: 220400 }],
+    b2cPriceInPaise: 266900,
     unit: "kit",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 14, hsr: 6 },
-    bikeIds: ["ktm-duke-200", "ktm-rc-200"],
+    vehicleIds: ["ktm-duke-200", "ktm-rc-200"],
     specs: [
       { label: "Chain", value: "520 O-ring × 116 links" },
       { label: "Front sprocket", value: "14T" },
@@ -485,16 +427,11 @@ export const products: Product[] = [
     description: "Best-selling commuter chain kit.",
     hsnCode: "87149990",
     mrpInPaise: 98000,
-    businessPriceInPaise: 68100,
-    tierPrices: [
-      { minQty: 10, priceInPaise: 65400 },
-      { minQty: 25, priceInPaise: 63300 },
-    ],
+    b2cPriceInPaise: 80100,
     unit: "kit",
     packSize: 1,
-    moq: 5,
     stock: { whitefield: 60, hsr: 35 },
-    bikeIds: ["hero-splendor-plus", "hero-hf-deluxe"],
+    vehicleIds: ["hero-splendor-plus", "hero-hf-deluxe"],
     specs: [
       { label: "Chain", value: "428 × 116 links" },
       { label: "Front sprocket", value: "14T" },
@@ -510,17 +447,12 @@ export const products: Product[] = [
     description: "Genuine Bajaj oil filter element.",
     hsnCode: "84212300",
     mrpInPaise: 18000,
-    businessPriceInPaise: 13000,
-    tierPrices: [
-      { minQty: 30, priceInPaise: 12400 },
-      { minQty: 60, priceInPaise: 12000 },
-    ],
+    b2cPriceInPaise: 15200,
     unit: "piece",
     packName: "box",
     packSize: 10,
-    moq: 10,
     stock: { whitefield: 120, hsr: 70 },
-    bikeIds: ["bajaj-pulsar-ns200", "bajaj-dominar-400"],
+    vehicleIds: ["bajaj-pulsar-ns200", "bajaj-dominar-400"],
     specs: [
       { label: "Type", value: "Paper element" },
       { label: "Fitment", value: "Inside crankcase" },
@@ -535,13 +467,12 @@ export const products: Product[] = [
     description: "Genuine KTM oil filter with O-ring.",
     hsnCode: "84212300",
     mrpInPaise: 39000,
-    businessPriceInPaise: 29000,
+    b2cPriceInPaise: 33000,
     unit: "piece",
     packName: "box",
     packSize: 5,
-    moq: 5,
     stock: { whitefield: 45, hsr: 15 },
-    bikeIds: ["ktm-duke-200", "ktm-duke-250", "ktm-duke-390", "ktm-rc-200", "ktm-rc-390"],
+    vehicleIds: ["ktm-duke-200", "ktm-duke-250", "ktm-duke-390", "ktm-rc-200", "ktm-rc-390"],
     specs: [
       { label: "Type", value: "Paper element" },
       { label: "Includes", value: "O-ring" },
@@ -556,12 +487,11 @@ export const products: Product[] = [
     description: "Genuine Honda viscous air filter.",
     hsnCode: "84213100",
     mrpInPaise: 31000,
-    businessPriceInPaise: 22900,
+    b2cPriceInPaise: 26200,
     unit: "piece",
     packSize: 1,
-    moq: 10,
     stock: { whitefield: 55, hsr: 40 },
-    bikeIds: ["honda-activa-6g"],
+    vehicleIds: ["honda-activa-6g"],
     specs: [
       { label: "Type", value: "Viscous paper" },
       { label: "Service interval", value: "12,000 km" },
@@ -576,17 +506,12 @@ export const products: Product[] = [
     description: "Genuine filter for the J-platform 350s.",
     hsnCode: "84212300",
     mrpInPaise: 16000,
-    businessPriceInPaise: 11700,
-    tierPrices: [
-      { minQty: 30, priceInPaise: 11100 },
-      { minQty: 60, priceInPaise: 10800 },
-    ],
+    b2cPriceInPaise: 13500,
     unit: "piece",
     packName: "box",
     packSize: 10,
-    moq: 10,
     stock: { whitefield: 130, hsr: 90 },
-    bikeIds: ["re-classic-350", "re-hunter-350", "re-meteor-350"],
+    vehicleIds: ["re-classic-350", "re-hunter-350", "re-meteor-350"],
     specs: [
       { label: "Type", value: "Paper element" },
       { label: "Fitment", value: "Spin-on cartridge" },
@@ -601,12 +526,11 @@ export const products: Product[] = [
     description: "Maintenance-free battery for scooters and commuters.",
     hsnCode: "85071000",
     mrpInPaise: 179000,
-    businessPriceInPaise: 128900,
+    b2cPriceInPaise: 151600,
     unit: "piece",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 30, hsr: 12 },
-    bikeIds: [
+    vehicleIds: [
       "honda-activa-6g",
       "honda-shine",
       "tvs-jupiter",
@@ -629,12 +553,11 @@ export const products: Product[] = [
     description: "Long-warranty maintenance-free battery.",
     hsnCode: "85071000",
     mrpInPaise: 195000,
-    businessPriceInPaise: 142100,
+    b2cPriceInPaise: 165200,
     unit: "piece",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 6, hsr: 2 },
-    bikeIds: ["honda-activa-6g", "honda-dio", "tvs-ntorq-125", "bajaj-pulsar-150"],
+    vehicleIds: ["honda-activa-6g", "honda-dio", "tvs-ntorq-125", "bajaj-pulsar-150"],
     specs: [
       { label: "Voltage", value: "12 V" },
       { label: "Capacity", value: "5 Ah" },
@@ -651,12 +574,11 @@ export const products: Product[] = [
     description: "High-capacity battery for 350 cc and above.",
     hsnCode: "85071000",
     mrpInPaise: 325000,
-    businessPriceInPaise: 236900,
+    b2cPriceInPaise: 275400,
     unit: "piece",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 0, hsr: 0 },
-    bikeIds: ["re-classic-350", "re-himalayan-411", "ktm-duke-390", "bajaj-dominar-400"],
+    vehicleIds: ["re-classic-350", "re-himalayan-411", "ktm-duke-390", "bajaj-dominar-400"],
     specs: [
       { label: "Voltage", value: "12 V" },
       { label: "Capacity", value: "9 Ah" },
@@ -673,12 +595,11 @@ export const products: Product[] = [
     description: "Battery for 160–200 cc sport commuters.",
     hsnCode: "85071000",
     mrpInPaise: 248000,
-    businessPriceInPaise: 178600,
+    b2cPriceInPaise: 210100,
     unit: "piece",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 16, hsr: 8 },
-    bikeIds: ["tvs-apache-rtr-160", "bajaj-pulsar-ns200", "yamaha-r15-v4", "ktm-duke-200"],
+    vehicleIds: ["tvs-apache-rtr-160", "bajaj-pulsar-ns200", "yamaha-r15-v4", "ktm-duke-200"],
     specs: [
       { label: "Voltage", value: "12 V" },
       { label: "Capacity", value: "6 Ah" },
@@ -695,12 +616,11 @@ export const products: Product[] = [
     description: "Everyday rear tyre with long tread life.",
     hsnCode: "40114010",
     mrpInPaise: 235000,
-    businessPriceInPaise: 169300,
+    b2cPriceInPaise: 199100,
     unit: "piece",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 24, hsr: 10 },
-    bikeIds: ["bajaj-pulsar-150", "honda-unicorn", "tvs-apache-rtr-160"],
+    vehicleIds: ["bajaj-pulsar-150", "honda-unicorn", "tvs-apache-rtr-160"],
     specs: [
       { label: "Size", value: "100/90-17" },
       { label: "Type", value: "Tubeless" },
@@ -717,12 +637,11 @@ export const products: Product[] = [
     description: "Sport radial-pattern tyre with strong wet grip.",
     hsnCode: "40114010",
     mrpInPaise: 360000,
-    businessPriceInPaise: 265400,
+    b2cPriceInPaise: 305000,
     unit: "piece",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 4, hsr: 2 },
-    bikeIds: ["bajaj-pulsar-ns200", "yamaha-r15-v4", "bajaj-pulsar-220f"],
+    vehicleIds: ["bajaj-pulsar-ns200", "yamaha-r15-v4", "bajaj-pulsar-220f"],
     specs: [
       { label: "Size", value: "140/70-17" },
       { label: "Type", value: "Tubeless" },
@@ -739,12 +658,11 @@ export const products: Product[] = [
     description: "Scooter tyre for 12-inch wheels.",
     hsnCode: "40114010",
     mrpInPaise: 155000,
-    businessPriceInPaise: 110300,
+    b2cPriceInPaise: 129800,
     unit: "piece",
     packSize: 1,
-    moq: 4,
     stock: { whitefield: 40, hsr: 26 },
-    bikeIds: ["honda-activa-6g", "tvs-jupiter", "suzuki-access-125"],
+    vehicleIds: ["honda-activa-6g", "tvs-jupiter", "suzuki-access-125"],
     specs: [
       { label: "Size", value: "90/90-12" },
       { label: "Type", value: "Tubeless" },
@@ -760,12 +678,11 @@ export const products: Product[] = [
     description: "Rear scooter tyre for 10-inch wheels.",
     hsnCode: "40114010",
     mrpInPaise: 132000,
-    businessPriceInPaise: 95100,
+    b2cPriceInPaise: 111800,
     unit: "piece",
     packSize: 1,
-    moq: 4,
     stock: { whitefield: 36, hsr: 28 },
-    bikeIds: ["honda-activa-6g", "honda-dio"],
+    vehicleIds: ["honda-activa-6g", "honda-dio"],
     specs: [
       { label: "Size", value: "90/100-10" },
       { label: "Type", value: "Tubeless" },
@@ -781,17 +698,12 @@ export const products: Product[] = [
     description: "Standard halogen headlight bulb for commuters.",
     hsnCode: "85392940",
     mrpInPaise: 21000,
-    businessPriceInPaise: 14800,
-    tierPrices: [
-      { minQty: 50, priceInPaise: 14100 },
-      { minQty: 100, priceInPaise: 13600 },
-    ],
+    b2cPriceInPaise: 17400,
     unit: "piece",
     packName: "box",
     packSize: 10,
-    moq: 10,
     stock: { whitefield: 180, hsr: 110 },
-    bikeIds: [
+    vehicleIds: [
       "hero-splendor-plus",
       "hero-hf-deluxe",
       "bajaj-platina-110",
@@ -813,12 +725,11 @@ export const products: Product[] = [
     description: "Plug-and-play LED upgrade for HS1 headlights.",
     hsnCode: "85122010",
     mrpInPaise: 149000,
-    businessPriceInPaise: 108600,
+    b2cPriceInPaise: 126200,
     unit: "piece",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 0, hsr: 0 },
-    bikeIds: ["bajaj-pulsar-150", "honda-shine", "hero-splendor-plus"],
+    vehicleIds: ["bajaj-pulsar-150", "honda-shine", "hero-splendor-plus"],
     specs: [
       { label: "Base", value: "PX43t" },
       { label: "Colour temperature", value: "6,000 K" },
@@ -834,12 +745,11 @@ export const products: Product[] = [
     description: "Universal-fit indicators with flexible stems.",
     hsnCode: "85122020",
     mrpInPaise: 34000,
-    businessPriceInPaise: 23900,
+    b2cPriceInPaise: 28100,
     unit: "pair",
     packSize: 1,
-    moq: 5,
     stock: { whitefield: 70, hsr: 44 },
-    bikeIds: [],
+    vehicleIds: [],
     specs: [
       { label: "Type", value: "Halogen, amber lens" },
       { label: "Contents", value: "1 pair" },
@@ -855,17 +765,12 @@ export const products: Product[] = [
     description: "Nickel spark plug for 100–125 cc engines.",
     hsnCode: "85111000",
     mrpInPaise: 12000,
-    businessPriceInPaise: 8300,
-    tierPrices: [
-      { minQty: 50, priceInPaise: 7900 },
-      { minQty: 100, priceInPaise: 7600 },
-    ],
+    b2cPriceInPaise: 9800,
     unit: "piece",
     packName: "box",
     packSize: 10,
-    moq: 10,
     stock: { whitefield: 400, hsr: 260 },
-    bikeIds: [
+    vehicleIds: [
       "hero-splendor-plus",
       "hero-hf-deluxe",
       "honda-shine",
@@ -887,14 +792,12 @@ export const products: Product[] = [
     description: "Loud, weather-sealed disc horn.",
     hsnCode: "85123010",
     mrpInPaise: 29000,
-    businessPriceInPaise: 20600,
-    tierPrices: [{ minQty: 30, priceInPaise: 19600 }],
+    b2cPriceInPaise: 24200,
     unit: "piece",
     packName: "box",
     packSize: 10,
-    moq: 10,
     stock: { whitefield: 90, hsr: 60 },
-    bikeIds: [],
+    vehicleIds: [],
     specs: [
       { label: "Voltage", value: "12 V" },
       { label: "Sound level", value: "110 dB" },
@@ -910,13 +813,12 @@ export const products: Product[] = [
     description: "Electronic flasher relay for turn indicators.",
     hsnCode: "85364900",
     mrpInPaise: 14500,
-    businessPriceInPaise: 10400,
+    b2cPriceInPaise: 12200,
     unit: "piece",
     packName: "box",
     packSize: 10,
-    moq: 10,
     stock: { whitefield: 110, hsr: 80 },
-    bikeIds: [],
+    vehicleIds: [],
     specs: [
       { label: "Voltage", value: "12 V" },
       { label: "Pins", value: "2" },
@@ -932,12 +834,11 @@ export const products: Product[] = [
     description: "Genuine Honda clutch friction plates.",
     hsnCode: "87149990",
     mrpInPaise: 89000,
-    businessPriceInPaise: 65600,
+    b2cPriceInPaise: 75400,
     unit: "set",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 20, hsr: 12 },
-    bikeIds: ["honda-shine"],
+    vehicleIds: ["honda-shine"],
     specs: [
       { label: "Contents", value: "5 friction plates" },
       { label: "Material", value: "Cork composite" },
@@ -952,12 +853,11 @@ export const products: Product[] = [
     description: "Genuine low-friction clutch cable.",
     hsnCode: "87141090",
     mrpInPaise: 23000,
-    businessPriceInPaise: 16800,
+    b2cPriceInPaise: 19400,
     unit: "piece",
     packSize: 1,
-    moq: 5,
     stock: { whitefield: 48, hsr: 0 },
-    bikeIds: ["bajaj-pulsar-150"],
+    vehicleIds: ["bajaj-pulsar-150"],
     specs: [
       { label: "Length", value: "1,140 mm" },
       { label: "Type", value: "Teflon-lined" },
@@ -972,12 +872,11 @@ export const products: Product[] = [
     description: "Genuine Honda CVT drive belt.",
     hsnCode: "87149990",
     mrpInPaise: 99000,
-    businessPriceInPaise: 73800,
+    b2cPriceInPaise: 83800,
     unit: "piece",
     packSize: 1,
-    moq: 2,
     stock: { whitefield: 26, hsr: 18 },
-    bikeIds: ["honda-activa-6g"],
+    vehicleIds: ["honda-activa-6g"],
     specs: [
       { label: "Type", value: "CVT V-belt" },
       { label: "Service interval", value: "24,000 km" },
@@ -992,12 +891,11 @@ export const products: Product[] = [
     description: "ISI-certified full-face helmet with clear visor.",
     hsnCode: "65061010",
     mrpInPaise: 139900,
-    businessPriceInPaise: 99600,
+    b2cPriceInPaise: 117200,
     unit: "piece",
     packSize: 1,
-    moq: 3,
     stock: { whitefield: 24, hsr: 10 },
-    bikeIds: [],
+    vehicleIds: [],
     specs: [
       { label: "Size", value: "L, 580 mm" },
       { label: "Certification", value: "ISI, IS 4151" },
@@ -1013,15 +911,118 @@ export const products: Product[] = [
     description: "Genuine KTM forged piston kit.",
     hsnCode: "84099990",
     mrpInPaise: 785000,
-    businessPriceInPaise: 585400,
+    b2cPriceInPaise: 665200,
     unit: "kit",
     packSize: 1,
-    moq: 1,
     stock: { whitefield: 2, hsr: 0 },
-    bikeIds: ["ktm-duke-390", "ktm-rc-390"],
+    vehicleIds: ["ktm-duke-390", "ktm-rc-390"],
     specs: [
       { label: "Bore", value: "89 mm" },
       { label: "Contents", value: "Piston, rings, pin, clips" },
+    ],
+  }),
+  product({
+    id: "p-castrol-magnatec-5w30",
+    partNumber: "CAS-3417904",
+    name: "Castrol Magnatec 5W-30 synthetic car engine oil, 3.5 L",
+    brand: "Castrol",
+    categoryId: "oils",
+    description: "Fully synthetic oil for petrol and diesel hatchbacks and SUVs.",
+    hsnCode: "27101980",
+    mrpInPaise: 289000,
+    b2cPriceInPaise: 233000,
+    unit: "can",
+    packName: "carton",
+    packSize: 4,
+    stock: { whitefield: 32, hsr: 8 },
+    vehicleIds: ["maruti-swift", "maruti-baleno", "hyundai-i20", "hyundai-creta", "tata-nexon"],
+    specs: [
+      { label: "Grade", value: "SAE 5W-30" },
+      { label: "Type", value: "Fully synthetic" },
+      { label: "Volume", value: "3.5 litres" },
+      { label: "Standard", value: "API SP, ACEA C3" },
+    ],
+  }),
+  product({
+    id: "p-bosch-pads-swift",
+    partNumber: "BSH-F002H60140",
+    name: "Bosch front disc brake pads, Maruti Swift / Baleno",
+    brand: "Bosch",
+    categoryId: "brakes",
+    description: "Low-dust ceramic pads with shims, sold as a front-axle set.",
+    hsnCode: "87083000",
+    mrpInPaise: 168000,
+    b2cPriceInPaise: 135600,
+    unit: "set",
+    packSize: 1,
+    stock: { whitefield: 14, hsr: 6 },
+    vehicleIds: ["maruti-swift", "maruti-baleno"],
+    specs: [
+      { label: "Position", value: "Front axle" },
+      { label: "Contents", value: "4 pads with shims" },
+      { label: "Compound", value: "Ceramic" },
+    ],
+  }),
+  product({
+    id: "p-amaron-pro-din44",
+    partNumber: "AMR-AAM-PR-DIN44",
+    name: "Amaron Pro DIN44 12 V 44 Ah car battery",
+    brand: "Amaron",
+    categoryId: "batteries",
+    description: "Maintenance-free car battery for compact cars and hatchbacks.",
+    hsnCode: "85071000",
+    mrpInPaise: 625000,
+    b2cPriceInPaise: 503400,
+    unit: "piece",
+    packSize: 1,
+    stock: { whitefield: 4, hsr: 0 },
+    vehicleIds: ["maruti-swift", "maruti-baleno", "hyundai-i20"],
+    specs: [
+      { label: "Voltage", value: "12 V" },
+      { label: "Capacity", value: "44 Ah" },
+      { label: "Type", value: "Sealed maintenance-free" },
+      { label: "Warranty", value: "72 months" },
+    ],
+  }),
+  product({
+    id: "p-philips-h4-car",
+    partNumber: "PHL-12342PRC1",
+    name: "Philips Premium Vision H4 12 V 60/55 W headlamp bulb",
+    brand: "Philips",
+    categoryId: "lighting",
+    description: "Up to 30% more light than a standard halogen bulb.",
+    hsnCode: "85392120",
+    mrpInPaise: 52000,
+    b2cPriceInPaise: 41900,
+    unit: "bulb",
+    packName: "box",
+    packSize: 10,
+    stock: { whitefield: 60, hsr: 30 },
+    vehicleIds: ["maruti-swift", "hyundai-i20", "tata-ace", "bajaj-re-compact"],
+    specs: [
+      { label: "Fitting", value: "H4 (P43t)" },
+      { label: "Power", value: "60/55 W" },
+      { label: "Voltage", value: "12 V" },
+    ],
+  }),
+  product({
+    id: "p-mrf-auto-400-8",
+    partNumber: "MRF-SUP-4008",
+    name: "MRF Super Lug 4.00-8 auto-rickshaw tyre",
+    brand: "MRF",
+    categoryId: "tyres",
+    description: "Bias tyre for three-wheelers, built for heavy daily city use.",
+    hsnCode: "40114010",
+    mrpInPaise: 245000,
+    b2cPriceInPaise: 197500,
+    unit: "tyre",
+    packSize: 1,
+    stock: { whitefield: 9, hsr: 12 },
+    vehicleIds: ["bajaj-re-compact", "piaggio-ape-city"],
+    specs: [
+      { label: "Size", value: "4.00-8" },
+      { label: "Type", value: "Tube type, bias" },
+      { label: "Ply rating", value: "6 PR" },
     ],
   }),
 ];
@@ -1071,33 +1072,35 @@ function matchesSearch(product: Product, q: string) {
     .every((term) => haystack.includes(term));
 }
 
-/** Universal parts fit every bike. */
-function fitsBike(product: Product, bikeBrand?: string, bikeId?: string) {
-  if (product.compatibleBikes.length === 0) return true;
-  return product.compatibleBikes.some(
-    (bike) => (!bikeId || bike.id === bikeId) && (!bikeBrand || bike.brand === bikeBrand),
+/** Universal parts fit every vehicle. */
+function fitsVehicle(product: Product, { vehicleType, vehicleBrand, vehicleId }: CatalogFilters) {
+  if (product.compatibleVehicles.length === 0) return true;
+  return product.compatibleVehicles.some(
+    (vehicle) =>
+      (!vehicleType || vehicle.type === vehicleType) &&
+      (!vehicleBrand || vehicle.brand === vehicleBrand) &&
+      (!vehicleId || vehicle.id === vehicleId),
   );
 }
 
-export async function getCatalogMock({
-  q,
-  categoryId,
-  brands,
-  bikeBrand,
-  bikeId,
-  inStockAtBranchId,
-  sort = "name",
-  order = "asc",
-  page,
-  pageSize = CATALOG_PAGE_SIZE,
-}: CatalogFilters): Promise<Paginated<Product>> {
+export async function getCatalogMock(filters: CatalogFilters): Promise<Paginated<Product>> {
+  const {
+    q,
+    categoryId,
+    brands,
+    inStockAtBranchId,
+    sort = "name",
+    order = "asc",
+    page,
+    pageSize = CATALOG_PAGE_SIZE,
+  } = filters;
   await simulateLatency();
   const matching = products.filter(
     (product) =>
       (!q || matchesSearch(product, q)) &&
       (!categoryId || product.category.id === categoryId) &&
       (!brands?.length || brands.includes(product.brand)) &&
-      fitsBike(product, bikeBrand, bikeId) &&
+      fitsVehicle(product, filters) &&
       (!inStockAtBranchId ||
         product.stockByBranch.some((s) => s.branchId === inStockAtBranchId && s.quantity > 0)),
   );
@@ -1115,7 +1118,7 @@ export async function getCatalogFilterOptionsMock(): Promise<CatalogFilterOption
   return {
     categories,
     brands: [...new Set(products.map((product) => product.brand))].sort(),
-    bikeModels,
+    vehicleModels,
   };
 }
 

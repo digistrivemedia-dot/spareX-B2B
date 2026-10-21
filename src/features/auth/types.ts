@@ -1,7 +1,11 @@
 import type { Address, Business } from "@/features/company/types";
 
-export type Role =
-  "owner" | "manager" | "service_advisor" | "technician" | "inventory_manager" | "accountant";
+/**
+ * The fixed garage roles. Businesses of other types have a single login with the owner role.
+ * owner: garage owner / admin · manager: manager / service advisor · technician: technician /
+ * mechanic · spares: spares and inventory executive · billing: billing, QA and delivery executive.
+ */
+export type Role = "owner" | "manager" | "technician" | "spares" | "billing";
 
 export type ApprovalStatus = "pending" | "approved" | "rejected";
 
@@ -16,7 +20,9 @@ export type User = {
 export type Session = {
   user: User;
   business: Business;
-  role: Role;
+  roles: Role[];
+  /** The branch the user works at. Owners can switch branch from the top bar. */
+  branchId: string;
   approvalStatus: ApprovalStatus;
 };
 

@@ -28,7 +28,13 @@ export default async function PortalLayout({ children }: { children: ReactNode }
         >
           Skip to content
         </a>
-        <AppSidebar businessType={session.business.type} role={session.role} />
+        <AppSidebar
+          viewer={{
+            businessType: session.business.type,
+            roles: session.roles,
+            creditEnabled: session.business.creditEnabled,
+          }}
+        />
         {/* min-w-0 lets wide tables scroll inside their own box instead of widening the page. */}
         <SidebarInset className="min-w-0">
           <TopBar session={session} />

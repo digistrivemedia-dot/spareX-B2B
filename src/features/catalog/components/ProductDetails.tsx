@@ -1,12 +1,11 @@
 import type { ReactNode } from "react";
 
 import { ProductImage } from "@/components/ui/ProductImage";
-import { BikeFitment } from "@/features/catalog/components/BikeFitment";
 import { BranchAvailability } from "@/features/catalog/components/BranchAvailability";
 import { PackAddToCart } from "@/features/catalog/components/PackAddToCart";
-import { PriceBreaks } from "@/features/catalog/components/PriceBreaks";
 import { ProductPrice } from "@/features/catalog/components/ProductPrice";
 import type { Product } from "@/features/catalog/types";
+import { VehicleFitment } from "@/features/catalog/components/VehicleFitment";
 import { getCategoryIcon } from "@/features/catalog/utils";
 
 /** The scrolling body of the product drawer. */
@@ -26,14 +25,11 @@ export function ProductDetails({ product }: { product: Product }) {
         <PackAddToCart product={product} />
       </div>
 
-      <DetailSection title="Price breaks">
-        <PriceBreaks product={product} />
-      </DetailSection>
       <DetailSection title="Stock by branch">
         <BranchAvailability product={product} />
       </DetailSection>
       <DetailSection title="Fits">
-        <BikeFitment bikes={product.compatibleBikes} />
+        <VehicleFitment vehicles={product.compatibleVehicles} />
       </DetailSection>
       <DetailSection title="Specifications">
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">

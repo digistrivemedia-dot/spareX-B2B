@@ -1,10 +1,18 @@
 import { calculateGst } from "@/lib/gst";
 
+/**
+ * The business price: the B2C price less the discount Kannali set for the business, rounded to
+ * whole rupees as the catalogue shows them. Both exclude GST.
+ */
+export function getBusinessPrice(b2cPriceInPaise: number, discountPercent: number): number {
+  return Math.round((b2cPriceInPaise * (100 - discountPercent)) / 100 / 100) * 100;
+}
+
 /** Any priced line: cart rows, order lines, quotation lines. Prices exclude GST. */
 export type PricedLine = {
   quantity: number;
   unitPriceInPaise: number;
-  /** The standard price before tier, contract or quotation discounts. */
+  /** The price the saving is measured against: the B2C price, or the business price for a quote. */
   listPriceInPaise: number;
   gstRatePercent: number;
 };

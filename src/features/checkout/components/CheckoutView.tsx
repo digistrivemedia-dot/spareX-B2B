@@ -16,7 +16,8 @@ import type { CreditSummary } from "@/features/credit/types";
 import type { PlacedOrder } from "@/features/orders/types";
 import { calculateOrderTotals } from "@/lib/pricing";
 
-export function CheckoutView({ credit }: { credit: CreditSummary }) {
+/** `credit` is null when credit isn't enabled for this business. */
+export function CheckoutView({ credit }: { credit: CreditSummary | null }) {
   const router = useRouter();
   const state = useCartLines();
   const branch = useSelectedBranch();

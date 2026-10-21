@@ -18,7 +18,7 @@ export function ProductSummary({ product }: { product: Product }) {
         <span className="text-xs text-gray-500">
           {product.partNumber} · {product.brand}
         </span>
-        <span className="text-xs text-gray-500">Fits {formatFits(product.compatibleBikes)}</span>
+        <span className="text-xs text-gray-500">Fits {formatFits(product.compatibleVehicles)}</span>
       </div>
     </div>
   );

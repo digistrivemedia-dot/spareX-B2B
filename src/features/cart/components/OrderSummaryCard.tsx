@@ -28,8 +28,8 @@ export function OrderSummaryCard({ totals, itemCount, children }: OrderSummaryCa
           />
           {totals.savingsInPaise > 0 && (
             <SummaryRow
-              label="Bulk price savings"
-              value={`−${formatPrice(totals.savingsInPaise)}`}
+              label="You save against B2C prices"
+              value={formatPrice(totals.savingsInPaise)}
               isSaving
             />
           )}

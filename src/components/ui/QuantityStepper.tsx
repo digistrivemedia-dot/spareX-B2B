@@ -4,9 +4,10 @@ import { Minus, Plus } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { snapQuantity, type QuantityRules } from "@/lib/quantity";
 
-type QuantityStepperProps = QuantityRules & {
+const MIN_QUANTITY = 1;
+
+type QuantityStepperProps = {
   value: number;
   onChange: (value: number) => void;
   /** Accessible name, e.g. "Quantity of Motul 7100". */
@@ -17,26 +18,15 @@ type QuantityStepperProps = QuantityRules & {
   onEnter?: () => void;
 };
 
-/**
- * − / + buttons step by whole packs; typed values snap to the nearest allowed quantity
- * when the field loses focus or Enter is pressed.
- */
-export function QuantityStepper({
-  value,
-  onChange,
-  label,
-  min,
-  step,
-  id,
-  onEnter,
-}: QuantityStepperProps) {
+/** − / + buttons and a number field; a typed value is committed on blur or Enter (at least 1). */
+export function QuantityStepper({ value, onChange, label, id, onEnter }: QuantityStepperProps) {
   // What is being typed; null when the field shows the committed value.
   const [draft, setDraft] = useState<string | null>(null);
 
   function commit() {
     if (draft === null) return;
     const typed = Number.parseInt(draft, 10);
-    onChange(snapQuantity(Number.isNaN(typed) ? min : typed, { min, step }));
+    onChange(Math.max(MIN_QUANTITY, Number.isNaN(typed) ? MIN_QUANTITY : typed));
     setDraft(null);
   }
 
@@ -46,8 +36,8 @@ export function QuantityStepper({
         type="button"
         variant="ghost"
         size="icon-sm"
-        onClick={() => onChange(Math.max(min, value - step))}
-        disabled={value <= min}
+        onClick={() => onChange(Math.max(MIN_QUANTITY, value - 1))}
+        disabled={value <= MIN_QUANTITY}
         aria-label={`Decrease ${label.toLowerCase()}`}
         className="rounded-r-none"
       >
@@ -74,7 +64,7 @@ export function QuantityStepper({
         type="button"
         variant="ghost"
         size="icon-sm"
-        onClick={() => onChange(value + step)}
+        onClick={() => onChange(value + 1)}
         aria-label={`Increase ${label.toLowerCase()}`}
         className="rounded-l-none"
       >

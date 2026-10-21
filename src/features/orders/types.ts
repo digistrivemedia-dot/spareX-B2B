@@ -11,19 +11,25 @@ export type OrderStatus =
   | "delivered"
   | "cancelled";
 
-export type PaymentMethod = "credit" | "online";
+/** Kannali marks bank transfers and cash on delivery as paid once the money arrives. */
+export type PaymentMethod = "razorpay" | "bank_transfer" | "cod" | "credit";
 
-/** How an online payment was made. */
-export type OnlinePaymentChannel = "upi" | "netbanking" | "card";
+/** How a Razorpay payment was made. */
+export type RazorpayChannel = "upi" | "netbanking" | "card";
 
-/** "pending": a credit order not invoiced yet (invoices are raised at dispatch). */
+/**
+ * "pending": not paid and not yet due. That is a credit order before its invoice (raised at
+ * dispatch), a bank transfer Kannali hasn't confirmed yet, or cash due on delivery.
+ */
 export type PaymentStatus = "pending" | "due" | "overdue" | "paid" | "cancelled";
 
 export type OrderPayment = {
   method: PaymentMethod;
   status: PaymentStatus;
-  /** Online payments only. */
-  channel?: OnlinePaymentChannel;
+  /** Razorpay payments only. */
+  channel?: RazorpayChannel;
+  /** Bank transfers only: the UTR or reference the buyer gave, if any. */
+  transferReference?: string;
   /** Credit orders only: when the invoice falls due. */
   dueDate?: string;
   paidAt?: string;
@@ -37,7 +43,7 @@ export type OrderLine = {
   quantity: number;
   /** Price per unit, excluding GST. */
   unitPriceInPaise: number;
-  /** The customer's standard price per unit before tier or quotation discounts. */
+  /** The B2C price per unit, which the business discount and any quoted price are measured against. */
   listPriceInPaise: number;
   gstRatePercent: number;
 };
@@ -67,7 +73,7 @@ export type Order = {
   items: OrderLine[];
   /** Sum of lines at the prices charged, excluding GST. */
   subtotalInPaise: number;
-  /** How much tier and quotation pricing saved against list prices. */
+  /** How much the business discount and any quoted prices saved against B2C prices. */
   savingsInPaise: number;
   gstInPaise: number;
   deliveryInPaise: number;
@@ -100,7 +106,11 @@ export type PlaceOrderRequest = {
   poNumber?: string;
   poDate?: string;
   notes?: string;
-  payment: { method: "credit" } | { method: "online"; channel: OnlinePaymentChannel };
+  payment:
+    | { method: "razorpay"; channel: RazorpayChannel }
+    | { method: "bank_transfer"; transferReference?: string }
+    | { method: "cod" }
+    | { method: "credit" };
   items: { productId: string; quantity: number }[];
 };
 

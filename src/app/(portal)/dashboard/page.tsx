@@ -23,17 +23,16 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const [session, credit, awaiting, openOrders, recentOrders, offers, frequent] = await Promise.all(
-    [
-      requireSession(),
-      getCreditSummary(),
-      getQuotations({ status: "quoted", sort: "validUntil", order: "asc", pageSize: 1 }),
-      getOrders({ statuses: OPEN_ORDER_STATUSES, pageSize: 1 }),
-      getOrders({ sort: "placedAt", order: "desc", pageSize: 5 }),
-      getOffers(),
-      getFrequentlyOrdered(),
-    ],
-  );
+  const session = await requireSession();
+  const [credit, awaiting, openOrders, recentOrders, offers, frequent] = await Promise.all([
+    // Credit cards and alerts appear only for businesses Kannali has enabled credit for.
+    session.business.creditEnabled ? getCreditSummary() : null,
+    getQuotations({ status: "quoted", sort: "validUntil", order: "asc", pageSize: 1 }),
+    getOrders({ statuses: OPEN_ORDER_STATUSES, pageSize: 1 }),
+    getOrders({ sort: "placedAt", order: "desc", pageSize: 5 }),
+    getOffers(),
+    getFrequentlyOrdered(),
+  ]);
 
   const firstName = session.user.name.split(" ")[0];
   const lastOrder = recentOrders.items.find((order) => order.status !== "cancelled");
@@ -46,8 +45,8 @@ export default async function DashboardPage() {
         actions={<QuickActions lastOrder={lastOrder} />}
       />
       <AttentionBar
-        overdueInPaise={credit.overdueInPaise}
-        overdueInvoiceCount={credit.overdueInvoiceCount}
+        overdueInPaise={credit?.overdueInPaise ?? 0}
+        overdueInvoiceCount={credit?.overdueInvoiceCount ?? 0}
         quotationsAwaiting={awaiting.total}
       />
       <DashboardStats

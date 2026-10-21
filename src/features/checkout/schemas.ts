@@ -9,8 +9,14 @@ export const checkoutSchema = z.object({
     .string()
     .refine((date) => !date || date <= today(), "The PO date can't be in the future"),
   notes: z.string().trim().max(500, "Keep notes for the warehouse to 500 characters or fewer"),
-  paymentMethod: z.enum(["credit", "online"], { error: "Choose how you'd like to pay" }),
-  onlineChannel: z.enum(["upi", "netbanking", "card"]),
+  paymentMethod: z.enum(["razorpay", "bank_transfer", "cod", "credit"], {
+    error: "Choose how you'd like to pay",
+  }),
+  razorpayChannel: z.enum(["upi", "netbanking", "card"]),
+  transferReference: z
+    .string()
+    .trim()
+    .max(30, "Keep the transfer reference to 30 characters or fewer"),
 });
 
 export type CheckoutValues = z.infer<typeof checkoutSchema>;

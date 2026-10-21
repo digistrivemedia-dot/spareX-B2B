@@ -1,12 +1,5 @@
-import type {
-  Branch,
-  Business,
-  CompanyUser,
-  FleetVehicle,
-  PincodeDetails,
-} from "@/features/company/types";
-import { bikeModels } from "@/mocks/catalog";
-import { daysFromToday, findById, simulateLatency } from "@/mocks/utils";
+import type { Branch, Business, CompanyUser, PincodeDetails } from "@/features/company/types";
+import { daysFromToday, simulateLatency } from "@/mocks/utils";
 
 export const business: Business = {
   id: "biz-ssw",
@@ -24,6 +17,8 @@ export const business: Business = {
     pin: "560037",
   },
   approvedAt: "2026-03-18T10:30:00.000Z",
+  discountPercent: 15,
+  creditEnabled: true,
 };
 
 export const branches: Branch[] = [
@@ -63,7 +58,8 @@ export const companyUsers: CompanyUser[] = [
     name: "Mahesh Kumar",
     email: "mahesh@srisaiworks.example.com",
     phone: "+919886044120",
-    role: "owner",
+    roles: ["owner"],
+    branchId: "br-whitefield",
     status: "active",
     lastActiveAt: daysFromToday(0, 9, 12),
   },
@@ -72,7 +68,8 @@ export const companyUsers: CompanyUser[] = [
     name: "Ravi Shankar",
     email: "ravi@srisaiworks.example.com",
     phone: "+919845213367",
-    role: "manager",
+    roles: ["manager"],
+    branchId: "br-hsr",
     status: "active",
     lastActiveAt: daysFromToday(-1, 18, 40),
   },
@@ -81,43 +78,39 @@ export const companyUsers: CompanyUser[] = [
     name: "Shilpa Rao",
     email: "shilpa@srisaiworks.example.com",
     phone: "+919741088254",
-    role: "accountant",
+    roles: ["billing"],
+    branchId: "br-whitefield",
+    status: "active",
+    lastActiveAt: daysFromToday(0, 10, 25),
+  },
+  {
+    id: "usr-imran",
+    name: "Imran Pasha",
+    email: "imran@srisaiworks.example.com",
+    phone: "+919900317746",
+    roles: ["technician"],
+    branchId: "br-whitefield",
+    status: "active",
+    lastActiveAt: daysFromToday(0, 8, 50),
+  },
+  {
+    id: "usr-venkatesh",
+    name: "Venkatesh Gowda",
+    email: "venkatesh@srisaiworks.example.com",
+    phone: "+919632045518",
+    roles: ["technician", "spares"],
+    branchId: "br-hsr",
+    status: "active",
+    lastActiveAt: daysFromToday(0, 9, 35),
+  },
+  {
+    id: "usr-deepa",
+    name: "Deepa Nair",
+    email: "deepa@srisaiworks.example.com",
+    phone: "+919535872209",
+    roles: ["spares"],
+    branchId: "br-whitefield",
     status: "invited",
-  },
-];
-
-export const fleetVehicles: FleetVehicle[] = [
-  {
-    id: "veh-1",
-    registrationNumber: "KA 53 EX 4821",
-    bike: findById(bikeModels, "honda-activa-6g"),
-    year: 2023,
-    branchId: "br-whitefield",
-    odometerKm: 18420,
-  },
-  {
-    id: "veh-2",
-    registrationNumber: "KA 51 HM 7730",
-    bike: findById(bikeModels, "bajaj-pulsar-150"),
-    year: 2022,
-    branchId: "br-whitefield",
-    odometerKm: 31205,
-  },
-  {
-    id: "veh-3",
-    registrationNumber: "KA 01 JR 2196",
-    bike: findById(bikeModels, "re-classic-350"),
-    year: 2024,
-    branchId: "br-hsr",
-    odometerKm: 9640,
-  },
-  {
-    id: "veh-4",
-    registrationNumber: "KA 05 MN 6614",
-    bike: findById(bikeModels, "tvs-jupiter"),
-    year: 2021,
-    branchId: "br-hsr",
-    odometerKm: 42870,
   },
 ];
 

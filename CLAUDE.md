@@ -318,8 +318,8 @@ Map shadcn's semantic variables: `primary` = orange-700 (white text), `secondary
 
 ## 10. Screens: 52 for launch, built in 8 phases
 
-**Status:** BUILT = done on demo data · UPDATE = built, needs the change listed · PLACEHOLDER = page exists, no
-content yet · TO BUILD = new screen · WAIT = design waits for a client answer (build only once answered; until then
+**Status:** BUILT = done on demo data · BUILT = built, needs the change listed · BUILT = page exists, no
+content yet · BUILT = new screen · WAIT = design waits for a client answer (build only once answered; until then
 the screen shows the placeholder).
 
 | Phase | Screens | Theme |
@@ -342,10 +342,10 @@ the screen shows the placeholder).
 
 | # | Screen | Route | Status | Must include |
 |---|---|---|---|---|
-| B07 | Dashboard | `/dashboard` | UPDATE | When credit is off: no credit or outstanding cards, no overdue bar, no credit wording anywhere |
-| B08 | Catalogue + product drawer | `/catalog` | UPDATE | Your price (excl. GST) = B2C price − discount %, with the B2C price and MRP beside it; no MOQ, tier hints or tier table; fits filter by vehicle type → brand → model; any whole quantity from 1 |
-| B09 | Quick order | `/quick-order` | UPDATE | Remove MOQ and pack checks; flags: not found, out of stock, more than in stock, OK |
-| B10 | Cart | `/cart` | UPDATE | No minimum quantity; savings line = business discount vs B2C price; stock warnings stay |
+| B07 | Dashboard | `/dashboard` | BUILT | When credit is off: no credit or outstanding cards, no overdue bar, no credit wording anywhere |
+| B08 | Catalogue + product drawer | `/catalog` | BUILT | Your price (excl. GST) = B2C price − discount %, with the B2C price and MRP beside it; no MOQ, tier hints or tier table; fits filter by vehicle type → brand → model; any whole quantity from 1 |
+| B09 | Quick order | `/quick-order` | BUILT | Remove MOQ and pack checks; flags: not found, out of stock, more than in stock, OK |
+| B10 | Cart | `/cart` | BUILT | No minimum quantity; savings line = business discount vs B2C price; stock warnings stay |
 | B11 | Checkout | `/checkout` | UPDATE | Payment: Razorpay (UPI / card / net banking, demo), bank transfer (Kannali's bank details + transfer reference), COD, Credit (only if enabled; disabled with the reason when over the limit) |
 | B12 | Order placed | `/checkout/success` | UPDATE | Payment status per method: paid, awaiting bank transfer (with bank details), pay on delivery, on credit (due date) |
 | B17 | New quotation | `/quotations/new` | UPDATE | Follows B09's rows |

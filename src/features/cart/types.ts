@@ -18,6 +18,4 @@ export type CartIssue = {
   message: string;
   /** Blocking issues stop checkout until fixed. */
   isBlocking: boolean;
-  /** A one-click fix, e.g. raising the quantity to the MOQ. */
-  fix?: { label: string; quantity: number };
 };

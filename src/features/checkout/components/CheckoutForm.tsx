@@ -17,14 +17,15 @@ import { PurchaseOrderFields } from "@/features/checkout/components/PurchaseOrde
 import { checkoutSchema, type CheckoutValues } from "@/features/checkout/schemas";
 import type { CreditSummary } from "@/features/credit/types";
 import { placeOrderAction } from "@/features/orders/actions";
-import type { PlacedOrder } from "@/features/orders/types";
+import type { PlacedOrder, PlaceOrderRequest } from "@/features/orders/types";
 import { formatPrice } from "@/lib/format";
 import type { OrderTotals } from "@/lib/pricing";
 
 type CheckoutFormProps = {
   lines: CartLine[];
   totals: OrderTotals;
-  credit: CreditSummary;
+  /** Null when credit isn't enabled for this business. */
+  credit: CreditSummary | null;
   /** The delivery branch chosen above (shared with the top bar's branch switcher). */
   branchId: string;
   /** Lines that can't be delivered from the chosen branch; checkout waits until they're fixed. */
@@ -40,32 +41,32 @@ export function CheckoutForm({
   blockingCount,
   onPlaced,
 }: CheckoutFormProps) {
-  const canUseCredit = totals.totalInPaise <= credit.availableInPaise;
+  const canUseCredit = credit !== null && totals.totalInPaise <= credit.availableInPaise;
   const form = useForm<CheckoutValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       poNumber: "",
       poDate: "",
       notes: "",
-      paymentMethod: canUseCredit ? "credit" : "online",
-      onlineChannel: "upi",
+      paymentMethod: canUseCredit ? "credit" : "razorpay",
+      razorpayChannel: "upi",
+      transferReference: "",
     },
   });
   const { isSubmitting, errors } = form.formState;
 
   async function onSubmit(values: CheckoutValues) {
     if (values.paymentMethod === "credit" && !canUseCredit) {
-      return form.setError("paymentMethod", { message: "Not enough credit: please pay online." });
+      return form.setError("paymentMethod", {
+        message: "Not enough credit: please choose another way to pay.",
+      });
     }
     const result = await placeOrderAction({
       branchId,
       poNumber: values.poNumber || undefined,
       poDate: values.poDate || undefined,
       notes: values.notes || undefined,
-      payment:
-        values.paymentMethod === "credit"
-          ? { method: "credit" }
-          : { method: "online", channel: values.onlineChannel },
+      payment: toPayment(values),
       items: lines.map((line) => ({ productId: line.id, quantity: line.quantity })),
     });
     if (result.ok) onPlaced(result.data);
@@ -106,6 +107,17 @@ export function CheckoutForm({
       </aside>
     </form>
   );
+}
+
+function toPayment(values: CheckoutValues): PlaceOrderRequest["payment"] {
+  switch (values.paymentMethod) {
+    case "razorpay":
+      return { method: "razorpay", channel: values.razorpayChannel };
+    case "bank_transfer":
+      return { method: "bank_transfer", transferReference: values.transferReference || undefined };
+    default:
+      return { method: values.paymentMethod };
+  }
 }
 
 type CheckoutSectionProps = { step: number; title: string; children: ReactNode };

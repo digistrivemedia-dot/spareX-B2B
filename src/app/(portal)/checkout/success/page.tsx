@@ -17,8 +17,9 @@ export default async function OrderPlacedPage({ searchParams }: OrderPlacedPageP
   const { order: orderId } = await searchParams;
   if (typeof orderId !== "string") notFound();
 
-  const [order, credit] = await Promise.all([getOrder(orderId), getCreditSummary()]);
+  const order = await getOrder(orderId);
   if (!order) notFound();
+  const credit = order.payment.method === "credit" ? await getCreditSummary() : null;
 
-  return <OrderPlaced order={order} termsDays={credit.termsDays} />;
+  return <OrderPlaced order={order} termsDays={credit?.termsDays} />;
 }

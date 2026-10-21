@@ -1,5 +1,4 @@
 import type { Role } from "@/features/auth/types";
-import type { BikeModel } from "@/features/catalog/types";
 
 export type BusinessType = "garage" | "fleet" | "dealer" | "retailer" | "reseller" | "corporate";
 
@@ -22,6 +21,10 @@ export type Business = {
   phone: string;
   registeredAddress: Address;
   approvedAt: string;
+  /** Set by Kannali: the business price is the B2C price less this percentage. */
+  discountPercent: number;
+  /** Kannali enables credit per business; credit screens and payment appear only when true. */
+  creditEnabled: boolean;
 };
 
 export type Branch = {
@@ -43,18 +46,12 @@ export type CompanyUser = {
   name: string;
   email: string;
   phone: string;
-  role: Role;
+  /** One person can hold several roles. */
+  roles: Role[];
+  /** Staff work at one branch and see only its jobs. */
+  branchId: string;
   status: CompanyUserStatus;
   lastActiveAt?: string;
-};
-
-export type FleetVehicle = {
-  id: string;
-  registrationNumber: string;
-  bike: BikeModel;
-  year: number;
-  branchId: string;
-  odometerKm: number;
 };
 
 /** What a PIN code lookup returns, used to fill in city and state. */

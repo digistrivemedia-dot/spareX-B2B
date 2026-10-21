@@ -1,15 +1,13 @@
-import { getUnitPrice } from "@/features/catalog/utils";
 import type { CartIssue, CartLine } from "@/features/cart/types";
-import { formatCount, formatNumber } from "@/lib/format";
+import { formatCount } from "@/lib/format";
 import type { PricedLine } from "@/lib/pricing";
-import { snapQuantity } from "@/lib/quantity";
 
-/** A cart line priced at the tier its quantity earns. */
+/** A cart line at the business price; the saving is measured against the B2C price. */
 export function toPricedLine({ product, quantity }: CartLine): PricedLine {
   return {
     quantity,
-    unitPriceInPaise: getUnitPrice(product, quantity),
-    listPriceInPaise: product.businessPriceInPaise,
+    unitPriceInPaise: product.businessPriceInPaise,
+    listPriceInPaise: product.b2cPriceInPaise,
     gstRatePercent: product.gstRatePercent,
   };
 }
@@ -20,17 +18,6 @@ export function getCartIssue({ product, quantity }: CartLine, stock: number): Ca
     return {
       message: "Out of stock at your delivery branch. Remove it or choose another branch.",
       isBlocking: true,
-    };
-  }
-  const allowed = snapQuantity(quantity, { min: product.moq, step: product.packSize });
-  if (allowed !== quantity) {
-    return {
-      message:
-        quantity < product.moq
-          ? `Below the minimum order of ${formatNumber(product.moq)}.`
-          : `Sold in ${product.packName ?? "pack"}s of ${product.packSize}.`,
-      isBlocking: true,
-      fix: { label: `Change to ${formatNumber(allowed)}`, quantity: allowed },
     };
   }
   if (quantity > stock) {

@@ -5,16 +5,13 @@ export type Category = {
   name: string;
 };
 
-export type BikeModel = {
+export type VehicleType = "two_wheeler" | "three_wheeler" | "car" | "commercial";
+
+export type VehicleModel = {
   id: string;
+  type: VehicleType;
   brand: string;
   model: string;
-};
-
-/** A lower unit price once the quantity reaches `minQty`. Excludes GST. */
-export type TierPrice = {
-  minQty: number;
-  priceInPaise: number;
 };
 
 /** Units available for delivery to one of the customer's branches. */
@@ -39,20 +36,19 @@ export type Product = {
   gstRatePercent: number;
   /** MRP per unit, including GST. */
   mrpInPaise: number;
-  /** This customer's price per unit, excluding GST. */
+  /** The consumer site's price per unit, excluding GST. */
+  b2cPriceInPaise: number;
+  /** This business's price per unit, excluding GST: the B2C price less its business discount. */
   businessPriceInPaise: number;
-  tierPrices?: TierPrice[];
   /** What one unit is, e.g. "bottle", "pair", "kit". */
   unit: string;
-  /** Units per pack. Order quantities must be a multiple of this. */
+  /** Units in the pack the part ships in, for information; any quantity can be ordered. */
   packSize: number;
   /** What a pack is called when packSize > 1, e.g. "carton", "box". */
   packName?: string;
-  /** Minimum order quantity, in units. */
-  moq: number;
   stockByBranch: BranchStock[];
   /** Empty means the part is universal. */
-  compatibleBikes: BikeModel[];
+  compatibleVehicles: VehicleModel[];
   images: string[];
   specs: ProductSpec[];
 };
@@ -64,9 +60,10 @@ export type CatalogFilters = ListParams<CatalogSort> & {
   q?: string;
   categoryId?: string;
   brands?: string[];
-  /** Fits this bike make (e.g. "KTM") or, more precisely, this model id. */
-  bikeBrand?: string;
-  bikeId?: string;
+  /** Fits this vehicle type, make (e.g. "KTM") or, most precisely, this model id. */
+  vehicleType?: VehicleType;
+  vehicleBrand?: string;
+  vehicleId?: string;
   /** Only parts with stock at this delivery branch. */
   inStockAtBranchId?: string;
 };
@@ -75,5 +72,5 @@ export type CatalogFilters = ListParams<CatalogSort> & {
 export type CatalogFilterOptions = {
   categories: Category[];
   brands: string[];
-  bikeModels: BikeModel[];
+  vehicleModels: VehicleModel[];
 };

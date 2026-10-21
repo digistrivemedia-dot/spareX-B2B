@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 // "30‑day" uses a non-breaking hyphen so the line never wraps between "30-" and "day".
 const BENEFITS = [
-  { icon: BadgeIndianRupee, text: "Business pricing, bulk discounts and 30‑day credit" },
+  { icon: BadgeIndianRupee, text: "Business prices on every part, quotations and credit" },
   { icon: Zap, text: "Quick order by part number, reorder in one click" },
   { icon: Truck, text: "GST invoices and delivery to every branch" },
 ];
@@ -18,7 +18,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <Logo background="dark" />
         <div className="flex flex-col gap-6">
           <p className="text-2xl leading-snug font-semibold text-white">
-            Two-wheeler parts for your business, at business prices.
+            Vehicle spare parts for your business, at business prices.
           </p>
           <ul className="flex flex-col gap-4">
             {BENEFITS.map(({ icon: Icon, text }) => (

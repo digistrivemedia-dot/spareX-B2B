@@ -1,21 +1,23 @@
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { OrderPayment } from "@/features/orders/types";
+import { RAZORPAY_CHANNEL_LABELS } from "@/features/orders/utils";
 import { daysFromToday } from "@/lib/dates";
 import { formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const CHANNELS = { upi: "UPI", netbanking: "net banking", card: "card" };
+const PAID_BY = { razorpay: "", bank_transfer: "bank transfer", cod: "cash", credit: "credit" };
 
-/** "Credit · due 12 Oct 2026", "Paid online by UPI", "Credit · invoiced at dispatch". */
+/** "Paid · UPI", "Awaiting bank transfer", "Cash on delivery", "Credit · due 12 Oct 2026"… */
 export function OrderPaymentStatus({ payment }: { payment: OrderPayment }) {
   if (payment.status === "cancelled") return <span className="text-gray-500">—</span>;
   if (payment.status === "paid") {
-    return (
-      <StatusBadge status="paid">
-        Paid{payment.channel ? ` · ${CHANNELS[payment.channel]}` : ""}
-      </StatusBadge>
-    );
+    const by = payment.channel ? RAZORPAY_CHANNEL_LABELS[payment.channel] : PAID_BY[payment.method];
+    return <StatusBadge status="paid">Paid{by ? ` · ${by}` : ""}</StatusBadge>;
   }
+  if (payment.method === "bank_transfer") {
+    return <span className="text-warning-700">Awaiting bank transfer</span>;
+  }
+  if (payment.method === "cod") return <span className="text-gray-700">Cash on delivery</span>;
   if (payment.status === "pending" || !payment.dueDate) {
     return <span className="text-gray-600">Credit · invoiced at dispatch</span>;
   }

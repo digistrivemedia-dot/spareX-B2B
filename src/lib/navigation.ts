@@ -21,6 +21,8 @@ export type NavItem = {
   businessTypes?: BusinessType[];
   /** The permission a role needs to see the item. */
   permission?: Permission;
+  /** Only shown to businesses Kannali has enabled credit for. */
+  requiresCredit?: boolean;
 };
 
 export type NavSection = {
@@ -46,23 +48,34 @@ export const navigation: NavSection[] = [
   {
     label: "Account",
     items: [
-      { label: "Credit & payments", href: "/credit", icon: Wallet, permission: "credit:view" },
+      {
+        label: "Credit & payments",
+        href: "/credit",
+        icon: Wallet,
+        permission: "credit:view",
+        requiresCredit: true,
+      },
       { label: "Company", href: "/company", icon: Building2, permission: "company:view" },
     ],
   },
 ];
 
-type Viewer = { businessType: BusinessType; role: Role };
+export type NavViewer = { businessType: BusinessType; roles: Role[]; creditEnabled: boolean };
 
-/** The sections and items this business and role may see; empty sections are dropped. */
-export function getVisibleNavigation({ businessType, role }: Viewer): NavSection[] {
+/** The sections and items this business and these roles may see; empty sections are dropped. */
+export function getVisibleNavigation({
+  businessType,
+  roles,
+  creditEnabled,
+}: NavViewer): NavSection[] {
   return navigation
     .map((section) => ({
       ...section,
       items: section.items.filter(
         (item) =>
           (!item.businessTypes || item.businessTypes.includes(businessType)) &&
-          (!item.permission || can(role, item.permission)),
+          (!item.permission || can(roles, item.permission)) &&
+          (!item.requiresCredit || creditEnabled),
       ),
     }))
     .filter((section) => section.items.length > 0);

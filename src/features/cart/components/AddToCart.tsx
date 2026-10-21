@@ -11,19 +11,17 @@ import type { Product } from "@/features/catalog/types";
 import { useBranchStock } from "@/features/catalog/use-branch-stock";
 import { useCartStore } from "@/features/cart/store";
 import { formatCount } from "@/lib/format";
-import { snapQuantity } from "@/lib/quantity";
 
 type AddToCartProps = {
-  product: Pick<Product, "id" | "name" | "unit" | "moq" | "packSize" | "stockByBranch">;
+  product: Pick<Product, "id" | "name" | "unit" | "stockByBranch">;
 };
 
-/** A quantity stepper (MOQ and pack size enforced) with an "Add" button; disabled when out of stock. */
+/** A quantity stepper with an "Add" button; disabled when out of stock. */
 export function AddToCart({ product }: AddToCartProps) {
   const isOutOfStock = useBranchStock(product) === 0;
   const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
-  const rules = { min: product.moq, step: product.packSize };
-  const [quantity, setQuantity] = useState(() => snapQuantity(product.moq, rules));
+  const [quantity, setQuantity] = useState(1);
 
   function handleAdd() {
     addItem(product.id, quantity);
@@ -36,7 +34,6 @@ export function AddToCart({ product }: AddToCartProps) {
   return (
     <div className="flex items-center gap-2">
       <QuantityStepper
-        {...rules}
         value={quantity}
         onChange={setQuantity}
         label={`Quantity of ${product.name}`}

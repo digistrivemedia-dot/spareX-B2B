@@ -14,18 +14,25 @@ const ALL_PERMISSIONS = [
 
 export type Permission = (typeof ALL_PERMISSIONS)[number];
 
-// Every role gets everything until the client signs off the access matrix (Garage OS, phase 2).
-// Narrowing a role later means editing only its list here.
+const BUYING: readonly Permission[] = [
+  "catalog:view",
+  "orders:view",
+  "orders:place",
+  "quotations:view",
+  "quotations:respond",
+];
+
+// The brief's starting matrix; the client is still confirming the final permissions per role.
+// Narrowing or widening a role later means editing only its list here.
 const PERMISSIONS_BY_ROLE: Record<Role, readonly Permission[]> = {
   owner: ALL_PERMISSIONS,
-  manager: ALL_PERMISSIONS,
-  service_advisor: ALL_PERMISSIONS,
-  technician: ALL_PERMISSIONS,
-  inventory_manager: ALL_PERMISSIONS,
-  accountant: ALL_PERMISSIONS,
+  manager: [],
+  technician: [],
+  spares: BUYING,
+  billing: [],
 };
 
-/** The only place permissions are checked. */
-export function can(role: Role, permission: Permission): boolean {
-  return PERMISSIONS_BY_ROLE[role].includes(permission);
+/** The only place permissions are checked. Someone with several roles gets all of their permissions. */
+export function can(roles: readonly Role[], permission: Permission): boolean {
+  return roles.some((role) => PERMISSIONS_BY_ROLE[role].includes(permission));
 }

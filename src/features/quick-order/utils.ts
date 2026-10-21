@@ -1,18 +1,15 @@
-import type { Product } from "@/features/catalog/types";
 import type { LineCheck, OrderLineDraft } from "@/features/quick-order/types";
-import { formatCount, formatNumber } from "@/lib/format";
-import { snapQuantity } from "@/lib/quantity";
+import { formatCount } from "@/lib/format";
 
 export type PastedLine = {
   partNumber: string;
-  /** Null when the line had no quantity. */
-  quantity: number | null;
+  quantity: number;
 };
 
 /**
  * One "part number, quantity" per line. A comma, tab (pasted from Excel) or semicolon separates
  * the two; without one, a number at the end of the line is the quantity, so "RLN BS 1105 20"
- * works too. Blank lines are skipped.
+ * works too. A line without a quantity asks for 1. Blank lines are skipped.
  */
 export function parsePastedList(text: string): PastedLine[] {
   return text
@@ -24,36 +21,13 @@ export function parsePastedList(text: string): PastedLine[] {
         ? line.split(/\s*[,;\t]\s*/)
         : (line.match(/^(.*\S)\s+(\d+)$/)?.slice(1) ?? [line]);
       const parsed = Number.parseInt(quantity, 10);
-      return { partNumber, quantity: Number.isNaN(parsed) ? null : parsed };
+      return { partNumber, quantity: Number.isNaN(parsed) || parsed < 1 ? 1 : parsed };
     });
 }
 
 /** Upper case without spaces or dashes, so "mot 104092" matches "MOT-104092". */
 export function normalisePartNumber(partNumber: string): string {
   return partNumber.toUpperCase().replace(/[^A-Z0-9]/g, "");
-}
-
-/** Fits an asked-for quantity to the part's MOQ and pack size, saying why if it changed. */
-export function fitQuantity(
-  product: Pick<Product, "moq" | "packSize" | "packName" | "unit">,
-  requested: number | null,
-): Pick<OrderLineDraft, "quantity" | "adjustment"> {
-  const rules = { min: product.moq, step: product.packSize };
-  if (requested === null) {
-    return {
-      quantity: snapQuantity(product.moq, rules),
-      adjustment: "No quantity given: set to the MOQ",
-    };
-  }
-  const quantity = snapQuantity(requested, rules);
-  if (quantity === requested) return { quantity };
-  if (requested < product.moq) {
-    return { quantity, adjustment: `Raised to the MOQ of ${formatNumber(product.moq)}` };
-  }
-  return {
-    quantity,
-    adjustment: `Rounded up to ${formatNumber(quantity)}: sold in ${product.packName ?? "pack"}s of ${product.packSize}`,
-  };
 }
 
 /** Null for a row that is still empty. */
@@ -72,6 +46,5 @@ export function checkLine(line: OrderLineDraft, stock: number): LineCheck | null
       message: `Only ${formatCount(stock, line.product.unit)} at your delivery branch`,
     };
   }
-  if (line.adjustment) return { status: "adjusted", message: line.adjustment };
   return { status: "ready" };
 }

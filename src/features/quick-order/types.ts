@@ -7,14 +7,12 @@ export type OrderLineDraft = {
   query: string;
   product: Product | null;
   quantity: number;
-  /** Why the quantity differs from what was asked for, e.g. "Raised to the MOQ of 12". */
-  adjustment?: string;
   /** A pasted part number that matched nothing in the catalogue. */
   isUnmatched?: boolean;
 };
 
 /** How a row stands against the catalogue and the delivery branch's stock. */
-export type LineStatus = "ready" | "adjusted" | "limited_stock" | "out_of_stock" | "not_found";
+export type LineStatus = "ready" | "limited_stock" | "out_of_stock" | "not_found";
 
 export type LineCheck = {
   status: LineStatus;

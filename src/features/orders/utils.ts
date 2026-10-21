@@ -1,6 +1,19 @@
 import type { TimelineStep } from "@/components/ui/Timeline";
-import type { Order, OrderStatus } from "@/features/orders/types";
+import type { Order, OrderStatus, PaymentMethod, RazorpayChannel } from "@/features/orders/types";
 import { formatDateTime } from "@/lib/format";
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  razorpay: "Razorpay",
+  bank_transfer: "Bank transfer",
+  cod: "Cash on delivery",
+  credit: "Credit",
+};
+
+export const RAZORPAY_CHANNEL_LABELS: Record<RazorpayChannel, string> = {
+  upi: "UPI",
+  netbanking: "Net banking",
+  card: "Card",
+};
 
 /** Orders that are placed but not yet delivered or cancelled. */
 export const OPEN_ORDER_STATUSES: OrderStatus[] = [

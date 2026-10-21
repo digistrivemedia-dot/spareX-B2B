@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { requireSession } from "@/features/auth/session";
 import { CheckoutView } from "@/features/checkout/components/CheckoutView";
 import { getCreditSummary } from "@/features/credit/api";
 
@@ -9,7 +10,8 @@ export const metadata: Metadata = {
 };
 
 export default async function CheckoutPage() {
-  const credit = await getCreditSummary();
+  const { business } = await requireSession();
+  const credit = business.creditEnabled ? await getCreditSummary() : null;
 
   return (
     <>

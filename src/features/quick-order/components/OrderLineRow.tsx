@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 import { StockStatus } from "@/features/catalog/components/StockStatus";
 import type { Product } from "@/features/catalog/types";
-import { getPackLabel, getUnitPrice } from "@/features/catalog/utils";
+import { getPackLabel } from "@/features/catalog/utils";
 import { LINE_COLUMNS } from "@/features/quick-order/components/line-columns";
 import { LineStatusNote } from "@/features/quick-order/components/LineStatusNote";
 import { PartNumberInput } from "@/features/quick-order/components/PartNumberInput";
@@ -39,7 +39,7 @@ export function OrderLineRow({
   onRemove,
 }: OrderLineRowProps) {
   const { product } = line;
-  const unitPrice = product ? getUnitPrice(product, line.quantity) : 0;
+  const unitPrice = product?.businessPriceInPaise ?? 0;
 
   return (
     <li className={cn(LINE_COLUMNS.row, "border-b border-gray-100 px-4 py-3 last:border-0")}>
@@ -59,7 +59,7 @@ export function OrderLineRow({
           <div className="flex flex-col gap-1">
             <span className="truncate text-sm font-medium text-gray-900">{product.name}</span>
             <span className="text-xs text-gray-500">
-              {product.brand} · {getPackLabel(product)} · MOQ {product.moq}
+              {product.brand} · {getPackLabel(product)}
             </span>
           </div>
         ) : (
@@ -87,8 +87,6 @@ export function OrderLineRow({
             <QuantityStepper
               id={`qty-${line.id}`}
               label={`Quantity, row ${position}`}
-              min={product.moq}
-              step={product.packSize}
               value={line.quantity}
               onChange={onQuantityChange}
               onEnter={onNext}

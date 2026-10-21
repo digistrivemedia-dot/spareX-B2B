@@ -10,7 +10,7 @@ import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Textarea } from "@/components/ui/textarea";
 import { getProductsByPartNumber } from "@/features/catalog/api";
 import type { OrderLineDraft } from "@/features/quick-order/types";
-import { fitQuantity, normalisePartNumber, parsePastedList } from "@/features/quick-order/utils";
+import { normalisePartNumber, parsePastedList } from "@/features/quick-order/utils";
 import { getErrorMessage } from "@/lib/api-client";
 import { formatCount } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -40,8 +40,8 @@ export function PasteListPanel({ onLinesReady }: PasteListPanelProps) {
       const lines = pasted.map(({ partNumber, quantity }) => {
         const product = byPartNumber.get(normalisePartNumber(partNumber));
         return product
-          ? { query: product.partNumber, product, ...fitQuantity(product, quantity) }
-          : { query: partNumber, product: null, quantity: quantity ?? 0, isUnmatched: true };
+          ? { query: product.partNumber, product, quantity }
+          : { query: partNumber, product: null, quantity, isUnmatched: true };
       });
       onLinesReady(lines);
 
@@ -49,7 +49,7 @@ export function PasteListPanel({ onLinesReady }: PasteListPanelProps) {
       toast.success(`${formatCount(lines.length, "line")} added`, {
         description: unmatched
           ? `${formatCount(unmatched, "part number")} not found: check the rows marked in red.`
-          : "Check any rows marked as adjusted.",
+          : undefined,
       });
       setText("");
       setError(undefined);

@@ -4,7 +4,7 @@ import { CartButton } from "@/components/layout/CartButton";
 import { GlobalSearch } from "@/components/layout/GlobalSearch";
 import { NotificationsMenu } from "@/components/layout/NotificationsMenu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ROLE_LABELS } from "@/features/auth/roles";
+import { describeRoles } from "@/features/auth/roles";
 import type { Session } from "@/features/auth/types";
 import { getNotifications } from "@/features/notifications/api";
 
@@ -28,7 +28,7 @@ export async function TopBar({ session }: TopBarProps) {
           userName={session.user.name}
           email={session.user.email}
           businessName={session.business.name}
-          roleLabel={ROLE_LABELS[session.role]}
+          roleLabel={describeRoles(session.roles)}
         />
       </div>
     </header>

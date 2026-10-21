@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import type { KeyboardEvent } from "react";
 import { toast } from "sonner";
 
-import { getUnitPrice } from "@/features/catalog/utils";
 import { useCartStore } from "@/features/cart/store";
 import { OrderLineList } from "@/features/quick-order/components/OrderLineList";
 import { PasteListPanel } from "@/features/quick-order/components/PasteListPanel";
@@ -34,8 +33,8 @@ export function QuickOrderEditor() {
   const { subtotalInPaise } = summarisePricing(
     addable.map(({ product, quantity }) => ({
       quantity,
-      unitPriceInPaise: getUnitPrice(product, quantity),
-      listPriceInPaise: product.businessPriceInPaise,
+      unitPriceInPaise: product.businessPriceInPaise,
+      listPriceInPaise: product.b2cPriceInPaise,
       gstRatePercent: product.gstRatePercent,
     })),
   );

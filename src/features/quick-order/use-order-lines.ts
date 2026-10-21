@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import type { Product } from "@/features/catalog/types";
 import type { OrderLineDraft } from "@/features/quick-order/types";
-import { fitQuantity } from "@/features/quick-order/utils";
 
 // Rows added in the browser get numbered ids. The first row has a fixed id so the server and
 // the browser render the same HTML (a counter would keep counting across server requests).
@@ -39,7 +38,7 @@ export function useOrderLines(initial: Omit<OrderLineDraft, "id">[] = []) {
       update(id, {
         query,
         isUnmatched: false,
-        ...(query.trim() ? {} : { product: null, quantity: 0, adjustment: undefined }),
+        ...(query.trim() ? {} : { product: null, quantity: 0 }),
       }),
 
     selectProduct: (id: string, product: Product) =>
@@ -47,11 +46,10 @@ export function useOrderLines(initial: Omit<OrderLineDraft, "id">[] = []) {
         product,
         query: product.partNumber,
         isUnmatched: false,
-        quantity: fitQuantity(product, product.moq).quantity,
-        adjustment: undefined,
+        quantity: 1,
       }),
 
-    setQuantity: (id: string, quantity: number) => update(id, { quantity, adjustment: undefined }),
+    setQuantity: (id: string, quantity: number) => update(id, { quantity }),
 
     /** Adds an empty row and returns its id, so the caller can focus it. */
     addLine: () => {

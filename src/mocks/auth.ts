@@ -15,7 +15,8 @@ const owner = findById(companyUsers, "usr-mahesh");
 const demoSession: Session = {
   user: { id: owner.id, name: owner.name, email: owner.email, phone: owner.phone },
   business,
-  role: owner.role,
+  roles: owner.roles,
+  branchId: owner.branchId,
   approvalStatus: "approved",
 };
 

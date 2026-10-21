@@ -4,9 +4,11 @@ import { StatCard } from "@/components/ui/StatCard";
 import { UsageBar } from "@/components/ui/UsageBar";
 import type { CreditSummary } from "@/features/credit/types";
 import { formatDate, formatPrice } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 type DashboardStatsProps = {
-  credit: CreditSummary;
+  /** Null when credit isn't enabled: the two credit cards are left out. */
+  credit: CreditSummary | null;
   openOrderCount: number;
   quotationsAwaiting: number;
   /** When the soonest quotation awaiting a reply expires. */
@@ -20,7 +22,33 @@ export function DashboardStats({
   nextQuotationExpiry,
 }: DashboardStatsProps) {
   return (
-    <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div className={cn("mb-8 grid gap-4 sm:grid-cols-2", credit && "xl:grid-cols-4")}>
+      {credit && <CreditStats credit={credit} />}
+      <StatCard
+        label="Open orders"
+        value={openOrderCount}
+        icon={Truck}
+        href="/orders"
+        description="Placed and not yet delivered"
+      />
+      <StatCard
+        label="Quotations awaiting you"
+        value={quotationsAwaiting}
+        icon={FileClock}
+        href="/quotations?status=quoted"
+        description={
+          nextQuotationExpiry
+            ? `Earliest expires ${formatDate(nextQuotationExpiry)}`
+            : "Nothing to review"
+        }
+      />
+    </div>
+  );
+}
+
+function CreditStats({ credit }: { credit: CreditSummary }) {
+  return (
+    <>
       <StatCard
         label="Credit available"
         value={formatPrice(credit.availableInPaise)}
@@ -41,24 +69,6 @@ export function DashboardStats({
             : "Nothing due right now"
         }
       />
-      <StatCard
-        label="Open orders"
-        value={openOrderCount}
-        icon={Truck}
-        href="/orders"
-        description="Placed and not yet delivered"
-      />
-      <StatCard
-        label="Quotations awaiting you"
-        value={quotationsAwaiting}
-        icon={FileClock}
-        href="/quotations?status=quoted"
-        description={
-          nextQuotationExpiry
-            ? `Earliest expires ${formatDate(nextQuotationExpiry)}`
-            : "Nothing to review"
-        }
-      />
-    </div>
+    </>
   );
 }

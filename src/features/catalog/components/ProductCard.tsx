@@ -23,7 +23,7 @@ export function ProductCard({ product }: { product: Product }) {
         <h3 className="text-sm leading-snug">
           <ProductLink productId={product.id}>{product.name}</ProductLink>
         </h3>
-        <span className="text-xs text-gray-500">Fits {formatFits(product.compatibleBikes)}</span>
+        <span className="text-xs text-gray-500">Fits {formatFits(product.compatibleVehicles)}</span>
       </div>
       <div className="flex items-end justify-between gap-2">
         <ProductPrice product={product} align="start" />

@@ -1,4 +1,3 @@
-import { getUnitPrice } from "@/features/catalog/utils";
 import type {
   Order,
   OrderFilters,
@@ -17,15 +16,17 @@ import { daysFromToday, findById, paginate, simulateLatency, sortItems } from "@
 const WHITEFIELD = { id: "br-whitefield", name: "Whitefield" };
 const HSR = { id: "br-hsr", name: "HSR Layout" };
 
-/** An order line at the tier price the quantity earns, or at an agreed (quoted) price. */
+/** An order line at the business price, or at an agreed (quoted) price; saving is against B2C. */
 export function orderLine(
   productId: string,
   quantity: number,
   agreedPriceInPaise?: number,
 ): OrderLine {
+  const product = findById(products, productId);
   return {
     ...lineFor(productId, quantity),
-    unitPriceInPaise: agreedPriceInPaise ?? getUnitPrice(findById(products, productId), quantity),
+    listPriceInPaise: product.b2cPriceInPaise,
+    unitPriceInPaise: agreedPriceInPaise ?? product.businessPriceInPaise,
   };
 }
 
@@ -57,7 +58,12 @@ export const orders: Order[] = [
       orderLine("p-minda-flasher", 20),
       orderLine("p-minda-horn", 10),
     ],
-    payment: { method: "online", status: "paid", paidAt: daysFromToday(0, 9, 41) },
+    payment: {
+      method: "razorpay",
+      status: "paid",
+      channel: "upi",
+      paidAt: daysFromToday(0, 9, 41),
+    },
     notes: "Counter stock top-up.",
     timeline: [
       { status: "placed", at: daysFromToday(0, 9, 40) },
@@ -159,7 +165,7 @@ export const orders: Order[] = [
     branch: HSR,
     status: "cancelled",
     items: [orderLine("p-exide-xltz5", 4), orderLine("p-mrf-zapper-90-90-12", 4)],
-    payment: { method: "credit", status: "cancelled" },
+    payment: { method: "cod", status: "cancelled" },
     notes: "Cancelled at customer's request: duplicate of a counter purchase.",
     timeline: [
       { status: "placed", at: daysFromToday(-17, 10, 30) },
@@ -262,6 +268,18 @@ export function createOrder({ branchId, ...details }: NewOrder): Order {
   return created;
 }
 
+/** Razorpay confirms at once in the demo; the other methods wait for Kannali or the invoice. */
+function toOrderPayment(payment: PlaceOrderRequest["payment"]): Order["payment"] {
+  switch (payment.method) {
+    case "razorpay":
+      return { ...payment, status: "paid", paidAt: new Date().toISOString() };
+    case "bank_transfer":
+      return { ...payment, status: "pending" };
+    default:
+      return { method: payment.method, status: "pending" };
+  }
+}
+
 /** Prices come from the catalogue, never from the browser. */
 export async function placeOrderMock(request: PlaceOrderRequest): Promise<PlacedOrder> {
   await simulateLatency(900);
@@ -271,15 +289,7 @@ export async function placeOrderMock(request: PlaceOrderRequest): Promise<Placed
     poDate: request.poDate,
     notes: request.notes,
     items: request.items.map(({ productId, quantity }) => orderLine(productId, quantity)),
-    payment:
-      request.payment.method === "credit"
-        ? { method: "credit", status: "pending" }
-        : {
-            method: "online",
-            status: "paid",
-            channel: request.payment.channel,
-            paidAt: new Date().toISOString(),
-          },
+    payment: toOrderPayment(request.payment),
   });
   return { id, number };
 }

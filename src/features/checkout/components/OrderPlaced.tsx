@@ -4,20 +4,27 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Order } from "@/features/orders/types";
+import { RAZORPAY_CHANNEL_LABELS } from "@/features/orders/utils";
+import { BankTransferDetails } from "@/features/payments/components/BankTransferDetails";
 import { formatDate, formatPrice } from "@/lib/format";
 
-const CHANNEL_LABELS = { upi: "UPI", netbanking: "net banking", card: "card" };
-
-function describePayment({ payment }: Order, termsDays: number) {
-  if (payment.method === "credit") {
-    return `On credit · Net ${termsDays}: due ${termsDays} days after the invoice`;
+function describePayment({ payment }: Order, termsDays?: number) {
+  switch (payment.method) {
+    case "razorpay":
+      return `Paid online${payment.channel ? ` by ${RAZORPAY_CHANNEL_LABELS[payment.channel]}` : ""}`;
+    case "bank_transfer":
+      return "Awaiting your bank transfer";
+    case "cod":
+      return "Cash on delivery: pay when the parts arrive";
+    case "credit":
+      return `On credit · Net ${termsDays}: due ${termsDays} days after the invoice`;
   }
-  return `Paid online${payment.channel ? ` by ${CHANNEL_LABELS[payment.channel]}` : ""}`;
 }
 
 type OrderPlacedProps = {
   order: Order;
-  termsDays: number;
+  /** The credit terms, for orders placed on credit. */
+  termsDays?: number;
 };
 
 /** The confirmation shown straight after checkout. */
@@ -57,6 +64,19 @@ export function OrderPlaced({ order, termsDays }: OrderPlacedProps) {
             </div>
           ))}
         </dl>
+
+        {order.payment.method === "bank_transfer" && (
+          <section className="flex flex-col gap-3 rounded-lg border border-warning-500 bg-warning-50 p-4">
+            <h2 className="text-sm font-semibold text-gray-900">
+              Transfer {formatPrice(order.totalInPaise)} to dispatch this order
+            </h2>
+            <p className="text-sm text-gray-700">
+              Quote {order.number} as the reference. We dispatch as soon as Kannali confirms the
+              payment.
+            </p>
+            <BankTransferDetails />
+          </section>
+        )}
 
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-center">
           <Button variant="outline" asChild>
