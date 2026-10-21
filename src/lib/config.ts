@@ -15,6 +15,9 @@ export const dataSource = {
   payments: "mock",
   documents: "mock",
   garage: "mock",
+  bookings: "mock",
+  jobCards: "mock",
+  customers: "mock",
   promotions: "mock",
   notifications: "mock",
 } as const satisfies Record<string, DataSource>;

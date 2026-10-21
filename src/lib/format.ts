@@ -51,9 +51,14 @@ const timeOfDay = new Intl.DateTimeFormat(LOCALE, {
   timeZone: TIME_ZONE,
 });
 
+/** ISO date string → "3:45 pm" (India time). */
+export function formatTimeOfDay(iso: string): string {
+  return timeOfDay.format(new Date(iso)).toLowerCase();
+}
+
 /** ISO date string → "12 Oct 2026, 3:45 pm" (India time). */
 export function formatDateTime(iso: string): string {
-  return `${formatDate(iso)}, ${timeOfDay.format(new Date(iso)).toLowerCase()}`;
+  return `${formatDate(iso)}, ${formatTimeOfDay(iso)}`;
 }
 
 /** "+919845012345" → "+91 98450 12345" */

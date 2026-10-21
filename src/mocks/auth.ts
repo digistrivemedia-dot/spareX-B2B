@@ -23,6 +23,11 @@ const demoSession: Session = {
   approvalStatus: "approved",
 };
 
+/** Who is acting, as the real API reads it from the session token. */
+export function currentStaffMock() {
+  return { id: demoSession.user.id, name: demoSession.user.name };
+}
+
 export async function getSessionMock(): Promise<Session | null> {
   await simulateLatency(100);
   return demoSession;

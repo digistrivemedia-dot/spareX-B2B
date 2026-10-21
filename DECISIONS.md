@@ -402,3 +402,30 @@ Not built and not in the menu, as listed; waiting for the client's decision.
 
 Garage profile, Branches and Users are for the Owner / admin role only for now
 (`src/features/auth/permissions.ts`).
+
+## Phase 6: garage dashboard, bookings and job cards (B27, B30–B35)
+
+### 65. 🔵 Branch for garage lists
+
+Owners see every branch and can pick one with a "Branch" filter; everyone else only ever sees
+their own branch (lists and detail pages both check). The top bar's "Deliver to" is still only
+for parts orders.
+
+### 66. 🔵 Accepting a booking
+
+Accepting confirms the slot and opens a job card at "Confirmed", unless the branch already has
+its daily booking limit of accepted bookings that day. A new customer or plate from a booking is
+added to the garage's customers. Declining needs a reason, which the customer sees.
+
+### 67. 🔵 Walk-ins and check-in
+
+A walk-in starts with the number plate: a plate on file brings up the vehicle and owner, a new
+one asks for make, model, owner's name and mobile (an owner already on file by mobile is reused).
+Check-in records odometer, fuel, complaints, damage with photos and vehicle photos, and moves the
+job to "Job card created". Plates are checked against the usual Indian format and BH series.
+
+### 68. 🔵 Who does what in the garage (until the client confirms)
+
+Manager / service advisor: dashboard, bookings, walk-ins, check-in and job cards. Billing:
+dashboard and job cards. Technician: only "My jobs" (Phase 7). Spares: job cards (for parts) and
+buying. Owner: everything. Each role's home page follows from this.

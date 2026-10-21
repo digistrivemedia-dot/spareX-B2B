@@ -19,7 +19,7 @@ export function ComingSoon({ feature }: ComingSoonProps) {
         description={`We're building ${feature}. It will be ready here shortly.`}
         action={
           <Button variant="outline" asChild>
-            <Link href="/dashboard">Back to dashboard</Link>
+            <Link href="/">Back to your home page</Link>
           </Button>
         }
       />

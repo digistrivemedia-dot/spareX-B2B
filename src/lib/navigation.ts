@@ -1,5 +1,8 @@
 import {
   Building2,
+  CalendarCheck,
+  ClipboardList,
+  Gauge,
   MapPinned,
   Store,
   FileText,
@@ -43,7 +46,12 @@ export const navigation: NavSection[] = [
   {
     label: "Buying",
     items: [
-      { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+      {
+        label: "Dashboard",
+        href: "/dashboard",
+        icon: LayoutDashboard,
+        permission: "catalog:view",
+      },
       { label: "Catalogue", href: "/catalog", icon: PackageSearch, permission: "catalog:view" },
       { label: "Quick order", href: "/quick-order", icon: Zap, permission: "orders:place" },
       { label: "Quotations", href: "/quotations", icon: FileText, permission: "quotations:view" },
@@ -54,6 +62,27 @@ export const navigation: NavSection[] = [
   {
     label: "Garage",
     items: [
+      {
+        label: "Garage dashboard",
+        href: "/garage",
+        icon: Gauge,
+        businessTypes: ["garage"],
+        permission: "garage:dashboard",
+      },
+      {
+        label: "Bookings",
+        href: "/garage/bookings",
+        icon: CalendarCheck,
+        businessTypes: ["garage"],
+        permission: "bookings:manage",
+      },
+      {
+        label: "Job cards",
+        href: "/garage/jobs",
+        icon: ClipboardList,
+        businessTypes: ["garage"],
+        permission: "jobs:view",
+      },
       {
         label: "Garage profile",
         href: "/garage/profile",

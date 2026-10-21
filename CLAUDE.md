@@ -401,13 +401,13 @@ All garage lists are scoped to the selected branch; staff see only their own bra
 
 | # | Screen | Route | Status | Must include |
 |---|---|---|---|---|
-| B27 | Garage dashboard | `/garage` | TO BUILD | Today's counts: new bookings, received, awaiting approval, in progress, ready, payment pending (each opens the filtered list); today's bookings and jobs needing action |
-| B30 | Bookings list | `/garage/bookings` | TO BUILD | Tabs: New, Accepted, Declined, All; date and slot, customer, vehicle, services, branch |
-| B31 | Booking detail | `/garage/bookings/[id]` | TO BUILD | Customer, vehicle (link to history), requested services at the garage's prices, slot, notes; Accept (job becomes Confirmed) / Decline (reason + confirm); no reschedule |
-| B32 | New walk-in job | `/garage/jobs/new` | TO BUILD | Number plate lookup → existing vehicle and customer, or new (customer name, phone, vehicle make and model); complaints → job at Vehicle received → check-in |
-| B33 | Vehicle check-in | `/garage/jobs/[id]/check-in` | TO BUILD | Odometer, fuel level, damage notes with photos, customer complaints, vehicle photos → Job card created |
-| B34 | Job cards list | `/garage/jobs` | TO BUILD | Filter by status, branch, technician; search by job no., plate or customer |
-| B35 | Job card detail + timeline | `/garage/jobs/[id]` | TO BUILD | Job no., plate, customer, status; status timeline (§3, including side paths); check-in, inspection, estimate, technician, parts, QA and billing sections; the next action for the current status |
+| B27 | Garage dashboard | `/garage` | BUILT | Today's counts: new bookings, received, awaiting approval, in progress, ready, payment pending (each opens the filtered list); today's bookings and jobs needing action |
+| B30 | Bookings list | `/garage/bookings` | BUILT | Tabs: New, Accepted, Declined, All; date and slot, customer, vehicle, services, branch |
+| B31 | Booking detail | `/garage/bookings/[id]` | BUILT | Customer, vehicle (link to history), requested services at the garage's prices, slot, notes; Accept (job becomes Confirmed) / Decline (reason + confirm); no reschedule |
+| B32 | New walk-in job | `/garage/jobs/new` | BUILT | Number plate lookup → existing vehicle and customer, or new (customer name, phone, vehicle make and model); complaints → job at Vehicle received → check-in |
+| B33 | Vehicle check-in | `/garage/jobs/[id]/check-in` | BUILT | Odometer, fuel level, damage notes with photos, customer complaints, vehicle photos → Job card created |
+| B34 | Job cards list | `/garage/jobs` | BUILT | Filter by status, branch, technician; search by job no., plate or customer |
+| B35 | Job card detail + timeline | `/garage/jobs/[id]` | BUILT | Job no., plate, customer, status; status timeline (§3, including side paths); check-in, inspection, estimate, technician, parts, QA and billing sections; the next action for the current status |
 
 ### Phase 7: Inspection, estimates, technicians and quality check
 

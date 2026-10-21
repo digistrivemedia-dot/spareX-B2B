@@ -18,7 +18,7 @@ export default function NotFound() {
         description="The link may be old or mistyped. Head back to your dashboard to carry on."
         action={
           <Button asChild>
-            <Link href="/dashboard">Go to dashboard</Link>
+            <Link href="/">Go to your home page</Link>
           </Button>
         }
       />
