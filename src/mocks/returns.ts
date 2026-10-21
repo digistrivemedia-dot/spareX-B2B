@@ -74,7 +74,7 @@ export const returns: ReturnRequest[] = [
       { status: "requested", at: daysFromToday(-10, 11, 5) },
       { status: "approved", at: daysFromToday(-10, 15, 30) },
       { status: "picked_up", at: daysFromToday(-9, 12) },
-      { status: "refunded", at: daysFromToday(-8, 10, 20), note: "Credit note CN/26-27/0031" },
+      { status: "refunded", at: daysFromToday(-8, 10, 20), note: "Credit note CN/26-27/0034" },
     ],
   }),
 ];

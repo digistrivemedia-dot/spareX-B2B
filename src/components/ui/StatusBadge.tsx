@@ -49,6 +49,9 @@ const STATUSES = {
   overdue: { label: "Overdue", tone: "danger" },
   paid: { label: "Paid", tone: "success" },
   refunded: { label: "Refunded", tone: "success" },
+  successful: { label: "Successful", tone: "success" },
+  awaiting_confirmation: { label: "Awaiting confirmation", tone: "warning" },
+  failed: { label: "Failed", tone: "danger" },
   // Quotations
   requested: { label: "Requested", tone: "info" },
   quoted: { label: "Awaiting you", tone: "warning" },

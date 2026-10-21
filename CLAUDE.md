@@ -367,10 +367,10 @@ Credit pages exist only when `creditEnabled`; otherwise they are hidden from nav
 
 | # | Screen | Route | Status | Must include |
 |---|---|---|---|---|
-| B19 | Credit summary + statement | `/credit` | PLACEHOLDER | Cards: limit, used, available (usage bar), overdue, terms; dues table (invoice, dates, amount, days left / overdue, Pay); statement (date, reference, debit, credit, running balance) with date filter + download |
-| B20 | Pay dues | dialog on `/credit` | PLACEHOLDER | Select invoices, total, method: Razorpay (demo) or bank transfer (reference); toast + statement updates |
-| B21 | Payments history | `/payments` | TO BUILD | Date, reference, method, amount, applied to (orders / invoices), status (Successful, Awaiting confirmation, Failed); filters; receipt download |
-| B22 | Invoices + documents | `/invoices` | TO BUILD | GST invoices, credit notes and quotation PDFs in one list; filter by type and date; search by number; download |
+| B19 | Credit summary + statement | `/credit` | BUILT | Cards: limit, used, available (usage bar), overdue, terms; dues table (invoice, dates, amount, days left / overdue, Pay); statement (date, reference, debit, credit, running balance) with date filter + download |
+| B20 | Pay dues | dialog on `/credit` | BUILT | Select invoices, total, method: Razorpay (demo) or bank transfer (reference); toast + statement updates |
+| B21 | Payments history | `/payments` | BUILT | Date, reference, method, amount, applied to (orders / invoices), status (Successful, Awaiting confirmation, Failed); filters; receipt download |
+| B22 | Invoices + documents | `/invoices` | BUILT | GST invoices, credit notes and quotation PDFs in one list; filter by type and date; search by number; download |
 
 ### Phase 4: Access
 

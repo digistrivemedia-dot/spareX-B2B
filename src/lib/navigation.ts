@@ -1,6 +1,8 @@
 import {
   Building2,
   FileText,
+  Files,
+  IndianRupee,
   LayoutDashboard,
   Package,
   PackageSearch,
@@ -51,11 +53,18 @@ export const navigation: NavSection[] = [
     label: "Account",
     items: [
       {
-        label: "Credit & payments",
+        label: "Credit",
         href: "/credit",
         icon: Wallet,
         permission: "credit:view",
         requiresCredit: true,
+      },
+      { label: "Payments", href: "/payments", icon: IndianRupee, permission: "payments:view" },
+      {
+        label: "Invoices & documents",
+        href: "/invoices",
+        icon: Files,
+        permission: "documents:view",
       },
       { label: "Company", href: "/company", icon: Building2, permission: "company:view" },
     ],

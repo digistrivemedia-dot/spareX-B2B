@@ -8,6 +8,8 @@ const ALL_PERMISSIONS = [
   "quotations:respond",
   "credit:view",
   "credit:pay",
+  "payments:view",
+  "documents:view",
   "company:view",
   "company:manage",
 ] as const;

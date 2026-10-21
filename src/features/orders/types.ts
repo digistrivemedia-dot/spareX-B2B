@@ -29,8 +29,8 @@ export type OrderPayment = {
   status: PaymentStatus;
   /** Razorpay payments only. */
   channel?: RazorpayChannel;
-  /** Bank transfers only: the UTR or reference the buyer gave, if any. */
-  transferReference?: string;
+  /** The Razorpay payment ID, or the bank transfer's UTR when the buyer gave one. */
+  reference?: string;
   /** Credit orders only: when the invoice falls due. */
   dueDate?: string;
   paidAt?: string;

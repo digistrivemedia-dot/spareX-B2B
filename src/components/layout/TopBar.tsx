@@ -17,7 +17,7 @@ export async function TopBar({ session }: TopBarProps) {
 
   return (
     // Phones get search on its own full-width row; from md up everything sits on one row.
-    <header className="sticky top-0 z-30 flex shrink-0 flex-wrap items-center gap-2 border-b border-gray-200 bg-white px-4 py-3 md:h-16 md:flex-nowrap md:gap-4 md:px-6 md:py-0">
+    <header className="sticky top-0 z-30 flex shrink-0 flex-wrap items-center gap-2 border-b border-gray-200 bg-white px-4 py-3 md:h-16 md:flex-nowrap md:gap-4 md:px-6 md:py-0 print:hidden">
       <SidebarTrigger className="-ml-1" />
       <GlobalSearch className="order-last basis-full md:order-none md:basis-auto" />
       <div className="ml-auto flex items-center gap-1">

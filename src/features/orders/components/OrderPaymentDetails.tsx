@@ -13,8 +13,10 @@ export function OrderPaymentDetails({ order }: { order: Order }) {
     <div className="flex flex-col gap-2 text-sm">
       <span className="text-gray-500">Payment · {PAYMENT_METHOD_LABELS[payment.method]}</span>
       <OrderPaymentStatus payment={payment} />
-      {payment.transferReference && (
-        <span className="text-xs text-gray-500">UTR {payment.transferReference}</span>
+      {payment.reference && (
+        <span className="text-xs break-all text-gray-500">
+          {payment.method === "razorpay" ? "Payment ID" : "UTR"} {payment.reference}
+        </span>
       )}
       {payment.status === "refunded" && (
         <span className="text-xs text-gray-500">

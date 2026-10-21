@@ -320,3 +320,32 @@ pickup. **Need:** the return window, the reasons list and who pays for pickup.
 
 Photos are resized in the browser to about 1280 px (around 150 KB) before upload. The demo keeps
 them in server memory; the backend will store them and return URLs.
+
+## Phase 3: credit, payments and documents (B19–B22)
+
+### 52. 🔵 Menu for money pages
+
+"Credit & payments" is now three items under Account: **Credit** (only when credit is enabled),
+**Payments** and **Invoices & documents** (for every business).
+
+### 53. 🔵 Paying dues
+
+Paying online (Razorpay, demo) settles the chosen invoices at once and raises the credit
+available. Paying by bank transfer needs the UTR; the invoice then shows "Transfer being
+checked" until Kannali confirms it. Part-payments of one invoice aren't offered.
+**Confirm** both rules.
+
+### 54. 🔵 Statement download is a CSV file
+
+"Download statement" gives a CSV that opens in Excel, for the dates shown, with opening and
+closing balances. **Confirm** whether a PDF statement is also needed.
+
+### 55. 🔵 Receipts print from the browser
+
+Each successful payment has a receipt page with "Print or save as PDF". The same approach will
+serve garage invoices and completion reports (B43, B44).
+
+### 56. ⚪ Demo invoices and credit notes
+
+Every invoice and credit note in the demo has a sample PDF in `public/documents/`, marked as a
+sample. Kannali's own GSTIN (shown as a placeholder) is needed for real ones.

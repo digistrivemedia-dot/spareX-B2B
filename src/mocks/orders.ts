@@ -65,6 +65,7 @@ export const orders: Order[] = [
       method: "razorpay",
       status: "paid",
       channel: "upi",
+      reference: "pay_Q8LmXk2bN4sT7v",
       paidAt: daysFromToday(0, 9, 41),
     },
     notes: "Counter stock top-up.",
@@ -279,12 +280,22 @@ export function createOrder({ branchId, ...details }: NewOrder): Order {
 export function toOrderPayment(payment: PlaceOrderRequest["payment"]): Order["payment"] {
   switch (payment.method) {
     case "razorpay":
-      return { ...payment, status: "paid", paidAt: new Date().toISOString() };
+      return {
+        ...payment,
+        status: "paid",
+        reference: demoRazorpayId(),
+        paidAt: new Date().toISOString(),
+      };
     case "bank_transfer":
-      return { ...payment, status: "pending" };
+      return { method: "bank_transfer", status: "pending", reference: payment.transferReference };
     default:
       return { method: payment.method, status: "pending" };
   }
+}
+
+/** Looks like a Razorpay payment ID, e.g. "pay_Q8LmXk2bN4sT7v". */
+export function demoRazorpayId(): string {
+  return `pay_${Math.random().toString(36).slice(2, 16).padEnd(14, "x")}`;
 }
 
 /** Prices come from the catalogue, never from the browser. */
