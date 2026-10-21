@@ -294,113 +294,153 @@ Map shadcn's semantic variables: `primary` = orange-700 (white text), `secondary
 
 ## 9. How to work
 
-1. The lead gives one task at a time, by screen number or group ("B05", "B19–B21", "Garage jobs"). Build exactly what
-   §10 specifies for it, following §3.
-2. After each task, **stop** and report in 5–10 lines: what you built, the routes, decisions you made, anything that needs input.
-3. Anything that needs the client's or lead's decision goes in `DECISIONS.md`; keep building with the simplest option.
-4. Update the screen's status in §10 when it is done. Commit after each finished task with a conventional message
-   (`feat(garage): job cards list and detail`).
-5. Don't change files unrelated to the task. Don't refactor earlier screens unless asked.
+1. Work **one phase at a time** (§10), in order. Inside a phase, build the screens in the order listed.
+2. Build **exactly** what the screen's "Must include" says, following §3. **Don't invent** features that aren't listed,
+   and **don't skip** anything that is. Where a detail isn't specified, choose the simplest option that follows
+   §3, log it in `DECISIONS.md`, and keep building.
+3. A screen is done only when it passes the **screen checklist** below. A phase is done when every screen in it is done.
+4. After each phase: set the screens' status in §10 to BUILT, commit with a conventional message
+   (`feat(garage): job cards list and detail`), and report in 5–10 lines.
+5. Don't change files unrelated to the phase. Don't refactor earlier screens unless the phase lists them.
+
+### Screen checklist (every screen, every phase)
+
+- [ ] Everything in "Must include" is there and works on demo data through `features/<x>/api.ts`.
+- [ ] Four states: loading skeleton, empty (text + action), error (message + retry), success.
+- [ ] Checked at **375, 768, 1024 and 1440px**: no horizontal page scroll, tables turn into cards when narrow, forms go
+      to one column on phones, touch targets at least 40px tall on phones, sticky actions stay reachable.
+- [ ] Keyboard: every control reachable, visible focus, dialogs trap focus and close on Escape.
+- [ ] Only the roles and business types in §3 see it (navigation entry + `can()` check on the page).
+- [ ] Toast after each action; confirm dialog before anything destructive (cancel, decline, reject, remove).
+- [ ] `metadata` title set; `npm run lint`, `npm run typecheck` and `npm run build` pass; no browser console errors.
 
 ---
 
-## 10. Screens (52 for launch)
+## 10. Screens: 52 for launch, built in 8 phases
 
-**Status:** BUILT = done on demo data · UPDATE = built, needs the change in Notes · PLACEHOLDER = page exists, no
-content yet · TO BUILD = new screen · WAIT = design waits for a client answer.
+**Status:** BUILT = done on demo data · UPDATE = built, needs the change listed · PLACEHOLDER = page exists, no
+content yet · TO BUILD = new screen · WAIT = design waits for a client answer (build only once answered; until then
+the screen shows the placeholder).
 
-| Status | Count |
-|---|---|
-| BUILT | 8 |
-| UPDATE | 8 |
-| PLACEHOLDER | 5 |
-| TO BUILD | 30 |
-| WAIT | 1 |
-| **Total** | **52** |
+| Phase | Screens | Theme |
+|---|---|---|
+| 1 | B07–B12, B17 | New pricing and payment rules across buying |
+| 2 | B13–B16, B18 | Orders, cancellations, returns and quotations |
+| 3 | B19–B22 | Credit, payments, invoices and documents |
+| 4 | B01–B06 | Access: registration, application status, passwords |
+| 5 | B23–B26, B28, B29, B51 | Company, users and garage setup |
+| 6 | B27, B30–B35 | Garage: dashboard, bookings, walk-ins, check-in, job cards |
+| 7 | B36–B42 | Garage: inspection, estimates, technicians, quality check |
+| 8 | B43–B50, B52 | Garage: billing, payment, handover, customers, reviews, reports; final pass |
 
-### Access
+### Phase 1: New pricing and payment rules across buying
 
-| # | Screen | Status | Notes |
-|---|---|---|---|
-| B01 | Sign in + 2-step | BUILT | |
-| B02 | Forgot / reset password | BUILT | |
-| B03 | Registration | UPDATE | Name, type, email, phone, location, photos required; contact person, GSTIN, PAN, licences optional |
-| B04 | Application submitted | BUILT | |
-| B05 | Application status | TO BUILD | Under review; sent back + resubmit; rejected + reapply |
-| B06 | First login: set password | TO BUILD | |
+**Foundation first:** session becomes `{ user, business, roles, branchId, approvalStatus }`; `Business` gets
+`discountPercent` and `creditEnabled`; `Product` gets `b2cPriceInPaise` and loses business price, tier prices and MOQ
+(pack size stays as information only); one `getBusinessPrice()` helper in `lib/pricing.ts`; navigation items gain
+`requiresCredit`; roles become the 5 garage roles plus `owner` for single-login businesses.
 
-### Buying (all businesses)
+| # | Screen | Route | Status | Must include |
+|---|---|---|---|---|
+| B07 | Dashboard | `/dashboard` | UPDATE | When credit is off: no credit or outstanding cards, no overdue bar, no credit wording anywhere |
+| B08 | Catalogue + product drawer | `/catalog` | UPDATE | Your price (excl. GST) = B2C price − discount %, with the B2C price and MRP beside it; no MOQ, tier hints or tier table; fits filter by vehicle type → brand → model; any whole quantity from 1 |
+| B09 | Quick order | `/quick-order` | UPDATE | Remove MOQ and pack checks; flags: not found, out of stock, more than in stock, OK |
+| B10 | Cart | `/cart` | UPDATE | No minimum quantity; savings line = business discount vs B2C price; stock warnings stay |
+| B11 | Checkout | `/checkout` | UPDATE | Payment: Razorpay (UPI / card / net banking, demo), bank transfer (Kannali's bank details + transfer reference), COD, Credit (only if enabled; disabled with the reason when over the limit) |
+| B12 | Order placed | `/checkout/success` | UPDATE | Payment status per method: paid, awaiting bank transfer (with bank details), pay on delivery, on credit (due date) |
+| B17 | New quotation | `/quotations/new` | UPDATE | Follows B09's rows |
 
-| # | Screen | Status | Notes |
-|---|---|---|---|
-| B07 | Dashboard | BUILT | Credit cards hide when credit is not enabled |
-| B08 | Catalogue + product drawer | UPDATE | B2B price = B2C price − discount %; no MOQ or tier prices; all vehicle types |
-| B09 | Quick order | UPDATE | Remove MOQ and pack-size checks |
-| B10 | Cart | UPDATE | No minimum quantity; no tier savings |
-| B11 | Checkout | UPDATE | Razorpay, bank transfer, COD; credit only if enabled |
-| B12 | Order placed | BUILT | |
-| B13 | Orders list + reorder | UPDATE | Garages' purchase history lives here |
-| B14 | Order detail + tracking + invoice | UPDATE | Cancel until shipped; return button |
-| B15 | Return request + status | TO BUILD | If B2B returns are confirmed |
-| B16 | Quotations list | BUILT | |
-| B17 | New quotation | BUILT | Follows B09's changes |
-| B18 | Quotation detail | UPDATE | 7-day validity; accept, reject, ask for revision |
-| B19 | Credit summary + statement | PLACEHOLDER | Shown only if admin enabled credit |
-| B20 | Pay dues | PLACEHOLDER | |
-| B21 | Payments history | TO BUILD | |
-| B22 | Invoices + documents | TO BUILD | |
+### Phase 2: Orders, cancellations, returns and quotations
 
-### Company
+| # | Screen | Route | Status | Must include |
+|---|---|---|---|---|
+| B13 | Orders list + reorder | `/orders` | UPDATE | Payment column shows method + status (Paid, Awaiting transfer, Pay on delivery, Credit · due date); Cancelled status; Reorder per row; this is also the garage's parts history |
+| B14 | Order detail + tracking + invoice | `/orders/[id]` | UPDATE | Cancel order (reason + confirm) until shipped; Return items on delivered orders; payment method and status; existing timeline, invoice and reorder |
+| B15 | Return request + status | `/orders/[id]/return`, `/returns`, `/returns/[id]` | TO BUILD | Pick items and quantities, reason, photos, notes → submit; returns list; return detail with timeline (Requested → Approved → Picked up → Refunded, or Rejected with reason) |
+| B16 | Quotations list | `/quotations` | UPDATE | Valid-until shows days left (7-day validity); status tabs stay |
+| B18 | Quotation detail | `/quotations/[id]` | UPDATE | Auto-priced at the business price; validity countdown out of 7 days; Accept → checkout with the quoted prices; Reject (reason + confirm); Ask for revision (comment) |
 
-| # | Screen | Status | Notes |
-|---|---|---|---|
-| B23 | Business profile | PLACEHOLDER | |
-| B24 | Delivery addresses | PLACEHOLDER | |
-| B25 | Users list | TO BUILD | Garages only; 5 fixed roles, unlimited users |
-| B26 | Add / edit user | TO BUILD | Pick role(s) and branch; no custom permissions |
-| B51 | Fleet | PLACEHOLDER | Remove, unless the client keeps it |
+### Phase 3: Credit, payments, invoices and documents
 
-### Garage (garage businesses only)
+Credit pages exist only when `creditEnabled`; otherwise they are hidden from navigation and the route shows a
+"Credit isn't enabled for your account" state.
 
-| # | Screen | Status | Notes |
-|---|---|---|---|
-| B27 | Garage dashboard | TO BUILD | Today: new bookings, received, awaiting approval, in progress, ready, payment pending |
-| B28 | Garage profile editor | TO BUILD | Photos, services + own prices, vehicle types, hours, daily limit, holidays |
-| B29 | Branches | TO BUILD | |
-| B30 | Bookings list | TO BUILD | |
-| B31 | Booking detail: accept / decline | TO BUILD | |
-| B32 | New walk-in job | TO BUILD | Vehicle by number plate |
-| B33 | Vehicle check-in | TO BUILD | Odometer, fuel, damage, complaints, photos |
-| B34 | Job cards list | TO BUILD | Filter by status, branch, technician |
-| B35 | Job card detail + timeline | TO BUILD | |
-| B36 | Inspection checklist + photos | TO BUILD | |
-| B37 | Estimate builder | TO BUILD | Labour, services, parts, consumables, taxes; record approval for the customer |
-| B38 | Revised estimate (extra work) | TO BUILD | |
-| B39 | Assign technician | TO BUILD | |
-| B40 | My jobs (technician) | TO BUILD | Accept / reject an assigned job; update progress |
-| B41 | Parts for this job | WAIT | Parts used + order from SpareX; full stock is Phase 2 |
-| B42 | Quality check | TO BUILD | Checklist; pass or rework |
-| B43 | Completion report | TO BUILD | |
-| B44 | Billing + invoice | TO BUILD | In the garage's name and GST |
-| B45 | Collect payment | TO BUILD | Online or cash |
-| B46 | Delivery / handover | TO BUILD | Closes the job |
-| B47 | Customers list | TO BUILD | |
-| B48 | Customer + vehicle history | TO BUILD | Other garages' prices hidden |
-| B49 | Reviews received | TO BUILD | |
-| B50 | Branch reports | TO BUILD | |
+| # | Screen | Route | Status | Must include |
+|---|---|---|---|---|
+| B19 | Credit summary + statement | `/credit` | PLACEHOLDER | Cards: limit, used, available (usage bar), overdue, terms; dues table (invoice, dates, amount, days left / overdue, Pay); statement (date, reference, debit, credit, running balance) with date filter + download |
+| B20 | Pay dues | dialog on `/credit` | PLACEHOLDER | Select invoices, total, method: Razorpay (demo) or bank transfer (reference); toast + statement updates |
+| B21 | Payments history | `/payments` | TO BUILD | Date, reference, method, amount, applied to (orders / invoices), status (Successful, Awaiting confirmation, Failed); filters; receipt download |
+| B22 | Invoices + documents | `/invoices` | TO BUILD | GST invoices, credit notes and quotation PDFs in one list; filter by type and date; search by number; download |
 
-### Global
+### Phase 4: Access
 
-| # | Screen | Status | Notes |
-|---|---|---|---|
-| B52 | 404 / error | BUILT | |
+| # | Screen | Route | Status | Must include |
+|---|---|---|---|---|
+| B01 | Sign in + 2-step | `/login` | UPDATE | After sign-in: unverified accounts go to B05, first login goes to B06 |
+| B02 | Forgot / reset password | `/forgot-password`, `/reset-password` | UPDATE | Add the reset page the email link opens: new password + confirm → sign in |
+| B03 | Registration | `/register` | UPDATE | Steps: Business (name, type, optional GSTIN → PAN and state, optional PAN, optional licence / other registration with upload) · Contact and location (optional contact person, email, phone, address with PIN → city and state) · Photos (1–6, at least one) · Review + terms |
+| B04 | Application submitted | `/register/submitted` | BUILT | |
+| B05 | Application status | `/application` | TO BUILD | Under review (reference, submitted date, what's next) · Sent back (Kannali's notes, edit and resubmit) · Rejected (reason, reapply with the form pre-filled) |
+| B06 | First login: set password | `/set-password` | TO BUILD | New password + confirm with the rules shown → dashboard |
+
+### Phase 5: Company, users and garage setup
+
+| # | Screen | Route | Status | Must include |
+|---|---|---|---|---|
+| B23 | Business profile | `/company` | PLACEHOLDER | Name, type, GSTIN, PAN read-only after verification; editable contact and phone; registration documents and photos; business discount % and credit status (read-only) |
+| B24 | Delivery addresses | `/company/addresses` | PLACEHOLDER | List, add, edit, remove, set default |
+| B25 | Users list | `/company/users` | TO BUILD | Garages only. Name, email, phone, roles (several badges), branch, status (Invited, Active, Disabled); filter by role and branch; Add user |
+| B26 | Add / edit user | `/company/users/new`, `/company/users/[id]` | TO BUILD | Name, email, phone, roles (the 5, with what each sees), one branch; disable / enable; resend invite |
+| B51 | Fleet | none | PLACEHOLDER | Removed from navigation until the client says to keep it; nothing built |
+| B28 | Garage profile editor | `/garage/profile` | TO BUILD | Photos, about; services with own price (add / edit / remove); vehicle types served; opening hours per day; daily booking limit; holidays |
+| B29 | Branches | `/garage/branches` | TO BUILD | List (address, contact, hours, staff count), add / edit branch |
+
+### Phase 6: Garage dashboard, bookings, walk-ins, check-in and job cards
+
+All garage lists are scoped to the selected branch; staff see only their own branch.
+
+| # | Screen | Route | Status | Must include |
+|---|---|---|---|---|
+| B27 | Garage dashboard | `/garage` | TO BUILD | Today's counts: new bookings, received, awaiting approval, in progress, ready, payment pending (each opens the filtered list); today's bookings and jobs needing action |
+| B30 | Bookings list | `/garage/bookings` | TO BUILD | Tabs: New, Accepted, Declined, All; date and slot, customer, vehicle, services, branch |
+| B31 | Booking detail | `/garage/bookings/[id]` | TO BUILD | Customer, vehicle (link to history), requested services at the garage's prices, slot, notes; Accept (job becomes Confirmed) / Decline (reason + confirm); no reschedule |
+| B32 | New walk-in job | `/garage/jobs/new` | TO BUILD | Number plate lookup → existing vehicle and customer, or new (customer name, phone, vehicle make and model); complaints → job at Vehicle received → check-in |
+| B33 | Vehicle check-in | `/garage/jobs/[id]/check-in` | TO BUILD | Odometer, fuel level, damage notes with photos, customer complaints, vehicle photos → Job card created |
+| B34 | Job cards list | `/garage/jobs` | TO BUILD | Filter by status, branch, technician; search by job no., plate or customer |
+| B35 | Job card detail + timeline | `/garage/jobs/[id]` | TO BUILD | Job no., plate, customer, status; status timeline (§3, including side paths); check-in, inspection, estimate, technician, parts, QA and billing sections; the next action for the current status |
+
+### Phase 7: Inspection, estimates, technicians and quality check
+
+| # | Screen | Route | Status | Must include |
+|---|---|---|---|---|
+| B36 | Inspection checklist + photos | `/garage/jobs/[id]/inspection` | TO BUILD | Checklist by area; each item OK / Needs attention / Replace with note and photo → estimate |
+| B37 | Estimate builder | `/garage/jobs/[id]/estimate` | TO BUILD | Lines: labour, services (garage prices), parts (from the SpareX catalogue or typed), consumables; qty, price, GST; totals; record the customer's approval per line; all rejected → job closes with no fee |
+| B38 | Revised estimate (extra work) | `/garage/jobs/[id]/estimate/revision` | TO BUILD | Approved work shown; extra lines added; back to Waiting for customer approval; approval recorded per line |
+| B39 | Assign technician | dialog on the job card | TO BUILD | Branch technicians with their current job count; assign or reassign |
+| B40 | My jobs (technician) | `/garage/my-jobs`, `/garage/my-jobs/[id]` | TO BUILD | Phone-first. Assigned jobs; accept / reject (reason); approved tasks to tick off; progress notes and photos; report extra work (→ B38); parts used |
+| B41 | Parts for this job | section on the job card | WAIT | Parts used + order from SpareX; build only once the client answers on inventory |
+| B42 | Quality check | `/garage/jobs/[id]/quality-check` | TO BUILD | Checklist from the job's tasks; Pass → Ready for delivery, Rework (note) → Service in progress |
+
+### Phase 8: Billing, payment, handover, customers, reviews, reports; final pass
+
+| # | Screen | Route | Status | Must include |
+|---|---|---|---|---|
+| B43 | Completion report | `/garage/jobs/[id]/report` | TO BUILD | Work done, parts replaced, before / after photos, technician, QA result, next service due (date or km); download / print |
+| B44 | Billing + invoice | `/garage/jobs/[id]/invoice` | TO BUILD | Invoice from the approved estimate, in the garage's name and GSTIN; CGST / SGST; invoice no.; download → Payment pending |
+| B45 | Collect payment | dialog on the invoice | TO BUILD | Amount due; online (payment link / UPI, demo) or cash (amount received) → Paid |
+| B46 | Delivery / handover | `/garage/jobs/[id]/handover` | TO BUILD | Handover checklist, odometer out → Completed |
+| B47 | Customers list | `/garage/customers` | TO BUILD | Name, phone, vehicles, last visit, job count; search; add customer |
+| B48 | Customer + vehicle history | `/garage/customers/[id]` | TO BUILD | Customer details, vehicles, service history per vehicle; other garages' jobs without prices; walk-in history linked by plate |
+| B49 | Reviews received | `/garage/reviews` | TO BUILD | Average rating, rating breakdown, list (rating, comment, customer, job, date); filter by rating and branch |
+| B50 | Branch reports | `/garage/reports` | TO BUILD | Per branch and date range: jobs completed, revenue, average job value, jobs by status, technician workload, top services |
+| B52 | 404 / error | global | BUILT | Final pass: every route checked at all 4 widths; no dead links |
 
 ### Waiting on client answers
 
 | Item | Affects |
 |---|---|
 | Garage inventory (light or full) | B41 |
-| Returns for B2B buyers | B15 |
+| Returns for B2B buyers (built as listed; can be switched off) | B15 |
 | Final permissions per garage role | B25, B26, all Garage screens |
 | QA owner: Service Advisor or Billing/QA Executive | B42 |
 | Branches / addresses for non-garage businesses | B24 |
