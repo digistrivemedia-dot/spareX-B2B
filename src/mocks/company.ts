@@ -48,6 +48,7 @@ export const branches: Branch[] = [
     },
     contactName: "Mahesh Kumar",
     contactPhone: "+919886044120",
+    acceptingBookings: true,
   },
   {
     id: "br-hsr",
@@ -62,6 +63,7 @@ export const branches: Branch[] = [
     },
     contactName: "Ravi Shankar",
     contactPhone: "+919845213367",
+    acceptingBookings: true,
   },
 ];
 
@@ -170,7 +172,12 @@ function requireBranch(id: string): Branch {
 
 export async function createBranchMock(input: BranchInput): Promise<Branch> {
   await simulateLatency(600);
-  const created: Branch = { ...input, id: `br-${Date.now()}`, isMain: false };
+  const created: Branch = {
+    ...input,
+    id: `br-${Date.now()}`,
+    isMain: false,
+    acceptingBookings: true,
+  };
   branches.push(created);
   return created;
 }
@@ -178,6 +185,11 @@ export async function createBranchMock(input: BranchInput): Promise<Branch> {
 export async function updateBranchMock(id: string, input: BranchInput): Promise<Branch> {
   await simulateLatency(600);
   return Object.assign(requireBranch(id), input);
+}
+
+export async function setAcceptingBookingsMock(id: string, isAccepting: boolean): Promise<Branch> {
+  await simulateLatency(300);
+  return Object.assign(requireBranch(id), { acceptingBookings: isAccepting });
 }
 
 /** The main branch is the default delivery address and can't be removed. */

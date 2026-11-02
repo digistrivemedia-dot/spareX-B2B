@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { can, scopeToBranch } from "@/features/auth/permissions";
 import { requirePermission } from "@/features/auth/session";
 import { getBookings } from "@/features/bookings/api";
+import { BookingRequestCard } from "@/features/bookings/components/BookingRequestCard";
 import { getBranches } from "@/features/company/api";
 import { BranchFilter } from "@/features/garage/components/BranchFilter";
 import { GarageStats } from "@/features/garage/components/GarageStats";
@@ -53,7 +54,7 @@ export default async function GarageDashboardPage({ searchParams }: GarageDashbo
   const canManage = can(session.roles, "jobs:manage");
   const groups = Object.keys(JOB_STATUS_GROUPS) as JobStatusGroup[];
   const [newBookings, todaysBookings, groupCounts, needsAction, branches] = await Promise.all([
-    getBookings({ status: "new", branchId, pageSize: 1 }),
+    getBookings({ status: "new", branchId, sort: "respondBy", order: "asc", pageSize: 10 }),
     getBookings({ date: indiaDateFromToday(0), branchId, pageSize: 20 }),
     Promise.all(
       groups.map((group) =>
@@ -91,6 +92,20 @@ export default async function GarageDashboardPage({ searchParams }: GarageDashbo
       <div className="mb-6 flex">
         <BranchFilter branches={branches} canChoose={can(session.roles, "garage:all_branches")} />
       </div>
+      {canBook && newBookings.items.length > 0 && (
+        <section aria-label="New booking requests" className="mb-8">
+          <SectionHeader title="New booking requests" />
+          <ul className="grid gap-4 lg:grid-cols-2">
+            {newBookings.items.map((booking) => (
+              <BookingRequestCard
+                key={booking.id}
+                booking={booking}
+                showBranch={can(session.roles, "garage:all_branches") && !branchId}
+              />
+            ))}
+          </ul>
+        </section>
+      )}
       <GarageStats
         newBookings={canBook ? newBookings.total : undefined}
         jobCounts={jobCounts}
@@ -102,7 +117,7 @@ export default async function GarageDashboardPage({ searchParams }: GarageDashbo
             <SectionHeader title="Today's bookings" />
             <TodayList
               items={todaysBookings.items
-                .filter((booking) => booking.status === "new" || booking.status === "accepted")
+                .filter((booking) => booking.status === "accepted")
                 .map((booking) => ({
                   id: booking.id,
                   href: `/garage/bookings/${booking.id}`,
@@ -110,7 +125,6 @@ export default async function GarageDashboardPage({ searchParams }: GarageDashbo
                   title: `${booking.customer.name} · ${booking.vehicle.make} ${booking.vehicle.model}`,
                   plate: booking.vehicle.plate,
                   badge: <StatusBadge status={booking.status} />,
-                  action: booking.status === "new" ? "Accept or decline" : undefined,
                 }))}
               empty={{
                 icon: CalendarCheck,

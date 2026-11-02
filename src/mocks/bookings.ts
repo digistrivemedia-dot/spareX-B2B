@@ -3,6 +3,7 @@ import type { JobCard } from "@/features/job-cards/types";
 import { ApiError } from "@/lib/api-client";
 import { toIndiaDate } from "@/lib/dates";
 import type { Paginated } from "@/lib/types";
+import { branches } from "@/mocks/company";
 import { currentStaffMock } from "@/mocks/session";
 import { customers, vehicles } from "@/mocks/customers";
 import { getGarageProfileMock } from "@/mocks/garage";
@@ -187,7 +188,11 @@ function receiveDemoRequest() {
   if (bookings.some((booking) => booking.status === "new")) return;
   const lastArrival = Math.max(...bookings.map((booking) => Date.parse(booking.createdAt)));
   if (Date.now() - lastArrival < DEMO_ARRIVAL_GAP_MS) return;
-  const arrival = ARRIVALS[arrivals % ARRIVALS.length];
+  const open = ARRIVALS.filter(
+    ({ branch }) => branches.find(({ id }) => id === branch.id)?.acceptingBookings,
+  );
+  if (open.length === 0) return;
+  const arrival = open[arrivals % open.length];
   arrivals += 1;
   const lastNumber = Math.max(...bookings.map((booking) => Number(booking.number.slice(-4))));
   const number = `BK-${toIndiaDate(new Date().toISOString()).slice(2, 7).replace("-", "")}-${String(lastNumber + 1).padStart(4, "0")}`;

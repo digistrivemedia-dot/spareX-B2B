@@ -43,6 +43,8 @@ export type Branch = {
   address: Address;
   contactName: string;
   contactPhone: string;
+  /** Whether customers can book this branch now; the garage turns it off when it's full. */
+  acceptingBookings: boolean;
 };
 
 /** The minimal branch reference embedded in orders and quotations. */

@@ -4,12 +4,10 @@ import { Timer } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+import { formatTimeLeft, URGENT_MS } from "@/features/bookings/utils";
 import { formatTimeOfDay } from "@/lib/format";
 import { useNow } from "@/lib/use-now";
 import { cn } from "@/lib/utils";
-
-/** The last minutes get the danger colour, so a request about to be missed stands out. */
-const URGENT_MS = 3 * 60_000;
 
 /** Time left to answer a new booking request, ticking every second. */
 export function BookingCountdown({ respondBy }: { respondBy: string }) {
@@ -28,7 +26,7 @@ export function BookingCountdown({ respondBy }: { respondBy: string }) {
       ? `Respond by ${formatTimeOfDay(respondBy)}`
       : isOver
         ? "Time's up"
-        : `${Math.floor(left / 60_000)}:${String(Math.floor((left % 60_000) / 1000)).padStart(2, "0")} left to respond`;
+        : `${formatTimeLeft(left)} left to respond`;
 
   return (
     <span

@@ -555,10 +555,7 @@ it opened, and the job card names the booking it came from. The job card's timel
 
 ### 87. 🟡 Booking requests have a timer
 
-A new booking pops up on every garage page for people who handle bookings, with a countdown,
-the slot, vehicle, customer, services and price, and only Accept or Decline: there is no
-"Later", and Escape or clicking outside doesn't close it (an alert that needs an answer, unlike
-other dialogs). It goes away by itself when time runs out. The garage has
+A new booking shows with a countdown at the top of the garage dashboard and on the Bookings page, with Accept and Decline on each. Other pages show a small top-bar indicator with the count and the soonest deadline, so work isn't interrupted. (The client asked for a pop-up with a timer: show him this first.) The garage has
 **15 minutes** to answer; after that the request is **Missed** and the customer is asked to pick
 another slot or garage. Accepting needs no extra confirmation (it isn't destructive and the clock
 is running). **Confirm** the 15 minutes and what "missed" should do. The backend sets the deadline
@@ -591,3 +588,10 @@ pick-up fails (customer not home).
 The dashboard's credit figures, the Account menu's company link and each notification now go only
 to roles that can open the page they lead to. The backend should send each user only the
 notifications that apply to their role.
+
+### 91. 🔵 Decline reasons and the bookings switch
+
+Declining takes one tap from a short list of reasons a customer can read; only "Other" asks for
+typing. A top-bar switch turns new bookings on or off per branch, for people who handle bookings
+(owners switch the branch selected in the top bar). It stays off until someone turns it back on.
+Requests already waiting stay open. The B2C app and backend must honour it.

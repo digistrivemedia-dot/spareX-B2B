@@ -26,7 +26,8 @@ const EMPTY = {
   new: {
     icon: CalendarClock,
     title: "No new requests",
-    description: "When a customer books, the request pops up on every garage page with a timer.",
+    description:
+      "When a customer books, the request shows here and on the garage dashboard, with a timer.",
   },
   upcoming: {
     icon: CalendarCheck,
