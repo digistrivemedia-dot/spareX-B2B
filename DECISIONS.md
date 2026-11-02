@@ -556,9 +556,9 @@ it opened, and the job card names the booking it came from. The job card's timel
 ### 87. 🟡 Booking requests have a timer
 
 A new booking shows with a countdown at the top of the garage dashboard and on the Bookings page, with Accept and Decline on each. Other pages show a small top-bar indicator with the count and the soonest deadline, so work isn't interrupted. (The client asked for a pop-up with a timer: show him this first.) The garage has
-**15 minutes** to answer; after that the request is **Missed** and the customer is asked to pick
+**5 seconds** (for now, on the user's instruction) to answer; after that the request is **Missed** and the customer is asked to pick
 another slot or garage. Accepting needs no extra confirmation (it isn't destructive and the clock
-is running). **Confirm** the 15 minutes and what "missed" should do. The backend sets the deadline
+is running). **Confirm** the 5 seconds and what "missed" should do. The backend sets the deadline
 (`respondBy` on each booking). In the demo a new request "arrives" whenever none is waiting, so the
 alert can always be shown.
 

@@ -52,11 +52,11 @@ function acceptedFrom(
 }
 
 /** How long a garage has to answer a new request (the client still to confirm). */
-const RESPONSE_MINUTES = 15;
+const RESPONSE_SECONDS = 5;
 
 const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
 const respondByFor = (createdAt: string) =>
-  new Date(new Date(createdAt).getTime() + RESPONSE_MINUTES * 60_000).toISOString();
+  new Date(new Date(createdAt).getTime() + RESPONSE_SECONDS * 1000).toISOString();
 
 type BookingSeed = Omit<Booking, "respondBy">;
 
@@ -66,7 +66,7 @@ const seeds: BookingSeed[] = [
     number: "BK-2610-0233",
     status: "new",
     branch: WHITEFIELD,
-    createdAt: minutesAgo(3),
+    createdAt: minutesAgo(0),
     slotAt: daysFromToday(0, 16),
     customer: { name: "Sneha Pillai", phone: "+919880945563", customerId: "cus-sneha" },
     vehicle: {
@@ -89,7 +89,7 @@ const seeds: BookingSeed[] = [
     number: "BK-2610-0232",
     status: "new",
     branch: WHITEFIELD,
-    createdAt: minutesAgo(9),
+    createdAt: minutesAgo(0),
     slotAt: daysFromToday(1, 10),
     customer: { name: "Harish Murthy", phone: "+919845603318" },
     vehicle: {
@@ -178,7 +178,7 @@ function expireRequests() {
 }
 
 /** Demo only: the next customer books this long after the last request came in. */
-const DEMO_ARRIVAL_GAP_MS = 10 * 60_000;
+const DEMO_ARRIVAL_GAP_MS = 30_000;
 
 /**
  * Demo only: when no request is waiting and the last came in a while ago, the next customer
@@ -196,7 +196,7 @@ function receiveDemoRequest() {
   arrivals += 1;
   const lastNumber = Math.max(...bookings.map((booking) => Number(booking.number.slice(-4))));
   const number = `BK-${toIndiaDate(new Date().toISOString()).slice(2, 7).replace("-", "")}-${String(lastNumber + 1).padStart(4, "0")}`;
-  const createdAt = minutesAgo(1);
+  const createdAt = minutesAgo(0);
   bookings.unshift({
     ...arrival,
     id: `bk-${number.slice(-4)}`,

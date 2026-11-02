@@ -1,7 +1,7 @@
 import type { Booking } from "@/features/bookings/types";
 
-/** The last minutes get the danger colour, so a request about to be missed stands out. */
-export const URGENT_MS = 3 * 60_000;
+/** The last minute gets the danger colour, so a request about to be missed stands out. */
+export const URGENT_MS = 60_000;
 
 /** Time left on a request, as "4:32". */
 export function formatTimeLeft(ms: number): string {

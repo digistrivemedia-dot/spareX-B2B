@@ -229,7 +229,7 @@ The demo mocks implement these; the backend must do the same (and is the source 
   Service in progress (work lines un-ticked).
 - Each step refuses a job that isn't at the right status (409).
 - Pick-up & drop: a booking may carry `pickupDrop` (addresses and the garage's flat fee), which the job card keeps. Confirmed → Out for pick-up (driver assigned) → Vehicle received (check-in recorded at the door). Payment pending or Paid → Out for delivery (driver assigned) → Completed (handover at the door). If the bill is unpaid at handover, `cashAtDoorInPaise` must cover it. The assigned driver may record their own trip whatever their role.
-- Booking accept respects the garage's daily booking limit per branch; no reschedule. A new request must be answered by its `respondBy` (15 minutes after it arrives, to be confirmed); after that it is `missed` and the customer is told.
+- Booking accept respects the garage's daily booking limit per branch; no reschedule. A new request must be answered by its `respondBy` (5 seconds after it arrives for now, to be confirmed); after that it is `missed` and the customer is told.
 - A walk-in plate that's already on file links to the existing vehicle; when a customer later adds
   the same plate in the app, the history links to them.
 - Another garage's history on a vehicle is returned **without prices**.

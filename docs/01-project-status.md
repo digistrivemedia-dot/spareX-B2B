@@ -168,7 +168,7 @@ Tested in a real browser on a production build, as the relevant role:
 ## Added on 2 Nov 2026
 
 - **Bookings, Job cards and My jobs** rebuilt as work queues: each row shows the vehicle, its stage
-  and the next step. New booking alert with a 15-minute timer (Accept or Decline).
+  and the next step. New booking alert with a 5-second timer (Accept or Decline).
 - **Pick-up & drop**: garage setting, trips on the job card, My trips for drivers, cash at the door.
 - The job card shows a tick for every finished stage and step. The customer's answer is Approve or
   Reject.
