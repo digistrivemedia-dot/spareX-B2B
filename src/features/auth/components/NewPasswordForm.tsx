@@ -27,12 +27,12 @@ type NewPasswordFormProps =
 const COPY = {
   reset: {
     title: "Choose a new password",
-    description: "Use it to sign in to SpareX Business from now on.",
+    description: "Use it to sign in to Kannali Garage OS from now on.",
     submit: "Save new password",
   },
   first_login: {
     title: "Set your password",
-    description: "Welcome to SpareX Business. Choose a password to replace the one we emailed.",
+    description: "Welcome to Kannali Garage OS. Choose a password to replace the one we emailed.",
     submit: "Save and continue",
   },
 };

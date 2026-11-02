@@ -40,7 +40,7 @@ export function ForgotPasswordForm() {
         icon={MailCheck}
         title="Check your inbox"
         // Deliberately vague, so the form can't be used to find out which emails have accounts.
-        description={`If ${form.getValues("email")} has a SpareX Business account, we've emailed a link to reset the password. It expires in 30 minutes.`}
+        description={`If ${form.getValues("email")} has a Kannali Garage OS account, we've emailed a link to reset the password. It expires in 30 minutes.`}
         action={
           <div className="flex flex-col items-center gap-3">
             <DemoHint>

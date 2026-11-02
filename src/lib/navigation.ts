@@ -49,7 +49,7 @@ export type NavSection = {
  */
 export const navigation: NavSection[] = [
   {
-    label: "Buying",
+    label: "SpareX Buying",
     items: [
       {
         label: "Dashboard",

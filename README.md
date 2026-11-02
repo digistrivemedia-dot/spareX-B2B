@@ -1,6 +1,6 @@
-# SpareX Business
+# Kannali Garage OS
 
-The B2B website of Kannali Garage's SpareX platform. Verified businesses (garages, fleets,
+Kannali Garage OS is the B2B website of Kannali Garage, with its SpareX parts platform. Verified businesses (garages, fleets,
 dealers, retailers) buy parts at business prices, and garages run their workshop: bookings, job
 cards, estimates, technicians, billing and customers. `CLAUDE.md` is the full product and
 engineering brief; `DECISIONS.md` lists the open questions.

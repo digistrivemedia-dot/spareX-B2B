@@ -34,7 +34,7 @@ export function AppSidebar({ viewer }: { viewer: NavViewer }) {
       <SidebarHeader className="h-16 justify-center overflow-hidden px-2">
         <Link
           href="/"
-          aria-label="SpareX Business home"
+          aria-label="Kannali Garage OS home"
           className="rounded-lg focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none"
         >
           <Logo background="dark" />

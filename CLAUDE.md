@@ -473,5 +473,5 @@ All of it lives in `src/mocks/`, typed with the feature types. It must look real
   services with its own prices, and 8 reviews.
 - **Images:** put them in `public/images/`. Until the client sends photos, use free-licence images (Unsplash or Pexels;
   list them in `public/images/CREDITS.md`) **downloaded locally, never hotlinked**; otherwise use the placeholder
-  component. The logo is a text wordmark ("SpareX Business", with "by Kannali Garage") inside the `Logo` component, so
+  component. The logo is a text wordmark ("Kannali Garage OS") inside the `Logo` component, so
   swapping in the real logo is a one-file change.

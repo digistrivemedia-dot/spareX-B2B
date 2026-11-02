@@ -9,15 +9,6 @@ const wordmarkVariants = cva("text-base leading-tight font-semibold whitespace-n
   },
 });
 
-const taglineVariants = cva("text-xs whitespace-nowrap", {
-  variants: {
-    background: {
-      dark: "text-navy-200",
-      light: "text-gray-500",
-    },
-  },
-});
-
 type LogoProps = {
   /** The colour of what the logo sits on. */
   background: "dark" | "light";
@@ -31,12 +22,9 @@ export function Logo({ background }: LogoProps) {
         aria-hidden
         className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-orange-700 text-sm font-bold text-white"
       >
-        SX
+        KG
       </span>
-      <span className="flex flex-col">
-        <span className={wordmarkVariants({ background })}>SpareX Business</span>
-        <span className={taglineVariants({ background })}>by Kannali Garage</span>
-      </span>
+      <span className={wordmarkVariants({ background })}>Kannali Garage OS</span>
     </span>
   );
 }

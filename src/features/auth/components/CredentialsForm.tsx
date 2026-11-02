@@ -90,7 +90,7 @@ export function CredentialsForm({ onTwoFactorRequired }: CredentialsFormProps) {
         </FieldGroup>
       </form>
       <p className="mt-6 border-t border-gray-100 pt-6 text-center text-sm text-gray-500">
-        New to SpareX Business?{" "}
+        New to Kannali Garage OS?{" "}
         <Link href="/register" className="font-medium text-navy-700 hover:underline">
           Register your business
         </Link>

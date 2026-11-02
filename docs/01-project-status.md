@@ -1,6 +1,6 @@
 # 1. Project status
 
-**SpareX Business**: the B2B website of Kannali Garage's SpareX platform.
+**Kannali Garage OS**: the B2B website of Kannali Garage's SpareX platform.
 Status as of 29 Oct 2026. Read with [02 Pending work and gaps](02-pending-work-and-gaps.md).
 
 ---

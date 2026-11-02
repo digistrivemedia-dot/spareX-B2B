@@ -595,3 +595,10 @@ Declining takes one tap from a short list of reasons a customer can read; only "
 typing. A top-bar switch turns new bookings on or off per branch, for people who handle bookings
 (owners switch the branch selected in the top bar). It stays off until someone turns it back on.
 Requests already waiting stay open. The B2C app and backend must honour it.
+
+### 92. 🔵 Platform name: Kannali Garage OS
+
+The client named this platform Kannali Garage OS. It replaces "SpareX Business" in the logo, page
+titles, sign-in copy and sample quotation PDFs. SpareX stays where it means the parts catalogue, the
+customer app or the seller on documents ("SpareX app", "order from SpareX"), until the client says
+otherwise.
