@@ -29,3 +29,8 @@ export function toIndiaDate(iso: string): string {
 export function indiaDateFromToday(days: number): string {
   return indiaDate.format(new Date(Date.now() + days * DAY_MS));
 }
+
+/** Whether a moment has already passed. */
+export function isPast(iso: string): boolean {
+  return Date.parse(iso) < Date.now();
+}

@@ -4,8 +4,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DetailItem, DetailList } from "@/components/ui/DetailList";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { AssignDriverDialog } from "@/features/job-cards/components/AssignDriverDialog";
 import { AssignTechnicianDialog } from "@/features/job-cards/components/AssignTechnicianDialog";
+import { StageBadge } from "@/features/job-cards/components/StageBadge";
 import { can } from "@/features/auth/permissions";
 import type { Role } from "@/features/auth/types";
 import type { JobCard } from "@/features/job-cards/types";
@@ -23,11 +24,23 @@ export function JobStatusCard({ job, roles }: { job: JobCard; roles: Role[] }) {
   return (
     <Card>
       <CardContent className="flex flex-col gap-4">
-        <StatusBadge status={job.status} className="self-start" />
+        <StageBadge status={job.status} className="self-start" />
         <DetailList>
           <DetailItem label="Branch">{job.branch.name}</DetailItem>
-          <DetailItem label="Opened">
-            {formatDateTime(job.createdAt)} · {job.source === "walk_in" ? "walk-in" : "booking"}
+          <DetailItem label="Opened">{formatDateTime(job.createdAt)}</DetailItem>
+          <DetailItem label="Came in as">
+            {job.source === "walk_in" ? (
+              "Walk-in"
+            ) : job.bookingId && job.bookingNumber && can(roles, "bookings:manage") ? (
+              <Link
+                href={`/garage/bookings/${job.bookingId}`}
+                className="font-medium text-navy-700 hover:underline"
+              >
+                Booking {job.bookingNumber}
+              </Link>
+            ) : (
+              `Booking${job.bookingNumber ? ` ${job.bookingNumber}` : ""}`
+            )}
           </DetailItem>
           {job.scheduledAt && job.status === "confirmed" && (
             <DetailItem label="Due in">{formatDateTime(job.scheduledAt)}</DetailItem>
@@ -48,6 +61,9 @@ export function JobStatusCard({ job, roles }: { job: JobCard; roles: Role[] }) {
           </p>
         )}
         {next?.kind === "assign" && <AssignTechnicianDialog job={job} />}
+        {next?.kind === "driver" && next.trip && (
+          <AssignDriverDialog job={job} trip={next.trip} label={next.label} />
+        )}
         {next?.kind === "link" && (
           <Button size="lg" asChild>
             <Link href={next.href}>{next.label}</Link>

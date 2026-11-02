@@ -10,7 +10,7 @@ import type {
   CompanyUserInput,
   PincodeDetails,
 } from "@/features/company/types";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, apiClientOrNull } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
 import {
@@ -38,7 +38,7 @@ export const getBranches = cache(async (): Promise<Branch[]> => {
 /** City and state for a PIN code, or null when it isn't recognised. */
 export async function lookupPincode(pin: string): Promise<PincodeDetails | null> {
   if (dataSource.company === "mock") return lookupPincodeMock(pin);
-  return apiClient<PincodeDetails | null>(`/pincodes/${pin}`);
+  return apiClientOrNull<PincodeDetails>(`/pincodes/${pin}`);
 }
 
 export async function createBranch(input: BranchInput): Promise<Branch> {
@@ -77,7 +77,7 @@ export async function getCompanyUsers(
 /** One user, or null if there is none. */
 export async function getCompanyUser(id: string): Promise<CompanyUser | null> {
   if (dataSource.company === "mock") return getCompanyUserMock(id);
-  return apiClient<CompanyUser | null>(`/company/users/${id}`);
+  return apiClientOrNull<CompanyUser>(`/company/users/${id}`);
 }
 
 /** Adds a user and emails them an invitation to set their password. */

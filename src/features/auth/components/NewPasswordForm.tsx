@@ -12,12 +12,11 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/FormAlert";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { setPassword } from "@/features/auth/api";
+import { setPasswordAction } from "@/features/auth/actions";
 import { AuthHeading } from "@/features/auth/components/AuthHeading";
 import { PasswordInput } from "@/features/auth/components/PasswordInput";
 import { PasswordRules } from "@/features/auth/components/PasswordRules";
 import { newPasswordSchema, type NewPasswordValues } from "@/features/auth/schemas";
-import { getErrorMessage } from "@/lib/api-client";
 
 type NewPasswordFormProps =
   /** From the emailed reset link: afterwards, sign in with the new password. */
@@ -49,17 +48,14 @@ export function NewPasswordForm(props: NewPasswordFormProps) {
   const copy = COPY[props.mode];
 
   async function onSubmit({ password: chosen }: NewPasswordValues) {
-    try {
-      await setPassword({
-        password: chosen,
-        resetToken: props.mode === "reset" ? props.resetToken : undefined,
-      });
-      if (props.mode === "first_login") {
-        toast.success("Password saved");
-        router.push("/");
-      }
-    } catch (error) {
-      form.setError("root", { message: getErrorMessage(error) });
+    const result = await setPasswordAction({
+      password: chosen,
+      resetToken: props.mode === "reset" ? props.resetToken : undefined,
+    });
+    if (!result.ok) return form.setError("root", { message: result.message });
+    if (props.mode === "first_login") {
+      toast.success("Password saved");
+      router.push("/");
     }
   }
 

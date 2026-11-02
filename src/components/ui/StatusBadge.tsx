@@ -41,6 +41,7 @@ const STATUSES = {
   packed: { label: "Packed", tone: "info" },
   shipped: { label: "Shipped", tone: "info" },
   out_for_delivery: { label: "Out for delivery", tone: "info" },
+  out_for_pickup: { label: "Out for pick-up", tone: "info" },
   delivered: { label: "Delivered", tone: "success" },
   cancelled: { label: "Cancelled", tone: "neutral" },
   // Payments and invoices
@@ -72,6 +73,7 @@ const STATUSES = {
   // Garage bookings and job cards ("confirmed", "approved", "ready" and "paid" are shared above)
   new: { label: "New", tone: "warning" },
   declined: { label: "Declined", tone: "neutral" },
+  missed: { label: "Missed", tone: "danger" },
   booked: { label: "Booked", tone: "neutral" },
   vehicle_received: { label: "Received", tone: "info" },
   job_card_created: { label: "Job card open", tone: "info" },

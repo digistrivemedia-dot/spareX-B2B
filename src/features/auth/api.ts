@@ -8,7 +8,7 @@ import type {
   TwoFactorRequest,
   TwoFactorResult,
 } from "@/features/auth/types";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, apiClientOrNull } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import {
   getApplicationMock,
@@ -57,7 +57,7 @@ export async function registerBusiness(
 /** An application by its reference number, or null if there is none. */
 export async function getApplication(ref: string): Promise<ApplicationStatus | null> {
   if (dataSource.auth === "mock") return getApplicationMock(ref);
-  return apiClient<ApplicationStatus | null>(`/registrations/${ref}`);
+  return apiClientOrNull<ApplicationStatus>(`/registrations/${ref}`);
 }
 
 /** Sends a sent-back application in again with the corrections. */

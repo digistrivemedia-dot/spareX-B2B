@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { NumberPlate } from "@/components/ui/NumberPlate";
-import { StatusBadge, type Status } from "@/components/ui/StatusBadge";
 import type { LucideIcon } from "lucide-react";
 
 export type TodayItem = {
@@ -13,7 +12,8 @@ export type TodayItem = {
   lead: string;
   title: string;
   plate: string;
-  status: Status;
+  /** The booking status or job stage, as a badge. */
+  badge: ReactNode;
   /** What to do next, when there is something. */
   action?: string;
 };
@@ -47,11 +47,11 @@ export function TodayList({ items, empty, footer }: TodayListProps) {
                 {item.lead}
               </span>
               <span className="flex min-w-0 flex-1 flex-col items-start gap-1">
-                <span className="truncate text-gray-900">{item.title}</span>
+                <span className="max-w-full truncate text-gray-900">{item.title}</span>
                 <NumberPlate plate={item.plate} />
               </span>
               <span className="flex flex-col items-end gap-1">
-                <StatusBadge status={item.status} />
+                {item.badge}
                 {item.action && (
                   <span className="text-xs font-medium text-navy-700">{item.action} →</span>
                 )}

@@ -5,16 +5,25 @@ import { NumberPlate } from "@/components/ui/NumberPlate";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import type { JobCard } from "@/features/job-cards/types";
+import type { InspectionItem, JobCard } from "@/features/job-cards/types";
 import { FUEL_LEVEL_LABELS, INSPECTION_RESULT_LABELS } from "@/features/job-cards/utils";
 import { formatDateTime, formatNumber, formatPhone } from "@/lib/format";
+
+/** A job card section, ticked once its stage is finished. */
+export type SectionProps = { job: JobCard; isDone: boolean };
 
 /** Shown in a section the job hasn't reached yet. */
 export function NotYet({ children }: { children: string }) {
   return <p className="text-sm text-gray-500">{children}</p>;
 }
 
-export function VehicleCustomerSection({ job }: { job: JobCard }) {
+type VehicleCustomerSectionProps = {
+  job: JobCard;
+  /** The customer page is only for roles that may see customers. */
+  canViewCustomer: boolean;
+};
+
+export function VehicleCustomerSection({ job, canViewCustomer }: VehicleCustomerSectionProps) {
   return (
     <SectionCard title="Vehicle and customer">
       <div className="grid gap-4 sm:grid-cols-2">
@@ -31,12 +40,14 @@ export function VehicleCustomerSection({ job }: { job: JobCard }) {
             <span className="flex flex-col">
               {job.customer.name}
               <span className="text-gray-500">{formatPhone(job.customer.phone)}</span>
-              <Link
-                href={`/garage/customers/${job.customer.id}`}
-                className="font-medium text-navy-700 hover:underline"
-              >
-                Service history
-              </Link>
+              {canViewCustomer && (
+                <Link
+                  href={`/garage/customers/${job.customer.id}`}
+                  className="font-medium text-navy-700 hover:underline"
+                >
+                  Service history
+                </Link>
+              )}
             </span>
           </DetailItem>
         </DetailList>
@@ -53,10 +64,10 @@ export function VehicleCustomerSection({ job }: { job: JobCard }) {
   );
 }
 
-export function CheckInSection({ job }: { job: JobCard }) {
+export function CheckInSection({ job, isDone }: SectionProps) {
   const { checkIn } = job;
   return (
-    <SectionCard title="Check-in">
+    <SectionCard title="Check-in" isDone={isDone}>
       {checkIn ? (
         <div className="flex flex-col gap-4">
           <DetailList>
@@ -90,30 +101,52 @@ export function CheckInSection({ job }: { job: JobCard }) {
 
 const RESULT_STATUS = { ok: "in_stock", attention: "low_stock", replace: "out_of_stock" } as const;
 
-export function InspectionSection({ job }: { job: JobCard }) {
-  const { inspection } = job;
+function InspectionItems({ items }: { items: InspectionItem[] }) {
   return (
-    <SectionCard title="Inspection">
+    <ul className="flex flex-col divide-y divide-gray-100 text-sm">
+      {items.map((item) => (
+        <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+          <span className="flex flex-col">
+            <span className="text-gray-900">{item.name}</span>
+            <span className="text-xs text-gray-500">
+              {item.area}
+              {item.note && ` · ${item.note}`}
+            </span>
+          </span>
+          <StatusBadge status={RESULT_STATUS[item.result]}>
+            {INSPECTION_RESULT_LABELS[item.result]}
+          </StatusBadge>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** What needs work comes first; the items that were fine fold away. */
+export function InspectionSection({ job, isDone }: SectionProps) {
+  const { inspection } = job;
+  const flagged = inspection?.items.filter((item) => item.result !== "ok") ?? [];
+  const ok = inspection?.items.filter((item) => item.result === "ok") ?? [];
+  return (
+    <SectionCard title="Inspection" isDone={isDone}>
       {inspection ? (
-        <ul className="flex flex-col divide-y divide-gray-100 text-sm">
-          {inspection.items.map((item) => (
-            <li
-              key={item.id}
-              className="flex flex-wrap items-center justify-between gap-2 py-2 first:pt-0"
-            >
-              <span className="flex flex-col">
-                <span className="text-gray-900">{item.name}</span>
-                <span className="text-xs text-gray-500">
-                  {item.area}
-                  {item.note && ` · ${item.note}`}
-                </span>
-              </span>
-              <StatusBadge status={RESULT_STATUS[item.result]}>
-                {INSPECTION_RESULT_LABELS[item.result]}
-              </StatusBadge>
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-col gap-3">
+          <p className="text-sm text-gray-700">
+            {formatDateTime(inspection.at)} by {inspection.by.name} ·{" "}
+            {flagged.length
+              ? `${flagged.length} of ${inspection.items.length} items need work`
+              : `All ${inspection.items.length} items OK`}
+          </p>
+          {flagged.length > 0 && <InspectionItems items={flagged} />}
+          {ok.length > 0 && (
+            <details className="text-sm">
+              <summary className="cursor-pointer py-1 font-medium text-navy-700 hover:underline">
+                {ok.length} items OK
+              </summary>
+              <InspectionItems items={ok} />
+            </details>
+          )}
+        </div>
       ) : (
         <NotYet>Not inspected yet.</NotYet>
       )}

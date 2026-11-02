@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { requirePermission } from "@/features/auth/session";
 import { getCatalog, getCatalogFilterOptions, getProduct } from "@/features/catalog/api";
 import { CatalogFilters } from "@/features/catalog/components/CatalogFilters";
 import { CatalogResults } from "@/features/catalog/components/CatalogResults";
@@ -16,6 +17,7 @@ type CatalogPageProps = {
 };
 
 export default async function CatalogPage({ searchParams }: CatalogPageProps) {
+  await requirePermission("catalog:view");
   const { filters, view, productId } = parseCatalogParams(await searchParams);
   const [catalog, options, linkedProduct] = await Promise.all([
     getCatalog(filters),

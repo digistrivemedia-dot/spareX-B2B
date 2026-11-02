@@ -78,7 +78,7 @@ export async function recordApprovalMock(
   const wasStarted = job.timeline.some((event) => event.status === "in_progress");
   const anyApproved = job.estimate.lines.some((line) => line.approval === "approved");
   if (!anyApproved) {
-    advanceJob(job, ["awaiting_approval"], "closed", "Customer turned down the estimate");
+    advanceJob(job, ["awaiting_approval"], "closed", "Customer rejected the estimate");
   } else {
     advanceJob(job, ["awaiting_approval"], wasStarted ? "in_progress" : "approved");
   }

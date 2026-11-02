@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { requirePermission } from "@/features/auth/session";
 import { getQuotation } from "@/features/quotations/api";
 import { QuotationDetail } from "@/features/quotations/components/QuotationDetail";
 import { formatDate } from "@/lib/format";
@@ -16,6 +17,7 @@ export async function generateMetadata({ params }: QuotationPageProps): Promise<
 }
 
 export default async function QuotationPage({ params }: QuotationPageProps) {
+  await requirePermission("quotations:view");
   const { id } = await params;
   const quotation = await getQuotation(id);
   if (!quotation) notFound();

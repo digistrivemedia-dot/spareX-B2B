@@ -21,6 +21,7 @@ type AccountMenuProps = {
   email: string;
   businessName: string;
   roleLabel: string;
+  canViewCompany: boolean;
 };
 
 function getInitials(name: string) {
@@ -32,7 +33,13 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-export function AccountMenu({ userName, email, businessName, roleLabel }: AccountMenuProps) {
+export function AccountMenu({
+  userName,
+  email,
+  businessName,
+  roleLabel,
+  canViewCompany,
+}: AccountMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -56,12 +63,14 @@ export function AccountMenu({ userName, email, businessName, roleLabel }: Accoun
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            <Link href="/company">
-              <Building2 aria-hidden />
-              Company profile
-            </Link>
-          </DropdownMenuItem>
+          {canViewCompany && (
+            <DropdownMenuItem asChild>
+              <Link href="/company">
+                <Building2 aria-hidden />
+                Company profile
+              </Link>
+            </DropdownMenuItem>
+          )}
           <form action={signOutAction}>
             <DropdownMenuItem asChild>
               <button type="submit" className="w-full">

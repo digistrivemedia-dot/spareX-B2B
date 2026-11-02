@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { DetailItem, DetailList } from "@/components/ui/DetailList";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SectionCard } from "@/components/ui/SectionCard";
+import { scopeToBranch } from "@/features/auth/permissions";
 import { requirePermission } from "@/features/auth/session";
 import { getCustomer } from "@/features/customers/api";
 import { VehicleHistoryCard } from "@/features/customers/components/VehicleHistoryCard";
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: CustomerPageProps): Promise<M
 }
 
 export default async function CustomerPage({ params }: CustomerPageProps) {
-  await requirePermission("customers:view", ["garage"]);
+  const session = await requirePermission("customers:view", ["garage"]);
   const customer = await getCustomer((await params).id);
   if (!customer) notFound();
 
@@ -46,7 +47,11 @@ export default async function CustomerPage({ params }: CustomerPageProps) {
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           {customer.vehicles.length ? (
             customer.vehicles.map((vehicle) => (
-              <VehicleHistoryCard key={vehicle.id} vehicle={vehicle} />
+              <VehicleHistoryCard
+                key={vehicle.id}
+                vehicle={vehicle}
+                branchId={scopeToBranch(session)}
+              />
             ))
           ) : (
             <div className="rounded-xl border border-gray-200 bg-white shadow-sm">

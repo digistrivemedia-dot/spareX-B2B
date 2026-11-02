@@ -1,3 +1,5 @@
+import { daysFromToday } from "@/lib/dates";
+
 const LOCALE = "en-IN";
 const TIME_ZONE = "Asia/Kolkata";
 
@@ -88,4 +90,15 @@ export function formatRelativeTime(iso: string): string {
 /** 12, "bottle" → "12 bottles"; 1, "invoice" → "1 invoice" */
 export function formatCount(count: number, noun: string): string {
   return `${formatNumber(count)} ${count === 1 ? noun : `${noun}s`}`;
+}
+
+/** "Today", "Tomorrow", "Yesterday", or "12 Oct 2026" (India time). */
+export function formatDayLabel(iso: string): string {
+  const labels: Record<number, string> = { 0: "Today", 1: "Tomorrow", [-1]: "Yesterday" };
+  return labels[daysFromToday(iso)] ?? formatDate(iso);
+}
+
+/** "Today, 4:00 pm", "Tomorrow, 10:00 am" or "12 Oct 2026, 3:45 pm". */
+export function formatWhen(iso: string): string {
+  return `${formatDayLabel(iso)}, ${formatTimeOfDay(iso)}`;
 }

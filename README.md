@@ -5,6 +5,16 @@ dealers, retailers) buy parts at business prices, and garages run their workshop
 cards, estimates, technicians, billing and customers. `CLAUDE.md` is the full product and
 engineering brief; `DECISIONS.md` lists the open questions.
 
+## Project docs
+
+| Doc                                                                                    | For                                                   |
+| -------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| [1. Project status](docs/01-project-status.md)                                         | What is built: screens, flows, numbers                |
+| [2. Pending work and gaps](docs/02-pending-work-and-gaps.md)                           | Everything not finished, by priority                  |
+| [3. Backend integration](docs/03-backend-integration.md)                               | The API contract and how to switch each feature to it |
+| [4. Launch checklist](docs/04-launch-checklist.md)                                     | What must be true before go-live                      |
+| [5. Developer guide and open questions](docs/05-developer-guide-and-open-questions.md) | Working on the code; questions for the client         |
+
 ## Getting started
 
 ```bash
@@ -56,7 +66,7 @@ src/mocks            Demo data and mock handlers (deleted once the backend is li
 
 Screens call `features/<name>/api.ts` and never import from `src/mocks/`. Each feature has a
 switch in `src/lib/config.ts`; set it to `"api"` and that feature reads from the backend via
-`lib/api-client.ts` (base URL from `NEXT_PUBLIC_API_BASE_URL`). Money is integer paise, dates are
+`lib/api-client.ts` (base URL from the server-only `API_BASE_URL`). Money is integer paise, dates are
 ISO strings, and lists are `Paginated<T>`.
 
 Navigation is config-driven (`src/lib/navigation.ts`): a new module is one entry, optionally

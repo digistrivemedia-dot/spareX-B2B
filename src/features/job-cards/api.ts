@@ -12,7 +12,7 @@ import type {
   JobCardSummary,
   WalkInRequest,
 } from "@/features/job-cards/types";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, apiClientOrNull } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
 import { checkInMock, createWalkInMock, getJobCardMock, getJobCardsMock } from "@/mocks/job-cards";
@@ -30,6 +30,7 @@ import {
   setLineDoneMock,
 } from "@/mocks/job-card-work";
 import { collectPaymentMock, createInvoiceMock, handoverMock } from "@/mocks/job-card-billing";
+import { assignDriverMock, getBranchStaffMock } from "@/mocks/job-card-trips";
 
 export async function getJobCards(
   filters: JobCardFilters = {},
@@ -44,7 +45,7 @@ export async function getJobCards(
 /** One job card with everything done on it so far, or null if there is none. */
 export async function getJobCard(id: string): Promise<JobCard | null> {
   if (dataSource.jobCards === "mock") return getJobCardMock(id);
-  return apiClient<JobCard | null>(`/garage/jobs/${id}`);
+  return apiClientOrNull<JobCard>(`/garage/jobs/${id}`);
 }
 
 /** Opens a job for a vehicle that arrived without a booking. */
@@ -88,6 +89,28 @@ export async function recordApproval(id: string, request: ApprovalRequest): Prom
 }
 
 export type TechnicianLoad = { id: string; name: string; activeJobs: number };
+
+/** A staff member who can drive, with how many trips they are on now. */
+export type DriverLoad = { id: string; name: string; activeTrips: number };
+
+/** Everyone active at the branch: any staff member can do a pick-up or drop. */
+export async function getBranchStaff(branchId: string): Promise<DriverLoad[]> {
+  if (dataSource.jobCards === "mock") return getBranchStaffMock(branchId);
+  return apiClient<DriverLoad[]>("/garage/staff", { query: { branchId } });
+}
+
+/** Sends a driver on the pick-up or the drop. */
+export async function assignDriver(
+  id: string,
+  trip: "pickup" | "drop",
+  driverId: string,
+): Promise<JobCard> {
+  if (dataSource.jobCards === "mock") return assignDriverMock(id, trip, driverId);
+  return apiClient<JobCard>(`/garage/jobs/${id}/trips/${trip}`, {
+    method: "PUT",
+    body: { driverId },
+  });
+}
 
 /** The branch's technicians and how many jobs each has on now. */
 export async function getTechnicianLoad(branchId: string): Promise<TechnicianLoad[]> {

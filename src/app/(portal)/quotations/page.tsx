@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
+import { requirePermission } from "@/features/auth/session";
 import { getQuotations } from "@/features/quotations/api";
 import { QuotationStatusTabs } from "@/features/quotations/components/QuotationStatusTabs";
 import { QuotationsTable } from "@/features/quotations/components/QuotationsTable";
@@ -21,6 +22,7 @@ type QuotationsPageProps = {
 };
 
 export default async function QuotationsPage({ searchParams }: QuotationsPageProps) {
+  await requirePermission("quotations:view");
   const params = await searchParams;
   const pick = <T extends string>(value: unknown, allowed: T[]) =>
     allowed.find((option) => option === value);

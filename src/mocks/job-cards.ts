@@ -15,6 +15,11 @@ import { customers, vehicles } from "@/mocks/customers";
 import { jobFromSeed, STAFF, type JobSeed } from "@/mocks/job-card-seeds";
 import { findById, paginate, simulateLatency, sortItems } from "@/mocks/utils";
 
+// What the demo bookings asked for, at the garage's price.
+const BOOKED_GENERAL = [
+  { serviceId: "svc-general", name: "General service (up to 150 cc)", priceInPaise: 89900 },
+];
+
 const GENERAL_SERVICE: JobSeed["lines"] = [
   ["service", "General service (up to 150 cc)", 1, 899],
   ["part", "Castrol Activ 4T 20W-40, 1 L", 1, 345, "CAS-3421188"],
@@ -25,6 +30,12 @@ const seeds: JobSeed[] = [
   {
     id: "job-0151",
     number: "JC-2610-0151",
+    pickupDrop: {
+      pickupAddress: "Flat 304, Prestige Shantiniketan, Whitefield, Bengaluru 560048",
+      dropAddress: "Flat 304, Prestige Shantiniketan, Whitefield, Bengaluru 560048",
+      feeInPaise: 19900,
+    },
+    booking: { id: "bk-0229", number: "BK-2610-0229", services: BOOKED_GENERAL },
     branch: "whitefield",
     source: "booking",
     vehicleId: "veh-kavya-access",
@@ -51,6 +62,7 @@ const seeds: JobSeed[] = [
   {
     id: "job-0149",
     number: "JC-2610-0149",
+    booking: { id: "bk-0227", number: "BK-2610-0227", services: BOOKED_GENERAL },
     branch: "hsr",
     source: "booking",
     vehicleId: "veh-ananya-dio",
@@ -98,6 +110,7 @@ const seeds: JobSeed[] = [
   {
     id: "job-0146",
     number: "JC-2610-0146",
+    booking: { id: "bk-0226", number: "BK-2610-0226", services: BOOKED_GENERAL },
     branch: "whitefield",
     source: "booking",
     vehicleId: "veh-arjun-activa",
@@ -111,6 +124,7 @@ const seeds: JobSeed[] = [
   },
   {
     id: "job-0145",
+    isLate: true,
     number: "JC-2610-0145",
     branch: "whitefield",
     source: "walk_in",
@@ -202,7 +216,13 @@ const seeds: JobSeed[] = [
     id: "job-0140",
     number: "JC-2610-0140",
     branch: "whitefield",
-    source: "walk_in",
+    source: "booking",
+    pickupDrop: {
+      pickupAddress: "12, 3rd Cross, ITPL Main Road, Brookefield, Bengaluru 560066",
+      dropAddress: "Sneha's office: Tower B, RMZ Ecoworld, Bellandur, Bengaluru 560103",
+      feeInPaise: 19900,
+      pickedUpBy: STAFF.imran,
+    },
     vehicleId: "veh-sneha-activa",
     status: "payment_pending",
     day: -1,
@@ -427,15 +447,40 @@ export function toJobSummary(job: JobCard): JobCardSummary {
     promisedAt,
     technician,
     amountInPaise: amountOf(job),
+    tasks: tasksOf(job),
+    pickupDrop: job.pickupDrop,
   };
 }
 
+function tasksOf(job: JobCard): JobCardSummary["tasks"] {
+  const approved = (job.estimate?.lines ?? []).filter((line) => line.approval === "approved");
+  if (!approved.length) return undefined;
+  return { done: approved.filter((line) => line.isDone).length, total: approved.length };
+}
+
+/** When a job is due: promised back to the customer, or due in for a booking. */
+const dueAt = (job: JobCard) => job.promisedAt ?? job.scheduledAt ?? job.createdAt;
+
 const normalise = (text: string) => text.toUpperCase().replace(/[^A-Z0-9]/g, "");
 
-export function filterJobs({ statuses, branchId, technicianId, q }: JobCardFilters): JobCard[] {
+/** The person driving the job's current trip, if it's on the road. */
+function currentDriver(job: JobCard) {
+  if (job.status === "out_for_pickup") return job.pickupDrop?.pickup?.driver;
+  if (job.status === "out_for_delivery") return job.pickupDrop?.drop?.driver;
+  return undefined;
+}
+
+export function filterJobs({
+  statuses,
+  branchId,
+  technicianId,
+  driverId,
+  q,
+}: JobCardFilters): JobCard[] {
   return jobCards.filter(
     (job) =>
       (!statuses?.length || statuses.includes(job.status)) &&
+      (!driverId || currentDriver(job)?.id === driverId) &&
       (!branchId || job.branch.id === branchId) &&
       (!technicianId || job.technician?.id === technicianId) &&
       (!q ||
@@ -448,7 +493,12 @@ export function filterJobs({ statuses, branchId, technicianId, q }: JobCardFilte
 export async function getJobCardsMock(filters: JobCardFilters): Promise<Paginated<JobCardSummary>> {
   await simulateLatency();
   const { sort = "createdAt", order = "desc", page, pageSize } = filters;
-  return paginate(sortItems(filterJobs(filters), sort, order).map(toJobSummary), page, pageSize);
+  const jobs = filterJobs(filters);
+  const sorted =
+    sort === "dueAt"
+      ? [...jobs].sort((a, b) => dueAt(a).localeCompare(dueAt(b)) * (order === "asc" ? 1 : -1))
+      : sortItems(jobs, sort, order);
+  return paginate(sorted.map(toJobSummary), page, pageSize);
 }
 
 export async function getJobCardMock(id: string): Promise<JobCard | null> {
@@ -550,6 +600,10 @@ export async function checkInMock(id: string, request: CheckInRequest): Promise<
   const job = requireJob(id);
   const now = new Date().toISOString();
   if (job.status === "confirmed") advanceJob(job, ["confirmed"], "vehicle_received");
+  if (job.status === "out_for_pickup" && job.pickupDrop?.pickup) {
+    advanceJob(job, ["out_for_pickup"], "vehicle_received", `Picked up by ${by.name}`);
+    job.pickupDrop.pickup.doneAt = now;
+  }
   advanceJob(job, ["vehicle_received"], "job_card_created");
   job.checkIn = { ...request, at: now, by };
   job.complaints = request.complaints;

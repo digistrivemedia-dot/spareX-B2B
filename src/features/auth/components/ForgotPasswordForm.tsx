@@ -11,11 +11,10 @@ import { FieldGroup } from "@/components/ui/field";
 import { FormAlert } from "@/components/ui/FormAlert";
 import { FormTextField } from "@/components/ui/FormTextField";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { requestPasswordReset } from "@/features/auth/api";
+import { requestPasswordResetAction } from "@/features/auth/actions";
 import { AuthHeading } from "@/features/auth/components/AuthHeading";
 import { DemoHint } from "@/features/auth/components/DemoHint";
 import { forgotPasswordSchema, type ForgotPasswordValues } from "@/features/auth/schemas";
-import { getErrorMessage } from "@/lib/api-client";
 
 export function ForgotPasswordForm() {
   const form = useForm<ForgotPasswordValues>({
@@ -25,11 +24,8 @@ export function ForgotPasswordForm() {
   const { isSubmitting, isSubmitSuccessful, errors } = form.formState;
 
   async function onSubmit({ email }: ForgotPasswordValues) {
-    try {
-      await requestPasswordReset(email);
-    } catch (error) {
-      form.setError("root", { message: getErrorMessage(error) });
-    }
+    const result = await requestPasswordResetAction(email);
+    if (!result.ok) form.setError("root", { message: result.message });
   }
 
   const backToSignIn = (

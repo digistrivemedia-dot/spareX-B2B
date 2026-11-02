@@ -7,8 +7,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/features/cart/store";
-import { getOrder } from "@/features/orders/api";
-import { getErrorMessage } from "@/lib/api-client";
+import { getReorderItemsAction } from "@/features/orders/actions";
 import { formatCount } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -30,21 +29,13 @@ export function ReorderButton({
 
   async function handleReorder() {
     setIsPending(true);
-    try {
-      const order = await getOrder(orderId);
-      if (!order) throw new Error("Order not found");
-      for (const line of order.items) addItem(line.productId, line.quantity);
-      toast.success(
-        `${formatCount(order.items.length, "item")} from ${orderNumber} added to cart`,
-        {
-          action: { label: "View cart", onClick: () => router.push("/cart") },
-        },
-      );
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setIsPending(false);
-    }
+    const result = await getReorderItemsAction(orderId);
+    setIsPending(false);
+    if (!result.ok) return toast.error(result.message);
+    for (const line of result.data) addItem(line.productId, line.quantity);
+    toast.success(`${formatCount(result.data.length, "item")} from ${orderNumber} added to cart`, {
+      action: { label: "View cart", onClick: () => router.push("/cart") },
+    });
   }
 
   return (

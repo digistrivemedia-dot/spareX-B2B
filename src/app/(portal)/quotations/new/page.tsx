@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { requirePermission } from "@/features/auth/session";
 import { getProductsById } from "@/features/catalog/api";
 import { RequestQuotationForm } from "@/features/quotations/components/RequestQuotationForm";
 
@@ -14,6 +15,7 @@ type RequestQuotationPageProps = {
 };
 
 export default async function RequestQuotationPage({ searchParams }: RequestQuotationPageProps) {
+  await requirePermission("quotations:respond");
   const { items } = await searchParams;
   const requested = (typeof items === "string" ? items.split(",") : [])
     .map((item) => item.split(":"))

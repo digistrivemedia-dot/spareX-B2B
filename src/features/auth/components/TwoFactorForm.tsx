@@ -11,12 +11,10 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { FormAlert } from "@/components/ui/FormAlert";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { SubmitButton } from "@/components/ui/SubmitButton";
-import { verifyTwoFactorAction } from "@/features/auth/actions";
-import { resendTwoFactorCode } from "@/features/auth/api";
+import { resendTwoFactorCodeAction, verifyTwoFactorAction } from "@/features/auth/actions";
 import { AuthHeading } from "@/features/auth/components/AuthHeading";
 import { DemoHint } from "@/features/auth/components/DemoHint";
 import { twoFactorSchema, type TwoFactorValues } from "@/features/auth/schemas";
-import { getErrorMessage } from "@/lib/api-client";
 
 const CODE_LENGTH = 6;
 
@@ -42,12 +40,9 @@ export function TwoFactorForm({ challengeId, maskedPhone, onBack }: TwoFactorFor
   }
 
   async function handleResend() {
-    try {
-      await resendTwoFactorCode(challengeId);
-      toast.success(`We've sent a new code to ${maskedPhone}`);
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    }
+    const result = await resendTwoFactorCodeAction(challengeId);
+    if (result.ok) toast.success(`We've sent a new code to ${maskedPhone}`);
+    else toast.error(result.message);
   }
 
   return (

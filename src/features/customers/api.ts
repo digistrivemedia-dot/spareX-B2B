@@ -6,7 +6,7 @@ import type {
   CustomerVehicle,
   NewCustomerRequest,
 } from "@/features/customers/types";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, apiClientOrNull } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
 import { addCustomerMock, getCustomerMock, getCustomersMock } from "@/mocks/customer-handlers";
@@ -31,7 +31,7 @@ export async function getCustomers(
 /** A customer with every vehicle's service history, or null if there is none. */
 export async function getCustomer(id: string): Promise<CustomerDetail | null> {
   if (dataSource.customers === "mock") return getCustomerMock(id);
-  return apiClient<CustomerDetail | null>(`/garage/customers/${id}`);
+  return apiClientOrNull<CustomerDetail>(`/garage/customers/${id}`);
 }
 
 export async function addCustomer(request: NewCustomerRequest): Promise<{ id: string }> {

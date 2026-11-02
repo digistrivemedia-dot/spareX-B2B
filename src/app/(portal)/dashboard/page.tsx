@@ -4,7 +4,8 @@ import Link from "next/link";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
-import { requireSession } from "@/features/auth/session";
+import { can } from "@/features/auth/permissions";
+import { requirePermission } from "@/features/auth/session";
 import { getFrequentlyOrdered } from "@/features/catalog/api";
 import { FrequentlyOrdered } from "@/features/catalog/components/FrequentlyOrdered";
 import { getCreditSummary } from "@/features/credit/api";
@@ -23,10 +24,11 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const session = await requireSession();
+  const session = await requirePermission("catalog:view");
   const [credit, awaiting, openOrders, recentOrders, offers, frequent] = await Promise.all([
-    // Credit cards and alerts appear only for businesses Kannali has enabled credit for.
-    session.business.creditEnabled ? getCreditSummary() : null,
+    // Credit cards and alerts appear only for businesses Kannali has enabled credit for, and
+    // only to the roles that can open the credit page they link to.
+    session.business.creditEnabled && can(session.roles, "credit:view") ? getCreditSummary() : null,
     getQuotations({ status: "quoted", sort: "validUntil", order: "asc", pageSize: 1 }),
     getOrders({ statuses: OPEN_ORDER_STATUSES, pageSize: 1 }),
     getOrders({ sort: "placedAt", order: "desc", pageSize: 5 }),

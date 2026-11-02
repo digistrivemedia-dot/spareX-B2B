@@ -51,18 +51,42 @@ export async function collectPaymentMock(
   return job;
 }
 
-/** Handing the vehicle back closes the job. */
+/**
+ * Handing the vehicle back closes the job, at the garage or, for pick-up & drop, at the
+ * customer's door, where the driver collects the bill in cash if it wasn't paid online.
+ */
 export async function handoverMock(id: string, request: HandoverRequest): Promise<JobCard> {
   await simulateLatency(700);
   const job = requireJob(id);
+  const { nextService, cashAtDoorInPaise = 0, ...handover } = request;
   if (request.checklist.some((item) => !item.isDone)) {
     throw new ApiError(422, { message: "Tick every handover step first." });
   }
   if (job.checkIn && request.odometerKm < job.checkIn.odometerKm) {
     throw new ApiError(422, { message: "The odometer can't be lower than at check-in." });
   }
-  advanceJob(job, ["paid"], "completed");
-  const { nextService, ...handover } = request;
+  if (job.status === "out_for_delivery" && !job.payment) {
+    const dueInPaise = job.invoice?.totalInPaise ?? 0;
+    if (cashAtDoorInPaise < dueInPaise) {
+      throw new ApiError(422, {
+        message: "Collect the full bill at the door before handing over.",
+      });
+    }
+    job.payment = {
+      method: "cash",
+      amountInPaise: dueInPaise,
+      receivedAt: new Date().toISOString(),
+      receivedBy: await currentStaffMock(),
+      cashReceivedInPaise: cashAtDoorInPaise,
+    };
+  }
+  advanceJob(
+    job,
+    ["paid", "out_for_delivery"],
+    "completed",
+    job.pickupDrop ? "Delivered" : undefined,
+  );
+  if (job.pickupDrop?.drop) job.pickupDrop.drop.doneAt = new Date().toISOString();
   job.handover = { ...handover, at: new Date().toISOString(), by: await currentStaffMock() };
   job.nextService = nextService;
   return job;

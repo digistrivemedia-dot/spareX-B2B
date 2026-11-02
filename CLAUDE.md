@@ -445,7 +445,6 @@ All garage lists are scoped to the selected branch; staff see only their own bra
 | QA owner: Service Advisor or Billing/QA Executive | B42 |
 | Branches / addresses for non-garage businesses | B24 |
 | Keep or remove Fleet | B51 |
-| Pickup and drop, doorstep service | B28, B31 |
 
 ---
 

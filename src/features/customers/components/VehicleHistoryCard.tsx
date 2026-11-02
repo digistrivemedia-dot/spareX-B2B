@@ -6,8 +6,14 @@ import { VEHICLE_TYPE_LABELS } from "@/features/catalog/utils";
 import type { VehicleHistory } from "@/features/customers/types";
 import { formatDate, formatNumber, formatPrice } from "@/lib/format";
 
+type VehicleHistoryCardProps = {
+  vehicle: VehicleHistory;
+  /** Staff open only their own branch's job cards; undefined means every branch. */
+  branchId?: string;
+};
+
 /** One vehicle's visits, newest first. Other garages' visits come without prices. */
-export function VehicleHistoryCard({ vehicle }: { vehicle: VehicleHistory }) {
+export function VehicleHistoryCard({ vehicle, branchId }: VehicleHistoryCardProps) {
   return (
     <SectionCard
       title={`${vehicle.make} ${vehicle.model}`}
@@ -41,12 +47,14 @@ export function VehicleHistoryCard({ vehicle }: { vehicle: VehicleHistory }) {
                         ? "No charge"
                         : formatPrice(visit.totalInPaise)}
                     </span>
-                    <Link
-                      href={`/garage/jobs/${visit.jobId}`}
-                      className="text-xs font-medium text-navy-700 hover:underline"
-                    >
-                      Job card
-                    </Link>
+                    {(!branchId || visit.branchId === branchId) && (
+                      <Link
+                        href={`/garage/jobs/${visit.jobId}`}
+                        className="text-xs font-medium text-navy-700 hover:underline"
+                      >
+                        Job card
+                      </Link>
+                    )}
                   </>
                 ) : (
                   <span className="text-xs text-gray-500">Another garage · price not shared</span>

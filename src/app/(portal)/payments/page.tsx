@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { FilterSelect } from "@/components/ui/FilterSelect";
+import { requirePermission } from "@/features/auth/session";
 import type { PaymentMethod } from "@/features/orders/types";
 import { PAYMENT_METHOD_LABELS } from "@/features/orders/utils";
 import { getPayments } from "@/features/payments/api";
@@ -22,6 +23,7 @@ type PaymentsPageProps = {
 };
 
 export default async function PaymentsPage({ searchParams }: PaymentsPageProps) {
+  await requirePermission("payments:view");
   const params = await searchParams;
   const payments = await getPayments({
     status: pickParam(params, "status", STATUSES),

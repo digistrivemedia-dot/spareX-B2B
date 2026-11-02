@@ -1,11 +1,14 @@
 import type { Paginated, SortOrder } from "@/lib/types";
 
+const INDIA_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
 /**
  * Demo dates are relative to today so "9 days overdue" or "valid 5 more days" stays true
  * whenever the demo runs. Returns an ISO string at the given hour, India time.
  */
 export function daysFromToday(days: number, hour = 11, minute = 0): string {
-  const date = new Date();
+  // Start from India's calendar day, which is ahead of UTC's until 5.30 am.
+  const date = new Date(Date.now() + INDIA_OFFSET_MS);
   date.setUTCDate(date.getUTCDate() + days);
   // India is UTC+05:30.
   date.setUTCHours(hour - 5, minute - 30, 0, 0);

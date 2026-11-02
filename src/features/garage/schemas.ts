@@ -52,6 +52,11 @@ export const garageProfileSchema = z.object({
       }),
   ),
   dailyBookingLimit: wholeNumber("Enter a number from 1 to 200", 200),
+  pickupDrop: z.object({
+    isOffered: z.boolean(),
+    fee: rupees,
+    radiusKm: wholeNumber("Enter a distance from 1 to 50 km", 50),
+  }),
   holidays: z.array(
     z.object({
       date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a date"),

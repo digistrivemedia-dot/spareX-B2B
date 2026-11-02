@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { requirePermission } from "@/features/auth/session";
 import { getBranches } from "@/features/company/api";
 import { getOrder } from "@/features/orders/api";
 import { OrderDetail } from "@/features/orders/components/OrderDetail";
@@ -18,6 +19,7 @@ export async function generateMetadata({ params }: OrderPageProps): Promise<Meta
 }
 
 export default async function OrderPage({ params }: OrderPageProps) {
+  await requirePermission("orders:view");
   const { id } = await params;
   const [order, branches, returns] = await Promise.all([
     getOrder(id),

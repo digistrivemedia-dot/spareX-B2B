@@ -500,3 +500,94 @@ and each review, filtered by stars and branch. Replying to reviews isn't built. 
 cover the last 30 days by default: jobs completed, revenue (payments received), average job
 value, open jobs by status, technician workload and the top services. Six recently completed
 jobs were added to the demo so the reports have data.
+
+### 79. 🔵 Job card shows a tick for every finished stage
+
+After the client demo: the job card opens with nine stages (check-in, inspection, estimate,
+approval, service, quality check, invoice, payment, handover), each ticked once finished, and every
+section carries a "Done" tick. Stages are read from the job's own records, not only its status,
+so extra work and QA rework show correctly. The inspection lists what needs work first and folds
+the OK items away.
+
+### 80. 🔵 Booked services start the estimate
+
+The services a customer booked, at the garage's prices, are the first lines of the estimate.
+Inspection items marked "Replace" start as a part line named after the item, ready to search.
+
+### 81. 🔵 Delivery for the Manager / Service Advisor
+
+The brief gives the Manager "delivery", so Managers and the Billing, QA & Delivery Executive can
+both hand a vehicle over. Only billing (invoice and payment) stays with Billing and the Owner.
+
+### 82. 🔵 Each role only sees actions it can take
+
+The garage dashboard lists only the jobs whose next step the signed-in person can take, and hides
+bookings and "New walk-in" from roles that don't handle them. Customer history links only to job
+cards of the person's own branch. Nobody is shown a link that leads to "page not found".
+
+### 83. 🔵 Every page and action checks the role
+
+Pages now check the same permission as their menu item (for example `/credit` needs `credit:view`,
+`/orders` needs `orders:view`), so typing an address doesn't open a page the role can't use. Every
+Server Action checks the caller's role too, and job actions check the branch. Registration, sign-in,
+password reset and the PIN code lookup stay open, since they're used before sign-in.
+
+### 84. ⚪ The browser never calls the API directly
+
+Search, cart prices, pasted part numbers, reorder, PIN lookup, password reset and resending the
+2-step code now go through Server Actions, like every other change. The API address and the session
+token stay on the server (`API_BASE_URL`, server-only).
+
+### 85. ⚪ Security headers, no Content-Security-Policy yet
+
+HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy and Permissions-Policy are set for
+every page. A Content-Security-Policy waits for the final list of outside services it must allow
+(Razorpay, monitoring).
+
+### 86. 🔵 Garage lists named after the next step
+
+After the client demo: job card tabs and dashboard counts are named after what the garage does
+next: Arriving · To inspect & estimate · Waiting for customer · Servicing · To bill · Awaiting
+payment · To hand over (plus Open, Completed and Turned down). "Arriving" (booking accepted, not
+checked in) and "To hand over" (paid) were missing before. An accepted booking names the job card
+it opened, and the job card names the booking it came from. The job card's timeline is now
+"History" (what has happened); the nine-step strip at the top shows what's still to come.
+
+### 87. 🟡 Booking requests have a timer
+
+A new booking pops up on every garage page for people who handle bookings, with a countdown,
+the slot, vehicle, customer, services and price, and only Accept or Decline: there is no
+"Later", and Escape or clicking outside doesn't close it (an alert that needs an answer, unlike
+other dialogs). It goes away by itself when time runs out. The garage has
+**15 minutes** to answer; after that the request is **Missed** and the customer is asked to pick
+another slot or garage. Accepting needs no extra confirmation (it isn't destructive and the clock
+is running). **Confirm** the 15 minutes and what "missed" should do. The backend sets the deadline
+(`respondBy` on each booking). In the demo a new request "arrives" whenever none is waiting, so the
+alert can always be shown.
+
+### 88. 🔵 Bookings, Job cards and My jobs are work queues, not tables
+
+These three lists are to-do lists, so each row shows the vehicle, its stage (in the same words as
+the tabs) and the next step as a button, or who it's waiting on. Only the one detail that matters
+at that stage is shown (slot time, amount, quality check); the job number, branch and dates are on
+the job card. Open work comes most urgent first. Bookings has New requests (cards with the timer),
+Upcoming (by day) and Past (declined, missed, earlier). My jobs groups a technician's jobs into New
+for you, Working on and Waiting. The brief's "every list uses the DataTable" still holds for record
+lists such as orders, invoices, payments and customers.
+
+### 89. 🔵 Pick-up & drop
+
+Customers choose it when booking in the app. The garage turns it on in its profile, with one flat
+fee per job and how far it goes. The fee goes on the estimate as its own line, so it is approved and
+billed like the rest. Any staff member at the branch can drive, with no new role: the manager (or
+whoever delivers vehicles) picks the driver, and the trip appears in that person's **My trips**. The
+driver records the pick-up with the check-in form at the customer's door, and the delivery with the
+handover form. The customer pays online before delivery, or the driver collects cash at the door.
+**Confirm** with the client: photos or an OTP at the door, driver tracking, and what happens if a
+pick-up fails (customer not home).
+
+### 90. 🔵 People see only what they can open
+
+The dashboard's credit figures, the Account menu's company link and each notification now go only
+to roles that can open the page they lead to. The backend should send each user only the
+notifications that apply to their role.

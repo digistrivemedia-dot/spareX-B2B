@@ -43,7 +43,7 @@ export default async function EstimatePage({ params }: EstimatePageProps) {
       <>
         {header}
         <div className="flex flex-col gap-6">
-          <SectionCard title="Customer's answer">
+          <SectionCard title="Customer's approval">
             <ApprovalForm jobId={job.id} lines={job.estimate.lines} />
           </SectionCard>
           <SectionCard title="Whole estimate">

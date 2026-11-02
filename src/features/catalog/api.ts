@@ -1,5 +1,5 @@
 import type { CatalogFilterOptions, CatalogFilters, Product } from "@/features/catalog/types";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, apiClientOrNull } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
 import {
@@ -22,7 +22,7 @@ export async function getCatalog(filters: CatalogFilters = {}): Promise<Paginate
 /** One product, or null if it doesn't exist. */
 export async function getProduct(id: string): Promise<Product | null> {
   if (dataSource.catalog === "mock") return getProductMock(id);
-  return apiClient<Product | null>(`/catalog/products/${id}`);
+  return apiClientOrNull<Product>(`/catalog/products/${id}`);
 }
 
 /** Several products at once, e.g. everything in the cart. Unknown ids are left out. */

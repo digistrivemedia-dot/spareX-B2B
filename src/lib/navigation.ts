@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Package,
   PackageSearch,
+  Truck,
   Undo2,
   Users,
   Wrench,
@@ -93,6 +94,13 @@ export const navigation: NavSection[] = [
         icon: Wrench,
         businessTypes: ["garage"],
         permission: "jobs:work",
+      },
+      {
+        label: "My trips",
+        href: "/garage/my-trips",
+        icon: Truck,
+        businessTypes: ["garage"],
+        permission: "jobs:drive",
       },
       {
         label: "Customers",

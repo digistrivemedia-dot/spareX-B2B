@@ -68,6 +68,7 @@ let garageProfile: GarageProfile = {
     { day: "sun", isOpen: true, opensAt: "09:00", closesAt: "13:30" },
   ],
   dailyBookingLimit: 18,
+  pickupDrop: { isOffered: true, feeInPaise: 19900, radiusKm: 8 },
   holidays: [
     { date: "2026-11-01", name: "Karnataka Rajyotsava" },
     { date: "2026-11-08", name: "Deepavali" },

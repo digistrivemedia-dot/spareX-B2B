@@ -1,6 +1,6 @@
 import type { Booking, BookingFilters } from "@/features/bookings/types";
 import type { JobCard } from "@/features/job-cards/types";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, apiClientOrNull } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
 import {
@@ -18,7 +18,7 @@ export async function getBookings(filters: BookingFilters = {}): Promise<Paginat
 /** One booking, or null if there is none. */
 export async function getBooking(id: string): Promise<Booking | null> {
   if (dataSource.bookings === "mock") return getBookingMock(id);
-  return apiClient<Booking | null>(`/garage/bookings/${id}`);
+  return apiClientOrNull<Booking>(`/garage/bookings/${id}`);
 }
 
 /** Confirms the slot; returns the job card opened for it. */

@@ -26,7 +26,8 @@ function toVisit(job: JobCard): ServiceVisit {
     date: job.handover?.at ?? job.timeline.at(-1)?.at ?? job.createdAt,
     garageName: `${business.name}, ${job.branch.name}`,
     jobId: job.id,
-    summary: job.status === "closed" ? "Estimate turned down, no work done" : work.join(", "),
+    branchId: job.branch.id,
+    summary: job.status === "closed" ? "Estimate rejected, no work done" : work.join(", "),
     odometerKm: job.checkIn?.odometerKm,
     totalInPaise: job.invoice?.totalInPaise,
   };

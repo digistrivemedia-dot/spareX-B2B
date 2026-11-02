@@ -42,8 +42,10 @@ export function QualityCheckForm({ job }: { job: JobCard }) {
       result,
       note: note.trim() || undefined,
     });
-    setPending(null);
-    if (!response.ok) return setError(response.message);
+    if (!response.ok) {
+      setPending(null);
+      return setError(response.message);
+    }
     toast.success(
       result === "pass" ? "Passed. Ready for delivery." : "Sent back to the technician",
     );

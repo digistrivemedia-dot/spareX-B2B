@@ -11,7 +11,7 @@ import { MyJobResponse } from "@/features/job-cards/components/MyJobResponse";
 import { ProgressNoteForm } from "@/features/job-cards/components/ProgressNoteForm";
 import { TaskChecklist } from "@/features/job-cards/components/TaskChecklist";
 import { loadJobForPage } from "@/features/job-cards/load-job";
-import { approvedLines } from "@/features/job-cards/utils";
+import { approvedLines, getFinishedStages } from "@/features/job-cards/utils";
 
 export const metadata: Metadata = {
   title: "My job",
@@ -62,7 +62,7 @@ export default async function MyJobPage({ params }: MyJobPageProps) {
             <FinishWorkButton jobId={job.id} openCount={openCount} />
           </>
         )}
-        <WorkSection job={job} />
+        <WorkSection job={job} isDone={getFinishedStages(job).has("service")} />
       </div>
     </>
   );

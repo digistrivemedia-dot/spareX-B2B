@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-import { getProductsById } from "@/features/catalog/api";
+import { getCartProductsAction } from "@/features/catalog/actions";
 import type { Product } from "@/features/catalog/types";
 import { useCartHasHydrated, useCartStore } from "@/features/cart/store";
 import type { CartLine } from "@/features/cart/types";
-import { getErrorMessage } from "@/lib/api-client";
+
+const CONNECTION_MESSAGE = "We couldn't reach SpareX. Check your connection and try again.";
 
 type CartLinesState =
   | { status: "loading" | "empty" }
@@ -36,9 +37,11 @@ export function useCartLines(): CartLinesState {
     if (!hasHydrated || !missingIds) return;
     const ids = missingIds.split(",");
     let isCurrent = true;
-    getProductsById(ids).then(
-      (found) => {
+    getCartProductsAction(ids).then(
+      (result) => {
         if (!isCurrent) return;
+        if (!result.ok) return setFailure({ ids: missingIds, message: result.message });
+        const found = result.data;
         setProducts((known) => {
           const next = new Map(known);
           for (const id of ids) next.set(id, found.find((product) => product.id === id) ?? null);
@@ -46,7 +49,7 @@ export function useCartLines(): CartLinesState {
         });
         for (const id of ids) if (!found.some((product) => product.id === id)) removeItem(id);
       },
-      (error) => isCurrent && setFailure({ ids: missingIds, message: getErrorMessage(error) }),
+      () => isCurrent && setFailure({ ids: missingIds, message: CONNECTION_MESSAGE }),
     );
     return () => {
       isCurrent = false;

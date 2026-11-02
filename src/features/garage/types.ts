@@ -27,6 +27,15 @@ export type Holiday = {
   name: string;
 };
 
+/** Fetching the vehicle from the customer and bringing it back, for a flat fee per job. */
+export type PickupDropSettings = {
+  isOffered: boolean;
+  /** One fee for both trips, excluding GST. */
+  feeInPaise: number;
+  /** How far from the branch the garage will go. */
+  radiusKm: number;
+};
+
 /** How the garage appears to customers booking a service. The same for every branch. */
 export type GarageProfile = {
   about: string;
@@ -37,6 +46,7 @@ export type GarageProfile = {
   /** Bookings accepted per branch per day. */
   dailyBookingLimit: number;
   holidays: Holiday[];
+  pickupDrop: PickupDropSettings;
 };
 
 /** A branch as the garage sees it, with how many staff work there. */

@@ -21,7 +21,14 @@ import type { JobCard } from "@/features/job-cards/types";
 const MAX_VEHICLE_PHOTOS = 8;
 
 /** Records how the vehicle arrived. Saving opens the job card for inspection. */
-export function CheckInForm({ job }: { job: JobCard }) {
+type CheckInFormProps = {
+  job: JobCard;
+  /** Where to go once saved: the job card, or a driver's trips. */
+  doneHref: string;
+};
+
+export function CheckInForm({ job, doneHref }: CheckInFormProps) {
+  const isPickup = job.status === "out_for_pickup";
   const router = useRouter();
   const form = useForm<CheckInValues>({
     resolver: zodResolver(checkInSchema),
@@ -43,8 +50,12 @@ export function CheckInForm({ job }: { job: JobCard }) {
       photos: values.photos,
     });
     if (!result.ok) return form.setError("root", { message: result.message });
-    toast.success(`${job.vehicle.plate} checked in. The job card is open.`);
-    router.push(`/garage/jobs/${job.id}`);
+    toast.success(
+      isPickup
+        ? `${job.vehicle.plate} picked up. Bring it to the garage.`
+        : `${job.vehicle.plate} checked in. The job card is open.`,
+    );
+    router.push(doneHref);
   }
 
   return (
@@ -104,10 +115,10 @@ export function CheckInForm({ job }: { job: JobCard }) {
         <div className="sticky bottom-0 -mx-4 border-t border-gray-200 bg-white px-4 py-3 md:static md:mx-0 md:border-0 md:bg-transparent md:p-0">
           <SubmitButton
             size="lg"
-            isPending={form.formState.isSubmitting}
+            isPending={form.formState.isSubmitting || form.formState.isSubmitSuccessful}
             className="w-full md:w-auto"
           >
-            Save check-in
+            {isPickup ? "Picked up: save" : "Save check-in"}
           </SubmitButton>
         </div>
       </form>

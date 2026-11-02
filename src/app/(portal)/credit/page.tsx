@@ -6,7 +6,7 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Button } from "@/components/ui/button";
 import { DateRangeFilter } from "@/components/ui/DateRangeFilter";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { requireSession } from "@/features/auth/session";
+import { requirePermission } from "@/features/auth/session";
 import { getCreditSummary, getStatement, getUnpaidInvoices } from "@/features/credit/api";
 import { CreditSummaryCards } from "@/features/credit/components/CreditSummaryCards";
 import { DuesTable } from "@/features/credit/components/DuesTable";
@@ -24,7 +24,7 @@ type CreditPageProps = {
 };
 
 export default async function CreditPage({ searchParams }: CreditPageProps) {
-  const { business } = await requireSession();
+  const { business } = await requirePermission("credit:view");
   if (!business.creditEnabled) {
     return (
       <>

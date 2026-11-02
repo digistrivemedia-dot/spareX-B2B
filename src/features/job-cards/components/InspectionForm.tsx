@@ -11,6 +11,7 @@ import { saveInspectionAction } from "@/features/job-cards/actions";
 import { InspectionItemRow } from "@/features/job-cards/components/InspectionItemRow";
 import type { InspectionItem, JobCard } from "@/features/job-cards/types";
 import { INSPECTION_CHECKLIST } from "@/features/job-cards/utils";
+import { formatCount } from "@/lib/format";
 
 /** The standard checklist, or the saved results when the inspection is being corrected. */
 function startingItems(job: JobCard): InspectionItem[] {
@@ -25,6 +26,10 @@ function startingItems(job: JobCard): InspectionItem[] {
     })),
   );
 }
+
+/** "1 item needs work", "3 items need work". */
+const needsWork = (count: number) =>
+  `${formatCount(count, "item")} ${count === 1 ? "needs" : "need"} work`;
 
 export function InspectionForm({ job, nextHref }: { job: JobCard; nextHref: string }) {
   const router = useRouter();
@@ -43,11 +48,11 @@ export function InspectionForm({ job, nextHref }: { job: JobCard; nextHref: stri
       return setError(`Add a note for "${missingNote.name}" so the estimate is clear.`);
     setIsSaving(true);
     const result = await saveInspectionAction(job.id, { items });
-    setIsSaving(false);
-    if (!result.ok) return setError(result.message);
-    toast.success(
-      flagged ? `Inspection saved: ${flagged} items need work` : "Inspection saved: all OK",
-    );
+    if (!result.ok) {
+      setIsSaving(false);
+      return setError(result.message);
+    }
+    toast.success(flagged ? `Inspection saved: ${needsWork(flagged)}` : "Inspection saved: all OK");
     router.push(nextHref);
   }
 
@@ -72,7 +77,7 @@ export function InspectionForm({ job, nextHref }: { job: JobCard; nextHref: stri
       {/* Sticky so the inspection can be saved from anywhere on a phone. */}
       <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 bg-white px-4 py-3 md:-mx-6 md:px-6 lg:-mx-8 lg:px-8">
         <span className="text-sm text-gray-700">
-          {flagged ? `${flagged} items need work` : "Everything is OK so far"}
+          {flagged ? needsWork(flagged) : "Everything is OK so far"}
         </span>
         <SubmitButton type="button" size="lg" isPending={isSaving} onClick={save}>
           Save inspection

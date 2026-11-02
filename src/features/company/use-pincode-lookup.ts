@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { lookupPincode } from "@/features/company/api";
+import { lookupPincodeAction } from "@/features/company/actions";
 import type { PincodeDetails } from "@/features/company/types";
 
 export type PinLookupState = "idle" | "searching" | "found" | "not_found";
@@ -21,9 +21,9 @@ export function usePincodeLookup(onFound: (details: PincodeDetails) => void) {
   async function lookUp(pin: string) {
     if (pin.length !== 6) return setState("idle");
     setState("searching");
-    const details = await lookupPincode(pin);
-    if (!details) return setState("not_found");
-    onFound(details);
+    const result = await lookupPincodeAction(pin);
+    if (!result.ok || !result.data) return setState("not_found");
+    onFound(result.data);
     setState("found");
   }
 

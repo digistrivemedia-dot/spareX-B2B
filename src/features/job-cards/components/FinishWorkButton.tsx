@@ -16,8 +16,10 @@ export function FinishWorkButton({ jobId, openCount }: { jobId: string; openCoun
   async function finish() {
     setIsSaving(true);
     const result = await finishWorkAction(jobId);
-    setIsSaving(false);
-    if (!result.ok) return toast.error(result.message);
+    if (!result.ok) {
+      setIsSaving(false);
+      return toast.error(result.message);
+    }
     toast.success("Sent for quality check");
     router.push("/garage/my-jobs");
   }

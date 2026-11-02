@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
-import { getCatalog } from "@/features/catalog/api";
+import { searchPartsAction } from "@/features/catalog/actions";
 import type { Product } from "@/features/catalog/types";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -46,9 +46,10 @@ export function PartNumberInput({
     if (text.trim().length < MIN_QUERY_LENGTH) return setSuggestions(null);
     timerRef.current = setTimeout(async () => {
       const searchId = ++latestSearchRef.current;
-      const { items } = await getCatalog({ q: text, pageSize: MAX_SUGGESTIONS });
+      const result = await searchPartsAction(text, MAX_SUGGESTIONS);
       if (searchId !== latestSearchRef.current) return;
-      setSuggestions(items);
+      // A failed search just shows no suggestions; the row can still be typed by hand.
+      setSuggestions(result.ok ? result.data : []);
       setActiveIndex(0);
     }, DEBOUNCE_MS);
   }

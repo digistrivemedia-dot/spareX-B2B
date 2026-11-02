@@ -32,6 +32,7 @@ export async function TopBar({ session }: TopBarProps) {
           email={session.user.email}
           businessName={session.business.name}
           roleLabel={describeRoles(session.roles)}
+          canViewCompany={can(session.roles, "company:view")}
         />
       </div>
     </header>

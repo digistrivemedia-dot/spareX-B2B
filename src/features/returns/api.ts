@@ -4,7 +4,7 @@ import type {
   ReturnRequest,
   ReturnSummary,
 } from "@/features/returns/types";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, apiClientOrNull } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
 import {
@@ -22,7 +22,7 @@ export async function getReturns(filters: ReturnFilters = {}): Promise<Paginated
 /** One return with its parts, photos and history, or null if it doesn't exist. */
 export async function getReturn(id: string): Promise<ReturnRequest | null> {
   if (dataSource.returns === "mock") return getReturnMock(id);
-  return apiClient<ReturnRequest | null>(`/returns/${id}`);
+  return apiClientOrNull<ReturnRequest>(`/returns/${id}`);
 }
 
 /** Units of each part on the order that are already in a return (rejected returns don't count). */

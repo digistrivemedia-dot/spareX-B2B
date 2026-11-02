@@ -6,7 +6,7 @@ import type {
   PlacedOrder,
   PlaceOrderRequest,
 } from "@/features/orders/types";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, apiClientOrNull } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
 import { cancelOrderMock, getOrderMock, getOrdersMock, placeOrderMock } from "@/mocks/orders";
@@ -23,7 +23,7 @@ export async function getOrders(filters: OrderFilters = {}): Promise<Paginated<O
 /** One order with its lines and timeline, or null if it doesn't exist. */
 export async function getOrder(id: string): Promise<Order | null> {
   if (dataSource.orders === "mock") return getOrderMock(id);
-  return apiClient<Order | null>(`/orders/${id}`);
+  return apiClientOrNull<Order>(`/orders/${id}`);
 }
 
 export async function placeOrder(request: PlaceOrderRequest): Promise<PlacedOrder> {

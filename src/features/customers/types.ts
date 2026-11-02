@@ -38,6 +38,8 @@ export type ServiceVisit = {
   garageName: string;
   /** Only for jobs at this garage. */
   jobId?: string;
+  /** The branch that did the job, for jobs at this garage. */
+  branchId?: string;
   summary: string;
   odometerKm?: number;
   /** Absent for other garages' visits. */

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { requirePermission } from "@/features/auth/session";
 import { getOrders } from "@/features/orders/api";
 import { OrdersTable } from "@/features/orders/components/OrdersTable";
 import { OrdersToolbar } from "@/features/orders/components/OrdersToolbar";
@@ -15,6 +16,7 @@ type OrdersPageProps = {
 };
 
 export default async function OrdersPage({ searchParams }: OrdersPageProps) {
+  await requirePermission("orders:view");
   const orders = await getOrders(parseOrderParams(await searchParams));
 
   return (

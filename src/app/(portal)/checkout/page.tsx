@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { requireSession } from "@/features/auth/session";
+import { requirePermission } from "@/features/auth/session";
 import { CheckoutView } from "@/features/checkout/components/CheckoutView";
 import { QuotationCheckout } from "@/features/checkout/components/QuotationCheckout";
 import { getCreditSummary } from "@/features/credit/api";
@@ -24,7 +24,7 @@ type CheckoutPageProps = {
 
 export default async function CheckoutPage({ searchParams }: CheckoutPageProps) {
   const [{ business }, { quotation: quotationId }] = await Promise.all([
-    requireSession(),
+    requirePermission("orders:place"),
     searchParams,
   ]);
   const credit = business.creditEnabled ? await getCreditSummary() : null;

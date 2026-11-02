@@ -8,10 +8,9 @@ import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Textarea } from "@/components/ui/textarea";
-import { getProductsByPartNumber } from "@/features/catalog/api";
+import { findPartNumbersAction } from "@/features/catalog/actions";
 import type { OrderLineDraft } from "@/features/quick-order/types";
 import { normalisePartNumber, parsePastedList } from "@/features/quick-order/utils";
-import { getErrorMessage } from "@/lib/api-client";
 import { formatCount } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -34,31 +33,28 @@ export function PasteListPanel({ onLinesReady }: PasteListPanelProps) {
     if (pasted.length === 0) return setError("Paste at least one line, e.g. MOT-104092, 24");
 
     setIsChecking(true);
-    try {
-      const found = await getProductsByPartNumber(pasted.map((line) => line.partNumber));
-      const byPartNumber = new Map(found.map((p) => [normalisePartNumber(p.partNumber), p]));
-      const lines = pasted.map(({ partNumber, quantity }) => {
-        const product = byPartNumber.get(normalisePartNumber(partNumber));
-        return product
-          ? { query: product.partNumber, product, quantity }
-          : { query: partNumber, product: null, quantity, isUnmatched: true };
-      });
-      onLinesReady(lines);
+    const result = await findPartNumbersAction(pasted.map((line) => line.partNumber));
+    setIsChecking(false);
+    if (!result.ok) return setError(result.message);
 
-      const unmatched = lines.filter((line) => !line.product).length;
-      toast.success(`${formatCount(lines.length, "line")} added`, {
-        description: unmatched
-          ? `${formatCount(unmatched, "part number")} not found: check the rows marked in red.`
-          : undefined,
-      });
-      setText("");
-      setError(undefined);
-      setIsOpen(false);
-    } catch (caught) {
-      setError(getErrorMessage(caught));
-    } finally {
-      setIsChecking(false);
-    }
+    const byPartNumber = new Map(result.data.map((p) => [normalisePartNumber(p.partNumber), p]));
+    const lines = pasted.map(({ partNumber, quantity }) => {
+      const product = byPartNumber.get(normalisePartNumber(partNumber));
+      return product
+        ? { query: product.partNumber, product, quantity }
+        : { query: partNumber, product: null, quantity, isUnmatched: true };
+    });
+    onLinesReady(lines);
+
+    const unmatched = lines.filter((line) => !line.product).length;
+    toast.success(`${formatCount(lines.length, "line")} added`, {
+      description: unmatched
+        ? `${formatCount(unmatched, "part number")} not found: check the rows marked in red.`
+        : undefined,
+    });
+    setText("");
+    setError(undefined);
+    setIsOpen(false);
   }
 
   return (

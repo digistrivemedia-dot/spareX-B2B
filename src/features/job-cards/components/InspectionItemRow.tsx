@@ -35,13 +35,13 @@ type InspectionItemRowProps = {
 export function InspectionItemRow({ item, onChange }: InspectionItemRowProps) {
   return (
     <li className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0">
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <span className="text-sm font-medium text-gray-900">{item.name}</span>
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+        <span className="text-sm font-medium text-gray-900 lg:flex-1">{item.name}</span>
         <RadioGroup
           aria-label={item.name}
           value={item.result}
           onValueChange={(value) => onChange({ result: value as InspectionResult })}
-          className="grid grid-cols-3 gap-2"
+          className="grid grid-cols-3 gap-2 lg:w-108 lg:shrink-0"
         >
           {RESULTS.map((result) => (
             <label

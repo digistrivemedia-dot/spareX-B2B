@@ -7,7 +7,7 @@ import { getBranches } from "@/features/company/api";
 import { WalkInForm } from "@/features/job-cards/components/WalkInForm";
 
 export const metadata: Metadata = {
-  title: "New walk-in",
+  title: "New job card",
 };
 
 export default async function NewWalkInPage() {
@@ -17,8 +17,8 @@ export default async function NewWalkInPage() {
   return (
     <>
       <PageHeader
-        title="New walk-in"
-        description="A vehicle that came in without a booking. Start with its number plate."
+        title="New job card"
+        description="For a vehicle that came in without a booking. (Booked vehicles get their job card when you accept the booking.) Start with the number plate."
       />
       <WalkInForm
         branches={branches}

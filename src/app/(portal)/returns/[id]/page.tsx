@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { requirePermission } from "@/features/auth/session";
 import { getReturn } from "@/features/returns/api";
 import { ReturnDetail } from "@/features/returns/components/ReturnDetail";
 import { formatDateTime } from "@/lib/format";
@@ -16,6 +17,7 @@ export async function generateMetadata({ params }: ReturnPageProps): Promise<Met
 }
 
 export default async function ReturnPage({ params }: ReturnPageProps) {
+  await requirePermission("orders:view");
   const request = await getReturn((await params).id);
   if (!request) notFound();
 

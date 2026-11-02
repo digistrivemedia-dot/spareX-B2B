@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CheckInForm } from "@/features/job-cards/components/CheckInForm";
+import { can } from "@/features/auth/permissions";
 import { loadJobForPage } from "@/features/job-cards/load-job";
 
 export const metadata: Metadata = {
@@ -17,17 +18,24 @@ type CheckInPageProps = {
 };
 
 export default async function CheckInPage({ params }: CheckInPageProps) {
-  const { job } = await loadJobForPage((await params).id, "jobs:manage");
-  const canCheckIn = job.status === "confirmed" || job.status === "vehicle_received";
+  // The pick-up driver records the pick-up here, at the customer's door.
+  const { job, session } = await loadJobForPage((await params).id, "jobs:manage", "pickup");
+  const isPickup = job.status === "out_for_pickup";
+  const canCheckIn = isPickup || job.status === "confirmed" || job.status === "vehicle_received";
+  const doneHref = can(session.roles, "jobs:view") ? `/garage/jobs/${job.id}` : "/garage/my-trips";
 
   return (
     <>
       <PageHeader
-        title={`Check in ${job.vehicle.plate}`}
-        description={`${job.vehicle.make} ${job.vehicle.model} · ${job.customer.name} · ${job.number}`}
+        title={isPickup ? `Pick up ${job.vehicle.plate}` : `Check in ${job.vehicle.plate}`}
+        description={
+          isPickup
+            ? `${job.customer.name} · ${job.pickupDrop?.pickupAddress}. Note the vehicle's condition before you leave with it.`
+            : `${job.vehicle.make} ${job.vehicle.model} · ${job.customer.name} · ${job.number}`
+        }
       />
       {canCheckIn ? (
-        <CheckInForm job={job} />
+        <CheckInForm job={job} doneHref={doneHref} />
       ) : (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
           <EmptyState

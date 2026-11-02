@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { PrintButton } from "@/components/ui/PrintButton";
-import { requireSession } from "@/features/auth/session";
+import { requirePermission } from "@/features/auth/session";
 import { getPayment } from "@/features/payments/api";
 import { PaymentReceipt } from "@/features/payments/components/PaymentReceipt";
 import { hasReceipt } from "@/features/payments/utils";
@@ -19,7 +19,7 @@ type ReceiptPageProps = {
 
 export default async function ReceiptPage({ params }: ReceiptPageProps) {
   const [{ business }, payment] = await Promise.all([
-    requireSession(),
+    requirePermission("payments:view"),
     getPayment((await params).id),
   ]);
   if (!payment || !hasReceipt(payment)) notFound();

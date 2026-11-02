@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { requirePermission } from "@/features/auth/session";
 import { OrderPlaced } from "@/features/checkout/components/OrderPlaced";
 import { getCreditSummary } from "@/features/credit/api";
 import { getOrder } from "@/features/orders/api";
@@ -14,6 +15,7 @@ type OrderPlacedPageProps = {
 };
 
 export default async function OrderPlacedPage({ searchParams }: OrderPlacedPageProps) {
+  await requirePermission("orders:place");
   const { order: orderId } = await searchParams;
   if (typeof orderId !== "string") notFound();
 

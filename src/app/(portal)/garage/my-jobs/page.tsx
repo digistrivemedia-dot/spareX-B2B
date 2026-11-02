@@ -6,39 +6,55 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { requirePermission } from "@/features/auth/session";
 import { getJobCards } from "@/features/job-cards/api";
 import { MyJobCard } from "@/features/job-cards/components/MyJobCard";
-import type { JobStatus } from "@/features/job-cards/types";
+import type { JobCardSummary, JobStatus } from "@/features/job-cards/types";
 
 export const metadata: Metadata = {
   title: "My jobs",
 };
 
-/** What a technician works through, most urgent first. */
-const MY_STATUSES: JobStatus[] = ["approved", "in_progress", "job_card_created", "quality_check"];
+/** The technician's jobs in three groups: to accept, to work on, and with someone else for now. */
+const GROUPS: { title: string; statuses: JobStatus[] }[] = [
+  { title: "New for you", statuses: ["approved"] },
+  { title: "Working on", statuses: ["in_progress", "job_card_created", "inspection"] },
+  { title: "Waiting", statuses: ["quality_check", "awaiting_approval"] },
+];
 
 export default async function MyJobsPage() {
   const session = await requirePermission("jobs:work", ["garage"]);
   const jobs = await getJobCards({
     technicianId: session.user.id,
-    statuses: MY_STATUSES,
+    statuses: GROUPS.flatMap((group) => group.statuses),
+    sort: "dueAt",
     order: "asc",
     pageSize: 50,
   });
-  const sorted = [...jobs.items].sort(
-    (a, b) => MY_STATUSES.indexOf(a.status) - MY_STATUSES.indexOf(b.status),
-  );
+  const groups = GROUPS.map((group) => ({
+    ...group,
+    jobs: jobs.items.filter((job: JobCardSummary) => group.statuses.includes(job.status)),
+  })).filter((group) => group.jobs.length > 0);
 
   return (
     <>
       <PageHeader
         title="My jobs"
-        description="Jobs assigned to you. Accept new ones, then work through the tasks."
+        description="Accept new jobs, then work through each one. Most urgent first."
       />
-      {sorted.length ? (
-        <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {sorted.map((job) => (
-            <MyJobCard key={job.id} job={job} />
+      {groups.length ? (
+        <div className="flex flex-col gap-8">
+          {groups.map((group) => (
+            <section key={group.title} aria-label={group.title}>
+              <h2 className="mb-3 text-lg font-semibold text-gray-900">
+                {group.title}{" "}
+                <span className="text-gray-500 tabular-nums">({group.jobs.length})</span>
+              </h2>
+              <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {group.jobs.map((job) => (
+                  <MyJobCard key={job.id} job={job} />
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+        </div>
       ) : (
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
           <EmptyState

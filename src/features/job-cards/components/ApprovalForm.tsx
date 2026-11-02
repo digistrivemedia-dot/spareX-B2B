@@ -45,27 +45,33 @@ export function ApprovalForm({ jobId, lines }: { jobId: string; lines: EstimateL
     if (!allAnswered) return setError("Record an answer for every line.");
     setIsSaving(true);
     const result = await recordApprovalAction(jobId, { decisions, note: channel });
-    setIsSaving(false);
-    if (!result.ok) return setError(result.message);
+    if (!result.ok) {
+      setIsSaving(false);
+      return setError(result.message);
+    }
     toast.success(
       approved.length
         ? `${approved.length} of ${pending.length} approved`
         : isFirstEstimate
-          ? "Estimate turned down. The job is closed with no fee."
-          : "Extra work turned down. The original work carries on.",
+          ? "Estimate rejected. The job is closed with no fee."
+          : "Extra work rejected. The original work carries on.",
     );
     router.push(`/garage/jobs/${jobId}`);
   }
 
   return (
     <div className="flex flex-col gap-4">
+      <p className="text-sm text-gray-700">
+        Ask the customer about each item, then mark what they said. Only approved items are worked
+        on and billed.
+      </p>
       <FormAlert message={error} />
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="outline" size="sm" onClick={() => decideAll("approved")}>
           Approve all
         </Button>
         <Button type="button" variant="ghost" size="sm" onClick={() => decideAll("rejected")}>
-          Turn down all
+          Reject all
         </Button>
       </div>
       <ul className="divide-y divide-gray-100 rounded-lg border border-gray-200">
@@ -98,7 +104,7 @@ export function ApprovalForm({ jobId, lines }: { jobId: string; lines: EstimateL
                   )}
                 >
                   {decision === "approved" ? <Check aria-hidden /> : <X aria-hidden />}
-                  {decision === "approved" ? "Approve" : "Turn down"}
+                  {decision === "approved" ? "Approve" : "Reject"}
                 </Button>
               ))}
             </div>

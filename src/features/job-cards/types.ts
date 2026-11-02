@@ -1,3 +1,4 @@
+import type { BookedService, PickupDropRequest } from "@/features/bookings/types";
 import type { BranchRef } from "@/features/company/types";
 import type { CustomerVehicle } from "@/features/customers/types";
 import type { ListParams } from "@/lib/types";
@@ -10,6 +11,7 @@ import type { ListParams } from "@/lib/types";
 export type JobStatus =
   | "booked"
   | "confirmed"
+  | "out_for_pickup"
   | "vehicle_received"
   | "job_card_created"
   | "inspection"
@@ -20,10 +22,25 @@ export type JobStatus =
   | "ready"
   | "payment_pending"
   | "paid"
+  | "out_for_delivery"
   | "completed"
   | "closed";
 
 export type StaffRef = { id: string; name: string };
+
+/** One drive: fetching the vehicle, or taking it back. Any staff member can drive. */
+export type Trip = {
+  driver: StaffRef;
+  assignedAt: string;
+  /** When the vehicle was picked up, or handed back. */
+  doneAt?: string;
+};
+
+/** A booking with pick-up & drop: the addresses, the fee, and each trip once assigned. */
+export type PickupDrop = PickupDropRequest & {
+  pickup?: Trip;
+  drop?: Trip;
+};
 
 export type FuelLevel = "empty" | "quarter" | "half" | "three_quarters" | "full";
 
@@ -155,6 +172,8 @@ export type JobCard = {
   branch: BranchRef;
   source: JobSource;
   bookingId?: string;
+  /** The booking's number, e.g. "BK-2610-0233", shown on the job card. */
+  bookingNumber?: string;
   customer: { id: string; name: string; phone: string };
   vehicle: Pick<CustomerVehicle, "id" | "plate" | "type" | "make" | "model">;
   status: JobStatus;
@@ -163,6 +182,10 @@ export type JobCard = {
   createdAt: string;
   /** For bookings: when the vehicle is due in. */
   scheduledAt?: string;
+  /** For bookings: the services the customer booked, at the garage's prices then. */
+  bookedServices?: BookedService[];
+  /** When the garage fetches and returns the vehicle. */
+  pickupDrop?: PickupDrop;
   /** When the garage promised the vehicle back. */
   promisedAt?: string;
   technician?: StaffRef;
@@ -196,10 +219,16 @@ export type JobCardSummary = Pick<
 > & {
   /** The estimate or invoice total, including GST, once there is one. */
   amountInPaise?: number;
+  /** Approved work lines ticked off so far, once there is approved work. */
+  tasks?: { done: number; total: number };
+  pickupDrop?: PickupDrop;
 };
 
-export type JobCardFilters = ListParams<"createdAt"> & {
+/** "dueAt" is when the job is due: back to the customer, or in for a booking. */
+export type JobCardFilters = ListParams<"createdAt" | "dueAt"> & {
   statuses?: JobStatus[];
+  /** Jobs with a pick-up or drop this person is driving now. */
+  driverId?: string;
   branchId?: string;
   technicianId?: string;
   /** Matches the job number, number plate or customer name. */
@@ -249,6 +278,8 @@ export type CollectPaymentRequest =
   { method: "online"; reference: string } | { method: "cash"; cashReceivedInPaise: number };
 
 export type HandoverRequest = Omit<Handover, "at" | "by"> & {
+  /** Cash collected at the customer's door, when the bill wasn't paid before delivery. */
+  cashAtDoorInPaise?: number;
   nextService?: JobCard["nextService"];
   /** The vehicle as it leaves, for the completion report. */
   photos: string[];

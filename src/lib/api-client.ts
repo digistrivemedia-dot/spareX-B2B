@@ -1,9 +1,14 @@
+import { cookies } from "next/headers";
+
+import { SESSION_COOKIE } from "@/lib/constants";
+
 /**
- * Typed fetch wrapper for the SpareX backend.
+ * Typed fetch wrapper for the SpareX backend. It runs only on the server (Server Components and
+ * Server Actions), so the API's address and the session token never reach the browser.
  * Only features switched to "api" in `lib/config.ts` call this; until then it is unused.
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "";
+const BASE_URL = process.env.API_BASE_URL ?? "";
 
 type QueryValue = string | number | boolean | undefined;
 
@@ -11,7 +16,7 @@ type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   query?: Record<string, QueryValue>;
   body?: unknown;
-  /** Bearer token. Real auth (features/auth/session.ts) supplies it. */
+  /** Bearer token. Left out, the signed-in user's session token is sent. */
   token?: string;
   signal?: AbortSignal;
 };
@@ -51,7 +56,8 @@ export async function apiClient<T>(path: string, options: RequestOptions = {}): 
 
   const headers: Record<string, string> = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
-  if (token) headers.Authorization = `Bearer ${token}`;
+  const bearer = token ?? (await cookies()).get(SESSION_COOKIE)?.value;
+  if (bearer) headers.Authorization = `Bearer ${bearer}`;
 
   const response = await fetch(buildUrl(path, query), {
     method,
@@ -67,6 +73,19 @@ export async function apiClient<T>(path: string, options: RequestOptions = {}): 
 
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
+}
+
+/** For calls that fetch one record: the record, or null when the API says it doesn't exist. */
+export async function apiClientOrNull<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T | null> {
+  try {
+    return await apiClient<T>(path, options);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
+    throw error;
+  }
 }
 
 /** A message that is safe to show the user for any thrown error. */

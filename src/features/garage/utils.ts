@@ -48,6 +48,11 @@ export function toProfileValues(profile: GarageProfile): GarageProfileValues {
       duration: String(service.durationMinutes),
     })),
     dailyBookingLimit: String(profile.dailyBookingLimit),
+    pickupDrop: {
+      isOffered: profile.pickupDrop.isOffered,
+      fee: String(profile.pickupDrop.feeInPaise / 100),
+      radiusKm: String(profile.pickupDrop.radiusKm),
+    },
   };
 }
 
@@ -62,6 +67,11 @@ export function toGarageProfile(values: GarageProfileValues): GarageProfile {
       durationMinutes: Number(service.duration),
     })),
     dailyBookingLimit: Number(values.dailyBookingLimit),
+    pickupDrop: {
+      isOffered: values.pickupDrop.isOffered,
+      feeInPaise: Math.round(Number(values.pickupDrop.fee) * 100),
+      radiusKm: Number(values.pickupDrop.radiusKm),
+    },
     holidays: [...values.holidays].sort((a, b) => a.date.localeCompare(b.date)),
   };
 }

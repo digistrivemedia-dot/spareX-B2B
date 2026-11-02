@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { updateGarageProfileAction } from "@/features/garage/actions";
 import { HolidaysField } from "@/features/garage/components/HolidaysField";
 import { OpeningHoursField } from "@/features/garage/components/OpeningHoursField";
+import { PickupDropField } from "@/features/garage/components/PickupDropField";
 import { ServicesField } from "@/features/garage/components/ServicesField";
 import { VehicleTypesField } from "@/features/garage/components/VehicleTypesField";
 import {
@@ -104,6 +105,9 @@ export function GarageProfileForm({ profile }: { profile: GarageProfile }) {
               />
             </div>
           </div>
+        </SectionCard>
+        <SectionCard title="Pick-up & drop">
+          <PickupDropField />
         </SectionCard>
         <SectionCard title="Holidays">
           <HolidaysField />

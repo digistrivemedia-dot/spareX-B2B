@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { requirePermission } from "@/features/auth/session";
 import { getOrder } from "@/features/orders/api";
 import { getReturnedQuantitiesForOrder } from "@/features/returns/api";
 import { ReturnForm } from "@/features/returns/components/ReturnForm";
@@ -20,6 +21,7 @@ type ReturnPageProps = {
 };
 
 export default async function ReturnPage({ params }: ReturnPageProps) {
+  await requirePermission("orders:place");
   const { id } = await params;
   const [order, returned] = await Promise.all([getOrder(id), getReturnedQuantitiesForOrder(id)]);
   if (!order) notFound();

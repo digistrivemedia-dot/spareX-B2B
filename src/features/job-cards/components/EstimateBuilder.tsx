@@ -16,14 +16,37 @@ import { estimateSchema, type EstimateValues } from "@/features/job-cards/schema
 import type { JobCard } from "@/features/job-cards/types";
 import { newEstimateLine, toLineInput } from "@/features/job-cards/utils";
 
-/** The first estimate starts with a line for every inspection item that needs work. */
+/**
+ * The first estimate starts with the services the customer booked, at the garage's prices, the
+ * pick-up & drop fee when they asked for it, then a line for every inspection item that needs work.
+ */
 function startingLines(job: JobCard): EstimateValues["lines"] {
+  const booked = (job.bookedServices ?? []).map((service) => ({
+    ...newEstimateLine("service"),
+    id: `${job.id}-booked-${service.serviceId}`,
+    description: service.name,
+    price: String(service.priceInPaise / 100),
+  }));
   const flagged = job.inspection?.items.filter((item) => item.result !== "ok") ?? [];
-  return flagged.map((item) => ({
+  const found = flagged.map((item) => ({
     ...newEstimateLine(item.result === "replace" ? "part" : "labour"),
     id: `${job.id}-from-${item.id}`,
-    description: item.result === "replace" ? "" : `${item.name}: ${item.note ?? "check and fix"}`,
+    // A part to replace starts as the item's name, ready to search the catalogue with.
+    description:
+      item.result === "replace" ? item.name : `${item.name}: ${item.note ?? "check and fix"}`,
   }));
+  // The pick-up & drop fee is a line of its own, so it is approved and billed like the rest.
+  const trips = job.pickupDrop?.feeInPaise
+    ? [
+        {
+          ...newEstimateLine("labour"),
+          id: `${job.id}-pickup-drop`,
+          description: "Pick-up and drop",
+          price: String(job.pickupDrop.feeInPaise / 100),
+        },
+      ]
+    : [];
+  return [...booked, ...trips, ...found];
 }
 
 type EstimateBuilderProps = {
@@ -58,7 +81,11 @@ export function EstimateBuilder({ job, services, mode }: EstimateBuilderProps) {
         <SectionCard title={mode === "first" ? "Estimate" : "Extra work"}>
           <EstimateEditor services={services} />
         </SectionCard>
-        <SubmitButton size="lg" isPending={form.formState.isSubmitting} className="self-end">
+        <SubmitButton
+          size="lg"
+          isPending={form.formState.isSubmitting || form.formState.isSubmitSuccessful}
+          className="self-end"
+        >
           <Send aria-hidden />
           {mode === "first" ? "Send to customer" : "Send extra work for approval"}
         </SubmitButton>

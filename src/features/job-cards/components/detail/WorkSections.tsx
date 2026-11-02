@@ -3,12 +3,12 @@ import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EstimateLinesTable } from "@/features/job-cards/components/detail/EstimateLinesTable";
-import { NotYet } from "@/features/job-cards/components/detail/JobSections";
+import { NotYet, type SectionProps } from "@/features/job-cards/components/detail/JobSections";
 import type { JobCard } from "@/features/job-cards/types";
 import { approvedLines, sumLines } from "@/features/job-cards/utils";
 import { formatDateTime, formatPrice } from "@/lib/format";
 
-export function EstimateSection({ job }: { job: JobCard }) {
+export function EstimateSection({ job, isDone }: SectionProps) {
   const { estimate } = job;
   if (!estimate) {
     return (
@@ -21,7 +21,7 @@ export function EstimateSection({ job }: { job: JobCard }) {
   const hasPending = estimate.lines.some((line) => line.approval === "pending");
 
   return (
-    <SectionCard title="Estimate">
+    <SectionCard title="Estimate" isDone={isDone}>
       <div className="flex flex-col gap-4">
         <EstimateLinesTable lines={estimate.lines} />
         <dl className="ml-auto flex w-full max-w-xs flex-col gap-1 text-sm">
@@ -56,12 +56,19 @@ export function EstimateSection({ job }: { job: JobCard }) {
   );
 }
 
-export function WorkSection({ job }: { job: JobCard }) {
+export function WorkSection({ job, isDone }: SectionProps) {
+  const tasks = approvedLines(job.estimate?.lines ?? []);
+  const isStarted = job.timeline.some((event) => event.status === "in_progress");
   return (
-    <SectionCard title="Technician and progress">
+    <SectionCard title="Technician and progress" isDone={isDone}>
       <div className="flex flex-col gap-4">
         <DetailList>
           <DetailItem label="Technician">{job.technician?.name ?? "Not assigned yet"}</DetailItem>
+          {isStarted && tasks.length > 0 && (
+            <DetailItem label="Tasks">
+              {tasks.filter((line) => line.isDone).length} of {tasks.length} ticked off
+            </DetailItem>
+          )}
         </DetailList>
         {job.progress.length > 0 ? (
           <ol className="flex flex-col gap-3 text-sm">
@@ -115,9 +122,9 @@ export function PartsSection({ job }: { job: JobCard }) {
   );
 }
 
-export function QualitySection({ job }: { job: JobCard }) {
+export function QualitySection({ job, isDone }: SectionProps) {
   return (
-    <SectionCard title="Quality check">
+    <SectionCard title="Quality check" isDone={isDone}>
       {job.qualityChecks.length ? (
         <ol className="flex flex-col gap-3 text-sm">
           {job.qualityChecks.map((check) => (

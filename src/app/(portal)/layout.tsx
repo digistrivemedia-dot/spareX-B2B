@@ -7,7 +7,9 @@ import { Container } from "@/components/layout/Container";
 import { StoreHydration } from "@/components/layout/StoreHydration";
 import { TopBar } from "@/components/layout/TopBar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { can } from "@/features/auth/permissions";
 import { requireSession } from "@/features/auth/session";
+import { NewBookingAlert } from "@/features/bookings/components/NewBookingAlert";
 import { getBranches } from "@/features/company/api";
 import { BranchesProvider } from "@/features/company/components/BranchesProvider";
 
@@ -43,6 +45,9 @@ export default async function PortalLayout({ children }: { children: ReactNode }
           </div>
         </SidebarInset>
         <StoreHydration />
+        {session.business.type === "garage" && can(session.roles, "bookings:manage") && (
+          <NewBookingAlert />
+        )}
       </SidebarProvider>
     </BranchesProvider>
   );

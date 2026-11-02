@@ -1,4 +1,4 @@
-import { requireSession } from "@/features/auth/session";
+import { requirePermission } from "@/features/auth/session";
 import { getStatement } from "@/features/credit/api";
 import { parseDateRange } from "@/lib/search-params";
 import { formatDate } from "@/lib/format";
@@ -8,7 +8,7 @@ const cell = (value: string) => `"${value.replaceAll('"', '""')}"`;
 
 /** The account statement as a CSV file that opens in Excel. */
 export async function GET(request: Request) {
-  await requireSession();
+  await requirePermission("credit:view");
   const { from, to } = parseDateRange(Object.fromEntries(new URL(request.url).searchParams));
   const statement = await getStatement({ from, to });
 

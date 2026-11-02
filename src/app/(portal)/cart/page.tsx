@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { requirePermission } from "@/features/auth/session";
 import { CartView } from "@/features/cart/components/CartView";
 
 export const metadata: Metadata = {
   title: "Cart",
 };
 
-export default function CartPage() {
+export default async function CartPage() {
+  await requirePermission("orders:place");
   return (
     <>
       <PageHeader

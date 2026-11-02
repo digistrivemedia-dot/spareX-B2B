@@ -12,14 +12,16 @@ type BillingSectionProps = {
   job: JobCard;
   /** The invoice page is for whoever bills customers. */
   canBill: boolean;
+  /** Ticked once the vehicle is handed back. */
+  isDone: boolean;
 };
 
 /** The garage's invoice, the payment and the handover, with the invoice and report to open. */
-export function BillingSection({ job, canBill }: BillingSectionProps) {
+export function BillingSection({ job, canBill, isDone }: BillingSectionProps) {
   const { invoice, payment, handover } = job;
   const hasReport = JOB_FLOW.indexOf(job.status) >= JOB_FLOW.indexOf("ready");
   return (
-    <SectionCard title="Billing and handover">
+    <SectionCard title="Billing and handover" isDone={isDone}>
       {invoice ? (
         <DetailList>
           <DetailItem label="Invoice">
@@ -38,7 +40,13 @@ export function BillingSection({ job, canBill }: BillingSectionProps) {
           </DetailItem>
         </DetailList>
       ) : (
-        <NotYet>The invoice is made once the vehicle passes its quality check.</NotYet>
+        <NotYet>
+          {job.status === "ready"
+            ? "Passed the quality check. Ready to invoice."
+            : job.status === "closed"
+              ? "Nothing to bill: the customer rejected the estimate."
+              : "The invoice is made once the vehicle passes its quality check."}
+        </NotYet>
       )}
       {(hasReport || (invoice && canBill)) && (
         <div className="mt-4 flex flex-wrap gap-2">

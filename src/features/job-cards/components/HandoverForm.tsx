@@ -6,12 +6,12 @@ import { toast } from "sonner";
 
 import { Checklist } from "@/components/ui/Checklist";
 import { FormAlert } from "@/components/ui/FormAlert";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PhotoUpload } from "@/components/ui/PhotoUpload";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { handOverAction } from "@/features/job-cards/actions";
+import { CashAtDoorCard } from "@/features/job-cards/components/CashAtDoorCard";
+import { ReadingField } from "@/features/job-cards/components/ReadingField";
 import type { JobCard } from "@/features/job-cards/types";
 import { indiaDateFromToday } from "@/lib/dates";
 
@@ -27,8 +27,17 @@ const NEXT_SERVICE_DAYS = 90;
 const NEXT_SERVICE_KM = 3000;
 const MAX_PHOTOS = 4;
 
-export function HandoverForm({ job }: { job: JobCard }) {
+type HandoverFormProps = {
+  job: JobCard;
+  /** Where to go once done: the completion report, or a driver's trips. */
+  doneHref: string;
+};
+
+export function HandoverForm({ job, doneHref }: HandoverFormProps) {
   const router = useRouter();
+  const cashDueInPaise =
+    job.status === "out_for_delivery" && !job.payment ? job.invoice?.totalInPaise : undefined;
+  const [cash, setCash] = useState("");
   const startKm = job.checkIn?.odometerKm ?? 0;
   const [checklist, setChecklist] = useState(CHECKLIST.map((label) => ({ label, isDone: false })));
   const [odometer, setOdometer] = useState(String(startKm));
@@ -45,16 +54,19 @@ export function HandoverForm({ job }: { job: JobCard }) {
     const result = await handOverAction(job.id, {
       checklist,
       odometerKm: Number(odometer),
+      cashAtDoorInPaise: cashDueInPaise ? Math.round(Number(cash) * 100) : undefined,
       photos,
       nextService: {
         date: nextDate ? new Date(`${nextDate}T12:00:00+05:30`).toISOString() : undefined,
         odometerKm: nextKm ? Number(nextKm) : undefined,
       },
     });
-    setIsSaving(false);
-    if (!result.ok) return setError(result.message);
+    if (!result.ok) {
+      setIsSaving(false);
+      return setError(result.message);
+    }
     toast.success(`${job.vehicle.plate} handed over. Job complete.`);
-    router.push(`/garage/jobs/${job.id}/report`);
+    router.push(doneHref);
   }
 
   return (
@@ -71,23 +83,26 @@ export function HandoverForm({ job }: { job: JobCard }) {
           }
         />
       </SectionCard>
+      {cashDueInPaise !== undefined && (
+        <CashAtDoorCard dueInPaise={cashDueInPaise} value={cash} onChange={setCash} />
+      )}
       <SectionCard title="Readings and next service">
         <div className="grid gap-4 sm:grid-cols-3">
-          <Field
+          <ReadingField
             id="odometer-out"
             label="Odometer now (km)"
             value={odometer}
             onChange={setOdometer}
             inputMode="numeric"
           />
-          <Field
+          <ReadingField
             id="next-date"
             label="Next service by"
             value={nextDate}
             onChange={setNextDate}
             type="date"
           />
-          <Field
+          <ReadingField
             id="next-km"
             label="Or at (km)"
             value={nextKm}
@@ -115,32 +130,6 @@ export function HandoverForm({ job }: { job: JobCard }) {
       >
         Complete handover
       </SubmitButton>
-    </div>
-  );
-}
-
-type FieldProps = {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
-  inputMode?: "numeric";
-};
-
-function Field({ id, label, value, onChange, type = "text", inputMode }: FieldProps) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input
-        id={id}
-        type={type}
-        inputMode={inputMode}
-        value={value}
-        onChange={(event) =>
-          onChange(inputMode ? event.target.value.replace(/\D/g, "") : event.target.value)
-        }
-      />
     </div>
   );
 }

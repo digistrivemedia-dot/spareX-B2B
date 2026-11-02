@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { requirePermission } from "@/features/auth/session";
 import { getReturns } from "@/features/returns/api";
 import { ReturnsTable } from "@/features/returns/components/ReturnsTable";
 
@@ -13,6 +14,7 @@ type ReturnsPageProps = {
 };
 
 export default async function ReturnsPage({ searchParams }: ReturnsPageProps) {
+  await requirePermission("orders:view");
   const params = await searchParams;
   const page = Number(params.page);
   const returns = await getReturns({

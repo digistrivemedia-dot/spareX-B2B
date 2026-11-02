@@ -1,70 +1,74 @@
 import {
+  CalendarClock,
   CalendarPlus,
   CarFront,
   ClipboardCheck,
   IndianRupee,
+  KeyRound,
   MessageSquareWarning,
+  Truck,
   Wrench,
+  type LucideIcon,
 } from "lucide-react";
 
 import { StatCard } from "@/components/ui/StatCard";
-import type { JobStatusGroup } from "@/features/job-cards/utils";
+import { JOB_STATUS_GROUPS, type JobStatusGroup } from "@/features/job-cards/utils";
 
-type GarageStatsProps = {
-  newBookings: number;
-  jobCounts: Record<JobStatusGroup, number>;
-  /** Keeps the owner's branch choice on the lists the cards open. */
-  branchQuery: string;
+const GROUP_ICONS: Record<JobStatusGroup, LucideIcon> = {
+  arriving: CalendarClock,
+  on_the_road: Truck,
+  to_estimate: CarFront,
+  awaiting_approval: MessageSquareWarning,
+  servicing: Wrench,
+  ready: ClipboardCheck,
+  payment_pending: IndianRupee,
+  paid: KeyRound,
 };
 
-/** Today at a glance; each number opens the list behind it. */
-export function GarageStats({ newBookings, jobCounts, branchQuery }: GarageStatsProps) {
-  const jobs = (group: JobStatusGroup) => `/garage/jobs?status=${group}${branchQuery}`;
+type GarageStatsProps = {
+  /** Left out for people who don't handle bookings. */
+  newBookings?: number;
+  jobCounts: Record<JobStatusGroup, number>;
+  /** Keeps the owner's branch choice on the lists the cards open. */
+  branchId?: string;
+};
+
+/** A list's address with its filters, leaving out the ones not set. */
+function listHref(path: string, params: Record<string, string | undefined>) {
+  const query = new URLSearchParams(
+    Object.entries(params).filter((entry): entry is [string, string] => Boolean(entry[1])),
+  ).toString();
+  return query ? `${path}?${query}` : path;
+}
+
+/** Every step of the garage at a glance; each number opens the list behind it. */
+export function GarageStats({ newBookings, jobCounts, branchId }: GarageStatsProps) {
+  const groups = Object.entries(JOB_STATUS_GROUPS) as [
+    JobStatusGroup,
+    (typeof JOB_STATUS_GROUPS)[JobStatusGroup],
+  ][];
 
   return (
-    <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6">
-      <StatCard
-        label="New bookings"
-        value={newBookings}
-        icon={CalendarPlus}
-        href={`/garage/bookings?status=new${branchQuery}`}
-        description="Waiting for you to accept"
-      />
-      <StatCard
-        label="Received"
-        value={jobCounts.received}
-        icon={CarFront}
-        href={jobs("received")}
-        description="In the garage, not yet estimated"
-      />
-      <StatCard
-        label="Awaiting approval"
-        value={jobCounts.awaiting_approval}
-        icon={MessageSquareWarning}
-        href={jobs("awaiting_approval")}
-        description="Estimates with the customer"
-      />
-      <StatCard
-        label="In progress"
-        value={jobCounts.in_progress}
-        icon={Wrench}
-        href={jobs("in_progress")}
-        description="Being worked on or checked"
-      />
-      <StatCard
-        label="Ready"
-        value={jobCounts.ready}
-        icon={ClipboardCheck}
-        href={jobs("ready")}
-        description="Passed QA, to be billed"
-      />
-      <StatCard
-        label="Payment pending"
-        value={jobCounts.payment_pending}
-        icon={IndianRupee}
-        href={jobs("payment_pending")}
-        description="Invoiced, not yet paid"
-      />
+    <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {newBookings !== undefined && (
+        <StatCard
+          label="New bookings"
+          value={newBookings}
+          icon={CalendarPlus}
+          href={listHref("/garage/bookings", { branch: branchId })}
+          description="Accept or decline"
+        />
+      )}
+      {groups.map(([group, { label, description }]) => (
+        <StatCard
+          key={group}
+          label={label}
+          value={jobCounts[group]}
+          icon={GROUP_ICONS[group]}
+          href={listHref("/garage/jobs", { status: group, branch: branchId })}
+          description={description}
+        />
+      ))}
     </div>
   );
 }

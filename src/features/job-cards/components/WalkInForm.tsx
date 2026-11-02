@@ -76,7 +76,7 @@ export function WalkInForm({ branches, defaultBranchId, canChooseBranch }: WalkI
       complaints: values.complaints.map((item) => item.text).filter(Boolean),
     });
     if (!result.ok) return form.setError("root", { message: result.message });
-    toast.success("Walk-in job opened. Now check the vehicle in.");
+    toast.success("Job card opened. Now check the vehicle in.");
     router.push(`/garage/jobs/${result.data.jobId}/check-in`);
   }
 
@@ -104,7 +104,11 @@ export function WalkInForm({ branches, defaultBranchId, canChooseBranch }: WalkI
                 <ComplaintsField />
               </FieldGroup>
             </SectionCard>
-            <SubmitButton size="lg" isPending={form.formState.isSubmitting} className="self-end">
+            <SubmitButton
+              size="lg"
+              isPending={form.formState.isSubmitting || form.formState.isSubmitSuccessful}
+              className="self-end"
+            >
               Open job and check in
             </SubmitButton>
           </>

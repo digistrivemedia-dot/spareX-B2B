@@ -5,12 +5,10 @@ import { cache } from "react";
 import { can, type Permission } from "@/features/auth/permissions";
 import type { Session } from "@/features/auth/types";
 import type { BusinessType } from "@/features/company/types";
-import { apiClient } from "@/lib/api-client";
+import { ApiError, apiClient } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
+import { SESSION_COOKIE } from "@/lib/constants";
 import { getSessionMock } from "@/mocks/auth";
-
-/** The cookie holding the session token, set by the sign-in Server Actions. */
-export const SESSION_COOKIE = "sparex-session";
 
 /**
  * The signed-in user and business, or null when nobody is signed in.
@@ -41,5 +39,27 @@ export async function requirePermission(
   const session = await requireSession();
   const isAllowedType = !businessTypes || businessTypes.includes(session.business.type);
   if (!isAllowedType || !can(session.roles, permission)) notFound();
+  return session;
+}
+
+/**
+ * For Server Actions, which can be called without opening their page: the caller's session, or
+ * an error that the action returns as its message. Pages check access too; this is the guard
+ * that counts.
+ */
+export async function authorizeAction(
+  permission?: Permission,
+  businessTypes?: BusinessType[],
+): Promise<Session> {
+  const session = await getSession();
+  if (!session) {
+    throw new ApiError(401, { message: "Your session has ended. Please sign in again." });
+  }
+  const isAllowedType = !businessTypes || businessTypes.includes(session.business.type);
+  if (!isAllowedType || (permission && !can(session.roles, permission))) {
+    throw new ApiError(403, {
+      message: "Your role doesn't allow this. Ask your account owner if you need it.",
+    });
+  }
   return session;
 }

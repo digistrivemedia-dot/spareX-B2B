@@ -1,3 +1,4 @@
+import type { BookedService, PickupDropRequest } from "@/features/bookings/types";
 import type {
   EstimateLine,
   EstimateLineKind,
@@ -51,6 +52,12 @@ export type JobSeed = {
   sideTrip?: JobEvent["status"][];
   paidBy?: "online" | "cash";
   notes?: string[];
+  /** Promised back yesterday and still open: shows a late job in the demo. */
+  isLate?: boolean;
+  /** The booking the job came from, with the services booked. */
+  booking?: { id: string; number: string; services: BookedService[] };
+  /** Pick-up & drop: the addresses, and who picked the vehicle up once that has happened. */
+  pickupDrop?: PickupDropRequest & { pickedUpBy?: StaffRef };
 };
 
 const manager = (branch: JobSeed["branch"]) => (branch === "hsr" ? STAFF.ravi : STAFF.mahesh);
@@ -85,11 +92,15 @@ export function jobFromSeed(seed: JobSeed): JobCard {
   const reached = (status: JobStatus) =>
     JOB_FLOW.indexOf(furthest) >= JOB_FLOW.indexOf(status) || seed.status === "closed";
   const isClosed = seed.status === "closed";
+  const isFinished = isClosed || seed.status === "completed";
 
   // One event per step reached, 40 minutes apart (a day apart for long-finished jobs).
   const path = JOB_FLOW.filter(
     (status) =>
       (seed.source === "booking" || (status !== "booked" && status !== "confirmed")) &&
+      // The trips happen only for pick-up & drop jobs, and the pick-up only once someone went.
+      (status !== "out_for_pickup" || Boolean(seed.pickupDrop?.pickedUpBy)) &&
+      (status !== "out_for_delivery" || Boolean(seed.pickupDrop)) &&
       (isClosed
         ? JOB_FLOW.indexOf(status) <= JOB_FLOW.indexOf("awaiting_approval")
         : reached(status)),
@@ -115,6 +126,19 @@ export function jobFromSeed(seed: JobSeed): JobCard {
     number: seed.number,
     branch,
     source: seed.source,
+    bookingId: seed.booking?.id,
+    bookingNumber: seed.booking?.number,
+    bookedServices: seed.booking?.services,
+    pickupDrop: seed.pickupDrop && {
+      pickupAddress: seed.pickupDrop.pickupAddress,
+      dropAddress: seed.pickupDrop.dropAddress,
+      feeInPaise: seed.pickupDrop.feeInPaise,
+      pickup: seed.pickupDrop.pickedUpBy && {
+        driver: seed.pickupDrop.pickedUpBy,
+        assignedAt: eventAt("out_for_pickup"),
+        doneAt: eventAt("vehicle_received"),
+      },
+    },
     customer: { id: customer.id, name: customer.name, phone: customer.phone },
     vehicle: {
       id: vehicle.id,
@@ -128,7 +152,11 @@ export function jobFromSeed(seed: JobSeed): JobCard {
     createdAt: timeline[0].at,
     scheduledAt:
       seed.source === "booking" ? daysFromToday(seed.day, (seed.hour ?? 9) + 2) : undefined,
-    promisedAt: reached("approved") ? daysFromToday(seed.day + (isOld ? 1 : 0), 18) : undefined,
+    promisedAt: reached("approved")
+      ? isFinished
+        ? daysFromToday(seed.day + (isOld ? 1 : 0), 18)
+        : daysFromToday(seed.isLate ? -1 : 0, 18)
+      : undefined,
     technician: seed.technician,
     checkIn: reached("job_card_created")
       ? {

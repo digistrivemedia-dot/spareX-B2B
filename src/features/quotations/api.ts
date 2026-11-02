@@ -4,7 +4,7 @@ import type {
   QuotationRequest,
   QuotationSummary,
 } from "@/features/quotations/types";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, apiClientOrNull } from "@/lib/api-client";
 import { dataSource } from "@/lib/config";
 import type { Paginated } from "@/lib/types";
 import {
@@ -25,7 +25,7 @@ export async function getQuotations(
 /** One quotation with its lines and history, or null if it doesn't exist. */
 export async function getQuotation(id: string): Promise<Quotation | null> {
   if (dataSource.quotations === "mock") return getQuotationMock(id);
-  return apiClient<Quotation | null>(`/quotations/${id}`);
+  return apiClientOrNull<Quotation>(`/quotations/${id}`);
 }
 
 export async function requestQuotation(request: QuotationRequest): Promise<Quotation> {

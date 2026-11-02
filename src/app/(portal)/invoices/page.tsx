@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { DateRangeFilter } from "@/components/ui/DateRangeFilter";
 import { FilterSelect } from "@/components/ui/FilterSelect";
 import { SearchFilter } from "@/components/ui/SearchFilter";
+import { requirePermission } from "@/features/auth/session";
 import { getDocuments } from "@/features/documents/api";
 import { DocumentsTable } from "@/features/documents/components/DocumentsTable";
 import type { DocumentKind } from "@/features/documents/types";
@@ -27,6 +28,7 @@ type InvoicesPageProps = {
 };
 
 export default async function InvoicesPage({ searchParams }: InvoicesPageProps) {
+  await requirePermission("documents:view");
   const params = await searchParams;
   const documents = await getDocuments({
     kind: pickParam(params, "type", KINDS),

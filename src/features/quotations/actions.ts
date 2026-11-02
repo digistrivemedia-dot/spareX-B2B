@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { rejectQuotation, requestQuotation, requestRevision } from "@/features/quotations/api";
 import type { QuotationRequest } from "@/features/quotations/types";
+import { authorizeAction } from "@/features/auth/session";
 import { toActionResult } from "@/lib/actions";
 import type { ActionResult } from "@/lib/types";
 
@@ -17,6 +18,7 @@ export async function requestQuotationAction(
   request: QuotationRequest,
 ): Promise<ActionResult<{ id: string; number: string }>> {
   return toActionResult(async () => {
+    await authorizeAction("quotations:respond");
     const { id, number } = await requestQuotation(request);
     refreshQuotation(id);
     return { id, number };
@@ -28,6 +30,7 @@ export async function requestRevisionAction(
   comment: string,
 ): Promise<ActionResult<null>> {
   return toActionResult(async () => {
+    await authorizeAction("quotations:respond");
     await requestRevision(id, comment);
     refreshQuotation(id);
     return null;
@@ -39,6 +42,7 @@ export async function rejectQuotationAction(
   reason?: string,
 ): Promise<ActionResult<null>> {
   return toActionResult(async () => {
+    await authorizeAction("quotations:respond");
     await rejectQuotation(id, reason);
     refreshQuotation(id);
     return null;

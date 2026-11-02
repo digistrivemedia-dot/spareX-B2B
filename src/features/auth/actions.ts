@@ -6,19 +6,23 @@ import { redirect } from "next/navigation";
 
 import {
   registerBusiness,
+  requestPasswordReset,
+  resendTwoFactorCode,
   resubmitApplication,
+  setPassword,
   signIn,
   verifyTwoFactor,
 } from "@/features/auth/api";
-import { SESSION_COOKIE } from "@/features/auth/session";
 import type {
   RegistrationApplication,
   RegistrationReceipt,
   SignInOutcome,
+  SetPasswordRequest,
   SignInRequest,
   TwoFactorRequest,
 } from "@/features/auth/types";
 import { toActionResult } from "@/lib/actions";
+import { SESSION_COOKIE } from "@/lib/constants";
 import type { ActionResult } from "@/lib/types";
 
 /**
@@ -69,6 +73,27 @@ export async function verifyTwoFactorAction(
   return toActionResult(async () => {
     const { sessionToken } = await verifyTwoFactor(request);
     await startSession(sessionToken);
+    return null;
+  });
+}
+
+export async function resendTwoFactorCodeAction(challengeId: string): Promise<ActionResult<null>> {
+  return toActionResult(async () => {
+    await resendTwoFactorCode(challengeId);
+    return null;
+  });
+}
+
+export async function requestPasswordResetAction(email: string): Promise<ActionResult<null>> {
+  return toActionResult(async () => {
+    await requestPasswordReset(email);
+    return null;
+  });
+}
+
+export async function setPasswordAction(request: SetPasswordRequest): Promise<ActionResult<null>> {
+  return toActionResult(async () => {
+    await setPassword(request);
     return null;
   });
 }
